@@ -1,0 +1,4 @@
+#ifndef GRENDERPASSDEF_H
+#define GRENDERPASSDEF_H
+
+#endif // GRENDERPASSDEF_H

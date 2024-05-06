@@ -13,6 +13,11 @@
 #endif 
 #include <Windows.h>
 #include <Windowsx.h>
+
+#define GLEW_STATIC
+#include "GL/glew.h"
+#include "GL/wglew.h"
+#include <GL/gl.h>
 #include <wchar.h>
 
 
@@ -22,7 +27,10 @@ static MSG win32Msg;
 // common statics
 static GVector windowVector = NULL;
 
+typedef BOOL(WINAPI *PFNWGLSWAPINTERVALEXTPROC)(int);
+typedef HGLRC(WINAPI *PFNWGLCREATECONTEXTATTRIBSARBPROC)(HDC, HGLRC, const int*);
 
+bool InitOpenGL(HWND hWnd, HDC *hDC, HGLRC *hRC);
 static LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 GWindowDef* TryGetWindow(HWND hwnd);
 void ButtonDown(GWindowDef* windowDef, LPARAM lParam, uint8_t button);
@@ -44,6 +52,10 @@ bool GWindowDef_Init() {
         printf("Set up Win32 ok\n");
     }
 
+    if (!glewInit()) {
+        DEBUG_LOG(ERROR, "Failed to start GLEW");
+        return false;
+    }
     return true;
 }
 
@@ -66,6 +78,20 @@ GWindow GWindow_Init(GWindowInfo info) {
         GetModuleHandle(NULL),
         NULL
     );
+
+    if (handle == NULL) {
+        DEBUG_LOG(ERROR, "Failed to create a win32 window.");
+        return NULL;
+    }
+        
+
+    // Initialize OpenGL
+    HDC hDC;
+    HGLRC hRC;
+    if (!InitOpenGL(handle, &hDC, &hRC)) {
+         DEBUG_LOG(ERROR, "Failed to create an OpenGL context.");
+    }
+        
     
     window->title = info.title;
     window->rawHandle = (uintptr_t)handle;
@@ -172,6 +198,11 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
 
     switch (msg) {
         case WM_PAINT:
+            glClearColor(0.25f, 0.25f, 1.0f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+
+            // Swap front and back buffers
+            SwapBuffers(GetDC(hwnd));
             break;
 
         case WM_SIZE:
@@ -285,4 +316,77 @@ void ButtonUp(GWindowDef* windowDef, LPARAM lParam, uint8_t button) {
     if (windowDef->buttonUpDelegate != NULL) {
         (windowDef->buttonUpDelegate)(windowDef, buttonUpLocation, button);
     }
+}
+
+bool InitOpenGL(HWND hWnd, HDC *hDC, HGLRC *hRC) {
+    PIXELFORMATDESCRIPTOR pfd = {
+        sizeof(PIXELFORMATDESCRIPTOR),
+        1,
+        PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
+        PFD_TYPE_RGBA,
+        32, // Color depth
+        0, 0, 0, 0, 0, 0,
+        0,
+        0,
+        0,
+        0, 0, 0, 0,
+        24, // Depth buffer size
+        8,  // Stencil buffer size
+        0,
+        PFD_MAIN_PLANE,
+        0,
+        0, 0, 0
+    };
+
+    *hDC = GetDC(hWnd);
+    if (*hDC == NULL)
+        return false;
+
+    int pixelFormat = ChoosePixelFormat(*hDC, &pfd);
+    if (pixelFormat == 0)
+        return false;
+
+    if (!SetPixelFormat(*hDC, pixelFormat, &pfd))
+        return false;
+
+    *hRC = wglCreateContext(*hDC);
+    if (*hRC == NULL)
+        return false;
+
+    if (!wglMakeCurrent(*hDC, *hRC))
+        return false;
+
+    // Initialize OpenGL extensions (optional)
+    PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = 
+        (PFNWGLCREATECONTEXTATTRIBSARBPROC)wglGetProcAddress("wglCreateContextAttribsARB");
+    if (wglCreateContextAttribsARB == NULL)
+        return false;
+
+    const int attribs[] = {
+        WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
+        WGL_CONTEXT_MINOR_VERSION_ARB, 3,
+        WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+        0
+    };
+
+    HGLRC tempContext = *hRC;
+    *hRC = wglCreateContextAttribsARB(*hDC, NULL, attribs);
+    if (*hRC == NULL) {
+        wglMakeCurrent(NULL, NULL);
+        wglDeleteContext(tempContext);
+        return false;
+    }
+
+    wglDeleteContext(tempContext);
+
+    if (!wglMakeCurrent(*hDC, *hRC))
+        return false;
+
+    // Optionally, set vertical sync
+    PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT = 
+        (PFNWGLSWAPINTERVALEXTPROC)wglGetProcAddress("wglSwapIntervalEXT");
+    if (wglSwapIntervalEXT != NULL)
+        wglSwapIntervalEXT(1); // 1 for enabling vsync, 0 to disable
+
+    return true;
 }

@@ -32,7 +32,7 @@ typedef struct {
     #endif
 
     #ifdef _WIN32
-        
+        HGLRC glContext;
     #endif
 
     GShader shader;

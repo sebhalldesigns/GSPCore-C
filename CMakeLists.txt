@@ -46,7 +46,7 @@ if (UNIX)
 elseif(WIN32)
 
     message("Building GSPCore for Microsoft Windows")
-
+    set(CMAKE_GENERATOR_PLATFORM x64)
 
     set(GSPCORE_SRC
         src/platform/win32/win32_GSPCore.c
@@ -59,7 +59,7 @@ elseif(WIN32)
     add_library(GSPCore STATIC ${GSPCORE_SRC})
     target_include_directories(GSPCore PUBLIC ${CAIRO_INCLUDE_DIRS}  ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR})
 
-
+    target_link_libraries(GSPCore PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib/glew32s.lib opengl32)
 
 else()
     message("Unknown platform" ${CMAKE_PLATFORM})

@@ -54,12 +54,13 @@ elseif(WIN32)
         src/GVector.c
         src/GLog.c
         src/platform/win32/GWindow.c
+        src/graphics/win32/GTextProvider.c
     )
 
     add_library(GSPCore STATIC ${GSPCORE_SRC})
     target_include_directories(GSPCore PUBLIC ${CAIRO_INCLUDE_DIRS}  ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR})
 
-    target_link_libraries(GSPCore PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib/glew32s.lib opengl32)
+    target_link_libraries(GSPCore PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib/glew32s.lib opengl32 gdi32)
 
 else()
     message("Unknown platform" ${CMAKE_PLATFORM})

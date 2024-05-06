@@ -1,13 +1,19 @@
 #ifndef GTEXTPROVIDERDEF_H
 #define GTEXTPROVIDERDEF_H
 
-#include <cairo.h>
+#ifdef UNIX
+    #include <cairo.h>
+#endif
 
 typedef struct {
     char* typeface;
     float size;
-    cairo_surface_t* measureSurface;
-    cairo_t* measureContext; 
+    
+    #ifdef UNIX
+        cairo_surface_t* measureSurface;
+        cairo_t* measureContext; 
+    #endif
+
 } GTextProviderDef;
 
 

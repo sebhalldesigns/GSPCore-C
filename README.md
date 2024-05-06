@@ -1,0 +1,2 @@
+# GSPCore
+OpenGSP Core Library

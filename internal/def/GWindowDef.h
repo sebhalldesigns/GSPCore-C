@@ -5,8 +5,15 @@
 
 #include "GSPCore/Graphics/GGI.h"
 
+#include <stdbool.h>
+
+#ifdef _WIN32
+    #include <Windows.h>
+#endif
+
+
 typedef struct {
-    void* rawHandle;
+    uintptr_t rawHandle;
     int width;
     int height;
     const char* title;
@@ -18,13 +25,23 @@ typedef struct {
     GWindowPointerMoveDelegate pointerMoveDelegate;
     GWindowButtonDownDelegate buttonDownDelegate;
     GWindowButtonUpDelegate buttonUpDelegate;
-    uintptr_t glContext;
-    uintptr_t xDeleteAtom;
+
+    #ifdef UNIX 
+        uintptr_t glContext;
+        uintptr_t xDeleteAtom;
+    #endif
+
+    #ifdef _WIN32
+        
+    #endif
+
     GShader shader;
     GTexture texture;
     GVertexBuffer vertexBuffer;
 } GWindowDef;
 
+// called once by system
+bool GWindowDef_Init();
 void GWindowDef_Poll();
 size_t GWindowDef_NumberOfOpenWindows();
 

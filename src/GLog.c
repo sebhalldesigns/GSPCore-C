@@ -20,12 +20,8 @@ void GLog(GLogLevel level, const char* message, ...) {
             printf("\033[0;93mWARN\033[0m ");
             break;
         }
-        case ERROR: {
+        case FAIL: {
             printf("\033[0;91mERROR\033[0m ");
-            break;
-        }
-        case FAILURE: {
-            printf("\033[1;91mFAIL\033[0m ");
             break;
         }
     }

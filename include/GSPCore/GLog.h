@@ -1,7 +1,7 @@
 #ifndef GLOG_H
 #define GLOG_H
 
-
+#define DEBUG
 #ifdef DEBUG 
 #define DEBUG_LOG(level, ...) GLog(level, __VA_ARGS__)
 #else
@@ -12,8 +12,7 @@
 typedef enum {
     INFO,
     WARNING,
-    ERROR,
-    FAILURE
+    FAIL
 } GLogLevel;
 
 void GLog(GLogLevel level, const char* message, ...);

@@ -13,7 +13,7 @@ GVector GVector_Init() {
     GVector vector = calloc(1, sizeof(GVectorDef));
 
     if (vector == NULL) {
-        DEBUG_LOG(ERROR, "Failed to allocate GVector!");
+        DEBUG_LOG(FAIL, "Failed to allocate GVector!");
         return NULL;
     }
 
@@ -84,7 +84,7 @@ void GVector_Remove(GVector vector, GVectorItem item) {
             uintptr_t* newData = realloc(data, sizeof(uintptr_t) * (size - 1));
 
             if (newData == NULL) {
-                DEBUG_LOG(ERROR, "Failed to resize vector at %lu", vector);
+                DEBUG_LOG(FAIL, "Failed to resize vector at %lu", vector);
                 return;
             }
 

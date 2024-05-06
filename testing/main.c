@@ -12,41 +12,29 @@ void Draw(GWindow window) {
 }
 
 void WindowResized(GWindow window, GWindowSize newSize) {
-    //printf("window resized to %d %d \n", newSize.width, newSize.height);
+    printf("window resized to %d %d \n", newSize.width, newSize.height);
 
-    GTextProvider textProvider = GTextProvider_Alloc("Ubuntu Mono", 20.0);
+    //GTextProvider textProvider = GTextProvider_Alloc("Ubuntu Mono", 20.0);
 
-    GTexture texture = GTextProvider_Render(textProvider, "hello world from GSPCore!");
+    //GTexture texture = GTextProvider_Render(textProvider, "hello world from GSPCore!");
 
-    GTextProvider_Free(textProvider);
+    //GTextProvider_Free(textProvider);
 }
 
 void MouseMove(GWindow window, GWindowPoint point) {
-    //printf("mouse moved to %d %d\n", point.x, point.y);
+    printf("mouse moved to %d %d\n", point.x, point.y);
 }
 
 void MouseDown(GWindow window, GWindowPoint point, uint8_t button) {
-    //printf("mouse %u down\n", button);
+    printf("mouse %u down\n", button);
 }
 
 void MouseUp(GWindow window, GWindowPoint point, uint8_t button) {
-    //printf("mouse %u up\n", button);
+    printf("mouse %u up\n", button);
 }
-
-
-typedef struct {
-    float a;
-    int b;
-    const char* c;
-} exampleStruct;
 
 void LaunchEvent() {
     printf("Launched!\n");
-    GLog(INFO, "info");
-    GLog(WARNING, "warning");
-    GLog(ERROR, "warning");
-    GLog(FAILURE, "warning");
-
     GWindowInfo info = {
         800,
         600,
@@ -60,7 +48,6 @@ void LaunchEvent() {
     GWindow_SetButtonUpDelegate(window, MouseUp);
     GWindow_SetDrawDelegate(window, Draw);
 
-    //GWindow window2 = GWindow_Init(info);
 }
 
 int main() {

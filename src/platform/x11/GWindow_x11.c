@@ -113,6 +113,10 @@ static unsigned int indices[] = {
 GWindowDef* TryGetWindow(Window xWindow);
 void SetupShadersForWindow(GWindowDef* windowDef);
 
+bool GWindowDef_Init() {
+    return true;
+}
+
 GWindow GWindow_Init(GWindowInfo info) {
 
     if (xDisplay == NULL) {
@@ -172,7 +176,7 @@ GWindow GWindow_Init(GWindowInfo info) {
 
 
 
-    GWindowDef* window = malloc(sizeof(GWindowDef));
+    GWindowDef* window =  calloc(1, sizeof(GWindowDef));
 
     if (window == NULL) {
         return NULL;

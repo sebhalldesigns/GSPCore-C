@@ -12,7 +12,7 @@ int GSPRun(GApplication app) {
 
 
     if (app == 0 || ((GApplicationDef*)app)->launchEvent == 0) {
-        GLog(FAILURE, "No app created, or app missing launch callback. Exiting application.");
+        GLog(FAIL, "No app created, or app missing launch callback. Exiting application.");
         return -1;
     }
 

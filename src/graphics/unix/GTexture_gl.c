@@ -35,7 +35,7 @@ GTexture GTexture_AllocFromFile(const char* filePath) {
         glGenerateMipmap(GL_TEXTURE_2D);
         DEBUG_LOG(INFO, "Loaded image from %s", filePath);
     } else {
-        DEBUG_LOG(ERROR, "Failed to load image from %s", filePath);
+        DEBUG_LOG(FAIL, "Failed to load image from %s", filePath);
     }
     stbi_image_free(data);
 
@@ -65,7 +65,7 @@ GTexture GTexture_AllocFromData(uint32_t width, uint32_t height, uint8_t* data) 
         //glGenerateMipmap(GL_TEXTURE_2D);
         DEBUG_LOG(INFO, "Loaded texture from data");
     } else {
-        DEBUG_LOG(ERROR, "Failed to load texture from data");
+        DEBUG_LOG(FAIL, "Failed to load texture from data");
     }
 
     return texture;

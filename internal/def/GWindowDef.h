@@ -26,7 +26,7 @@ typedef struct {
     GWindowButtonDownDelegate buttonDownDelegate;
     GWindowButtonUpDelegate buttonUpDelegate;
 
-    #ifdef UNIX 
+    #ifdef __unix__ 
         uintptr_t glContext;
         uintptr_t xDeleteAtom;
     #endif

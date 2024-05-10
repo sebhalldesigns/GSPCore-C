@@ -48,7 +48,7 @@ GShader GShader_AllocSystemShader(GSystemShader systemShader) {
 
     switch (systemShader) {
         case UNSPECIFIED:
-            DEBUG_LOG(ERROR, "Unspecified shader requested!");
+            DEBUG_LOG(FAIL, "Unspecified shader requested!");
             return NULL;
         case TEXTURE:
             // vertex
@@ -87,7 +87,7 @@ void CheckShaderCompilationErrors(uint32_t shader) {
     glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
     if (!status) {
         glGetShaderInfoLog(shader, 1024, NULL, errorMessageBuffer);
-        DEBUG_LOG(ERROR, "OpenGL Shader compilation failed: %s", errorMessageBuffer);
+        DEBUG_LOG(FAIL, "OpenGL Shader compilation failed: %s", errorMessageBuffer);
     }
 }
 void CheckProgramLinkErrors(uint32_t program) {
@@ -95,6 +95,6 @@ void CheckProgramLinkErrors(uint32_t program) {
     glGetProgramiv(program, GL_LINK_STATUS, &status);
     if (!status) {
         glGetProgramInfoLog(program, 1024, NULL, errorMessageBuffer);
-        DEBUG_LOG(ERROR, "OpenGL Program linking failed: %s", errorMessageBuffer);
+        DEBUG_LOG(FAIL, "OpenGL Program linking failed: %s", errorMessageBuffer);
     }
 }

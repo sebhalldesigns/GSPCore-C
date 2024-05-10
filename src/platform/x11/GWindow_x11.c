@@ -126,13 +126,13 @@ GWindow GWindow_Init(GWindowInfo info) {
     }
 
     if (xDisplay == NULL) {
-        DEBUG_LOG(ERROR, "Failed to connect to an X11 display server!");
+        DEBUG_LOG(FAIL, "Failed to connect to an X11 display server!");
         return NULL;
     }
 
     if (xRoot == 0) {
         XCloseDisplay(xDisplay);
-        DEBUG_LOG(ERROR, "Failed to connect to an X11 root window!");
+        DEBUG_LOG(FAIL, "Failed to connect to an X11 root window!");
         return NULL;
     }
 
@@ -150,7 +150,7 @@ GWindow GWindow_Init(GWindowInfo info) {
         glXMakeCurrent(xDisplay, xWindow, context);
 
         if (glewInit() != GLEW_OK) {
-            DEBUG_LOG(ERROR, "Failed to initialize GLEW");
+            DEBUG_LOG(FAIL, "Failed to initialize GLEW");
             return NULL;
         }
 
@@ -162,7 +162,7 @@ GWindow GWindow_Init(GWindowInfo info) {
     }
 
     if (xWindow == None) {
-        DEBUG_LOG(ERROR, "Failed to create an X11 window");
+        DEBUG_LOG(FAIL, "Failed to create an X11 window");
         return 0;
     }
 
@@ -200,7 +200,7 @@ GWindow GWindow_Init(GWindowInfo info) {
         DEBUG_LOG(INFO, "Allocated GWindow at %lu", window);
         return window;
     } else {
-        DEBUG_LOG(ERROR, "Failed to allocate a window vector.");
+        DEBUG_LOG(FAIL, "Failed to allocate a window vector.");
         return NULL;
     }
 
@@ -272,7 +272,7 @@ void GWindowDef_Poll() {
     GWindowDef* windowDef = TryGetWindow(xEvent.xany.window);
 
     if (windowDef == NULL) {
-        //DEBUG_LOG(ERROR, "Event recieved for unknown window!");
+        //DEBUG_LOG(FAIL, "Event recieved for unknown window!");
         return;
     }
 
@@ -470,14 +470,14 @@ void TryMakeGlVisualInfo() {
     // FBConfigs were added in GLX version 1.3.
     if (!glXQueryVersion(xDisplay, &glx_major, &glx_minor) || 
     ((glx_major == 1) && (glx_minor < 3)) || (glx_major < 1)) {
-        DEBUG_LOG(ERROR, "Invalid GLX Version!");
+        DEBUG_LOG(FAIL, "Invalid GLX Version!");
         return;
     }
 
     int fbcount;
     GLXFBConfig* fbc = glXChooseFBConfig(xDisplay, DefaultScreen(xDisplay), visual_attribs, &fbcount);
     if (!fbc) {
-        DEBUG_LOG(ERROR, "Failed to retrieve a GLX framebuffer config!");
+        DEBUG_LOG(FAIL, "Failed to retrieve a GLX framebuffer config!");
         return;
     }
 
@@ -540,7 +540,7 @@ void TryMakeGlxWindow(Window* xWindow, GLXContext* context, GWindowInfo info) {
 
 
     if (!isExtensionSupported( glxExts, "GLX_ARB_create_context") || !glXCreateContextAttribsARB) {
-        DEBUG_LOG(ERROR, "GLX context creation error");
+        DEBUG_LOG(FAIL, "GLX context creation error");
         return;
     } else {
         int context_attribs[] = {

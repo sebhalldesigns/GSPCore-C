@@ -64,7 +64,7 @@ GFrame GFrame_Alloc(GFrameInfo info) {
     if (SimpleShader == 0) {
 
         if (glewInit() != GLEW_OK) {
-            DEBUG_LOG(ERROR, "Failed to initialize GLEW");
+            DEBUG_LOG(FAIL, "Failed to initialize GLEW");
             return NULL;
         }
 

@@ -1,7 +1,7 @@
 #ifndef GTEXTPROVIDERDEF_H
 #define GTEXTPROVIDERDEF_H
 
-#ifdef UNIX
+#ifdef __unix__
     #include <cairo.h>
 #endif
 
@@ -9,7 +9,7 @@ typedef struct {
     char* typeface;
     float size;
     
-    #ifdef UNIX
+    #ifdef __unix__
         cairo_surface_t* measureSurface;
         cairo_t* measureContext; 
     #endif

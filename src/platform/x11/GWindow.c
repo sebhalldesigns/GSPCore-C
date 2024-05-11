@@ -59,6 +59,7 @@ clock_t start = 0;
 clock_t end = 0;
 double cpu_time_used;
 
+clock_t lastFrameTime = 0;
 
 #define GLX_CONTEXT_MAJOR_VERSION_ARB       0x2091
 #define GLX_CONTEXT_MINOR_VERSION_ARB       0x2092
@@ -293,6 +294,8 @@ clock_t longestPollTimeStamp = 0;
 double longestPollTime = 0.0;
 */
 
+
+
 void GWindowDef_Poll() {
 
     /*clock_t now = clock();
@@ -335,6 +338,7 @@ void GWindowDef_Poll() {
         return;
     }
 
+
     XNextEvent(xDisplay, &xEvent);
 
     GWindowDef* windowDef = TryGetWindow(xEvent.xany.window);
@@ -344,10 +348,19 @@ void GWindowDef_Poll() {
         return;
     }
 
+    // REDRAW WINDOW IF IT NEEDS IT
+
+    clock_t now = clock();
+
+    double timeSinceLastFrame = ((double) (now - lastFrameTime));
+
     if (xEvent.type == Expose) {
         //printf("EXPOSE\n");
 
         RenderWindow((GWindow)windowDef);
+    } else if (windowDef->redrawFlag && timeSinceLastFrame > 1000000.0/144.0) {
+                RenderWindow((GWindow)windowDef);
+
     }
 
     switch(xEvent.type) {
@@ -377,15 +390,15 @@ void GWindowDef_Poll() {
             //printf("Mouse event took %f us to arrive.\n", cpu_time_used);
 
    
-            if (cpu_time_used > 1000.0) {
+            //if (cpu_time_used > 1000.0) {
                 GWindowPoint motionLocation = {xEvent.xmotion.x, xEvent.xmotion.y};
                 if (windowDef->pointerMoveDelegate != NULL) {
                     (windowDef->pointerMoveDelegate)(windowDef->userData, windowDef, motionLocation);
                 }
 
-                start = clock();
+                //start = clock();
 
-            } 
+            //} 
             
 
             break;
@@ -621,6 +634,8 @@ void RenderWindow(GWindow window) {
     double frameTime = ((double) (now - then));
 
     then = now;
+
+    lastFrameTime = now;
 
     printf("FRAME TIME %f us\n", frameTime);
     

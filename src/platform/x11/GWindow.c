@@ -67,6 +67,7 @@ typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXC
 void TryMakeGlVisualInfo();
 void TryMakeGlxWindow(Window* xWindow, GLXContext* context, GWindowInfo info);
 bool isExtensionSupported(const char *extList, const char *extension);
+void RenderWindow(GWindow window);
 
 bool ctxErrorOccurred = false;
 int ctxErrorHandler( Display *dpy, XErrorEvent *ev) {
@@ -287,10 +288,50 @@ void GWindow_Redraw(GWindow window) {
     }
 }
 
+/*clock_t lastPollTimeStamp = 0;
+clock_t longestPollTimeStamp = 0;
+double longestPollTime = 0.0;
+*/
+
 void GWindowDef_Poll() {
+
+    /*clock_t now = clock();
+    double lastPollTime = ((double) (now - lastPollTimeStamp));
+    double timeSinceLongest = ((double) (now - longestPollTimeStamp));
+
+    if (timeSinceLongest > 100000.0) {
+        longestPollTime = lastPollTime;
+        longestPollTimeStamp = now;
+    }
+
+    if (lastPollTime > longestPollTime) {
+        longestPollTime = lastPollTime;
+        longestPollTimeStamp = now;
+        printf("Poll time %f\n", lastPollTime);
+    }
+
+    lastPollTimeStamp = now;*/
+
+    
 
 
     if (!XPending(xDisplay)) { 
+        // /printf("NO EVENTS\n");
+        
+        for (int i = 0; i < GVector_Size(windowVector); i++) {
+        
+            GVectorItem item = GVector_Get(windowVector, i);
+            if (item == NULL) {
+                return NULL;
+            }
+
+            GWindowDef* window = (GWindowDef*)item;
+            if (window->redrawFlag) {
+                RenderWindow(window);
+            }
+            
+        }
+
         return;
     }
 
@@ -303,64 +344,10 @@ void GWindowDef_Poll() {
         return;
     }
 
-    if (xEvent.type == Expose || windowDef->redrawFlag) {
+    if (xEvent.type == Expose) {
         //printf("EXPOSE\n");
 
-            
-
-            glXMakeCurrent(xDisplay, xEvent.xany.window, (GLXContext)windowDef->glContext);
-            /*glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-            glClear(GL_COLOR_BUFFER_BIT);*/
-
-            //glViewport(0,0,windowDef->width, windowDef->height);
-
-            GFrameInfo frameInfo = { 
-                windowDef->width,
-                windowDef->height
-            };
-
-            printf("%d %d\n", windowDef->width, windowDef->height);
-
-            GFrame frame = GFrame_Alloc(frameInfo);
-
-            GColor color = { 1.0, 1.0, 0.0, 1.0};
-            GRect rect = { 0.0, 0.0, 800.0, 600.0};
-            GFrame_Fill(frame, rect, color );
-
-
-            if (windowDef->drawDelegate != NULL) {
-                (windowDef->drawDelegate)(windowDef->userData, (GWindow)windowDef, frame);
-
-                
-            }
-
-            
-                
-
-            
-            glBindFramebuffer(GL_FRAMEBUFFER, 0);
-            glViewport(0,0,windowDef->width, windowDef->height);
-
-             // Use shader program
-            glUseProgram(((GShaderDef*)windowDef->shader)->glShaderProgram);
-            glBindVertexArray(((GVertexBufferDef*)windowDef->vertexBuffer)->glVertexArrayBuffer);
-
-            glBindTexture(GL_TEXTURE_2D, ((GFrameDef*)frame)->glBuffer);
-
-            // Draw quad
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-            GFrame_Free(frame);
-
-            
-
-            
-
-
-            glXSwapBuffers(xDisplay, xEvent.xany.window);
-
-            
-        windowDef->redrawFlag = false;
+        RenderWindow((GWindow)windowDef);
     }
 
     switch(xEvent.type) {
@@ -387,10 +374,10 @@ void GWindowDef_Poll() {
             end = clock();
             cpu_time_used = ((double) (end - start));
 
-            printf("Mouse event took %f us to arrive.\n", cpu_time_used);
+            //printf("Mouse event took %f us to arrive.\n", cpu_time_used);
 
    
-            if (cpu_time_used > 1000000.0/144.0) {
+            if (cpu_time_used > 1000.0) {
                 GWindowPoint motionLocation = {xEvent.xmotion.x, xEvent.xmotion.y};
                 if (windowDef->pointerMoveDelegate != NULL) {
                     (windowDef->pointerMoveDelegate)(windowDef->userData, windowDef, motionLocation);
@@ -623,3 +610,81 @@ void SetupShadersForWindow(GWindowDef* windowDef) {
     //windowDef->texture = GTexture_AllocFromFile("./gsp_logo.png");
 }
 
+
+clock_t then = 0;
+
+
+void RenderWindow(GWindow window) {
+
+    clock_t now = clock();
+
+    double frameTime = ((double) (now - then));
+
+    then = now;
+
+    printf("FRAME TIME %f us\n", frameTime);
+    
+
+
+    if (!GVector_Contains(windowVector, window)) {
+        return;
+    }
+
+    GWindowDef* windowDef = (GWindowDef*)window;
+    
+       
+
+    glXMakeCurrent(xDisplay, xEvent.xany.window, (GLXContext)windowDef->glContext);
+    /*glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT);*/
+
+    //glViewport(0,0,windowDef->width, windowDef->height);
+
+    GFrameInfo frameInfo = { 
+        windowDef->width,
+        windowDef->height
+    };
+
+    printf("%d %d\n", windowDef->width, windowDef->height);
+
+    GFrame frame = GFrame_Alloc(frameInfo);
+
+    GColor color = { 1.0, 1.0, 0.0, 1.0};
+    GRect rect = { 0.0, 0.0, 800.0, 600.0};
+    GFrame_Fill(frame, rect, color );
+
+
+    if (windowDef->drawDelegate != NULL) {
+        (windowDef->drawDelegate)(windowDef->userData, (GWindow)windowDef, frame);
+
+        
+    }
+
+    
+        
+
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glViewport(0,0,windowDef->width, windowDef->height);
+
+        // Use shader program
+    glUseProgram(((GShaderDef*)windowDef->shader)->glShaderProgram);
+    glBindVertexArray(((GVertexBufferDef*)windowDef->vertexBuffer)->glVertexArrayBuffer);
+
+    glBindTexture(GL_TEXTURE_2D, ((GFrameDef*)frame)->glBuffer);
+
+    // Draw quad
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+    GFrame_Free(frame);
+
+    
+
+    
+
+
+    glXSwapBuffers(xDisplay, xEvent.xany.window);
+
+            
+        windowDef->redrawFlag = false;
+}

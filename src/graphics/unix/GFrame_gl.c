@@ -132,6 +132,7 @@ GFrame GFrame_Alloc(GFrameInfo info) {
 }
 
 void GFrame_Free(GFrame frame) {
+
     glDeleteTextures(1, &((GFrameDef*)frame)->glBuffer);
     free((GFrameDef*)frame);
 
@@ -156,7 +157,7 @@ void GFrame_Fill(GFrame frame, GRect rect, GColor color) {
     glClearColor(color.red, color.green, color.blue, color.alpha);
     glClear(GL_COLOR_BUFFER_BIT);
 
-
+    glDeleteFramebuffers(1, &FramebufferName);
 
 }
 
@@ -189,5 +190,8 @@ void GFrame_Composite(GFrame frame, GRect rect, GFrame source) {
 
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+    glDeleteFramebuffers(1, &FramebufferName);
+
 
 }

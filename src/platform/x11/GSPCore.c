@@ -28,7 +28,7 @@ int GSPRun(GApplication app) {
 
 
         GWindowDef_Poll();
-        //sleep(0);
+        sleep(0);
     }
 
     GLog(INFO, "No windows open. Exiting application.");

@@ -32,5 +32,6 @@ void GFrame_Free(GFrame frame);
 
 void GFrame_Fill(GFrame frame, GRect rect, GColor color);
 
+void GFrame_Composite(GFrame frame, GRect rect, GFrame source);
 
 #endif // GFRAME_H

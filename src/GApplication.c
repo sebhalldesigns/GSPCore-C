@@ -22,6 +22,14 @@ GApplication GApplication_Init(GApplicationInfo info) {
     return app;
 }
 
+void GApplication_SetUserData(GApplication app, void* userData) {
+    if (app == NULL) {
+        return;
+    }
+
+    ((GApplicationDef*)app)->userData = userData;
+}
+
 void GApplication_SetLaunchEvent(GApplication app, GApplicationLaunchEvent launchEvent) {
     if (app == NULL) {
         return;

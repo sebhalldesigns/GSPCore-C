@@ -1,6 +1,6 @@
 #include "GSPCore/Graphics/GFrame.h"
 #include "internal/def/Graphics/GFrameDef.h"
-#include "internal/include/GVector.h"
+#include "GSPCore/GVector.h"
 
 #include "GSPCore/GLog.h"
 
@@ -43,10 +43,10 @@ const static char* fragmentShaderSource = "                    \
 // Define the vertices and texture coordinates of the quad
 const static float vertices[] = {
     // Positions          // Texture Coordinates
-        0.5f,  0.5f, 0.0f,   1.0f, 1.0f, // Top Right
-        0.5f, -0.5f, 0.0f,   1.0f, 0.0f, // Bottom Right
-    -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, // Bottom Left
-    -0.5f,  0.5f, 0.0f,   0.0f, 1.0f  // Top Left 
+        1.0f,  1.0f, 0.0f,   1.0f, 1.0f, // Top Right
+        1.0f, -1.0f, 0.0f,   1.0f, 0.0f, // Bottom Right
+    -1.0f, -1.0f, 0.0f,   0.0f, 0.0f, // Bottom Left
+    -1.0f,  1.0f, 0.0f,   0.0f, 1.0f  // Top Left 
 };
 const static unsigned int indices[] = {
     0, 1, 3, // First Triangle
@@ -113,6 +113,7 @@ GFrame GFrame_Alloc(GFrameInfo info) {
         glDeleteShader(vertexShader);
         glDeleteShader(fragmentShader);
 
+
         DEBUG_LOG(INFO, "Set up OpenGL successfully");
     
     }
@@ -138,6 +139,7 @@ void GFrame_Free(GFrame frame) {
 }
 
 void GFrame_Fill(GFrame frame, GRect rect, GColor color) {
+
     GLuint FramebufferName = 0;
     glGenFramebuffers(1, &FramebufferName);
     glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
@@ -148,11 +150,44 @@ void GFrame_Fill(GFrame frame, GRect rect, GColor color) {
     if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         return;
     }
-    
 
     glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
-    glViewport(0,0, ((GFrameDef*)frame)->width, ((GFrameDef*)frame)->height); 
-    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+    glViewport(0,0, rect.width, rect.height); 
+    glClearColor(color.red, color.green, color.blue, color.alpha);
     glClear(GL_COLOR_BUFFER_BIT);
+
+
+
+}
+
+void GFrame_Composite(GFrame frame, GRect rect, GFrame source) {
+
+
+    GLuint FramebufferName = 0;
+    glGenFramebuffers(1, &FramebufferName);
+    glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
+
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, ((GFrameDef*)frame)->glBuffer, 0);
+    GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
+    glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers
+
+   
+
+
+    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+        return;
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
+    glViewport(rect.x,rect.y, rect.width, rect.height); 
+
+    glUseProgram(SimpleShader);
+    glBindVertexArray(VAO);
+
+
+    glBindTexture(GL_TEXTURE_2D, ((GFrameDef*)source)->glBuffer);
+
+
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 }

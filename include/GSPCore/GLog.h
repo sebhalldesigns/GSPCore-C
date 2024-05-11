@@ -15,6 +15,7 @@ typedef enum {
     FAIL
 } GLogLevel;
 
+void GLogSimple(GLogLevel level, const char* message);
 void GLog(GLogLevel level, const char* message, ...);
 
 #endif // GLOG_H

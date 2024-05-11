@@ -2,7 +2,7 @@
 #include "internal/def/GWindowDef.h"
 
 #include "GSPCore/GLog.h"
-#include "internal/include/GVector.h"
+#include "GSPCore/GVector.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -115,6 +115,14 @@ GWindow GWindow_Init(GWindowInfo info) {
     }
 }
 
+void GWindow_SetUserData(GWindow window, void* userData) {
+    if (window == NULL) {
+        return NULL;
+    }
+
+    ((GWindowDef*)window)->userData = userData;
+
+}
 
 void GWindow_SetDrawDelegate(GWindow window, GWindowDrawDelegate drawDelegate) {
     if (GVector_Contains(windowVector, window)) {
@@ -217,7 +225,7 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
                 windowDef->height = newHeight;
                 
                 if (windowDef->resizeDelegate != NULL) {
-                    (windowDef->resizeDelegate)(windowDef, newSize);
+                    (windowDef->resizeDelegate)(windowDef->userData, windowDef, newSize);
                 }
             }
 
@@ -229,7 +237,7 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
 
             GWindowPoint motionLocation = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
             if (windowDef->pointerMoveDelegate != NULL) {
-                (windowDef->pointerMoveDelegate)(windowDef, motionLocation);
+                (windowDef->pointerMoveDelegate)(windowDef->userData, windowDef, motionLocation);
             }
 
             break;
@@ -255,9 +263,9 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
 
                 if (windowDef->willCloseDelegate != NULL) {
 
-                    if ((windowDef->willCloseDelegate)((GWindow)windowDef)) {
+                    if ((windowDef->willCloseDelegate)(windowDef->userData, (GWindow)windowDef)) {
                         if (windowDef->closeDelegate != NULL) {
-                            (windowDef->closeDelegate)((GWindow)windowDef);
+                            (windowDef->closeDelegate)(windowDef->userData, (GWindow)windowDef);
                         }
 
                         GWindow_Close((GWindow)windowDef);
@@ -266,7 +274,7 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
                 } else {
                     
                     if (windowDef->closeDelegate != NULL) {
-                        (windowDef->closeDelegate)((GWindow)windowDef);
+                        (windowDef->closeDelegate)(windowDef->userData, (GWindow)windowDef);
                     }
 
                     GWindow_Close((GWindow)windowDef);
@@ -303,7 +311,7 @@ void ButtonDown(GWindowDef* windowDef, LPARAM lParam, uint8_t button) {
 
     GWindowPoint buttonDownLocation = {ptClient.x, ptClient.y};
     if (windowDef->buttonDownDelegate != NULL) {
-        (windowDef->buttonDownDelegate)(windowDef, buttonDownLocation, button);
+        (windowDef->buttonDownDelegate)(windowDef->userData, windowDef, buttonDownLocation, button);
     }
 }
 
@@ -314,7 +322,7 @@ void ButtonUp(GWindowDef* windowDef, LPARAM lParam, uint8_t button) {
 
     GWindowPoint buttonUpLocation = {ptClient.x, ptClient.y};
     if (windowDef->buttonUpDelegate != NULL) {
-        (windowDef->buttonUpDelegate)(windowDef, buttonUpLocation, button);
+        (windowDef->buttonUpDelegate)(windowDef->userData, windowDef, buttonUpLocation, button);
     }
 }
 

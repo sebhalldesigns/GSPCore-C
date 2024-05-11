@@ -33,19 +33,24 @@ typedef enum {
     METAL
 } GWindowGraphicsInterface;
 
-typedef void(*GWindowDrawDelegate)(GWindow window, GFrame surface);
+typedef void(*GWindowDrawDelegate)(void* userData, GWindow window, GFrame surface);
 
-typedef void(*GWindowCloseDelegate)(GWindow window);
-typedef bool(*GWindowWillCloseDelegate)(GWindow window);
+typedef void(*GWindowCloseDelegate)(void* userData, GWindow window);
+typedef bool(*GWindowWillCloseDelegate)(void* userData, GWindow window);
 
-typedef void(*GWindowResizeDelegate)(GWindow window, GWindowSize size);
-typedef void(*GWindowPointerMoveDelegate)(GWindow window, GWindowPoint newLocation);
-typedef void(*GWindowButtonDownDelegate)(GWindow window, GWindowPoint location, uint8_t button);
-typedef void(*GWindowButtonUpDelegate)(GWindow window, GWindowPoint location, uint8_t button);
+typedef void(*GWindowResizeDelegate)(void* userData, GWindow window, GWindowSize size);
+typedef void(*GWindowPointerMoveDelegate)(void* userData, GWindow window, GWindowPoint newLocation);
+typedef void(*GWindowButtonDownDelegate)(void* userData, GWindow window, GWindowPoint location, uint8_t button);
+typedef void(*GWindowButtonUpDelegate)(void* userData, GWindow window, GWindowPoint location, uint8_t button);
 
 GWindow GWindow_Init(GWindowInfo info);
+void GWindow_SetUserData(GWindow window, void* userData);
+
+
 void GWindow_Close(GWindow window);
 void GWindow_PresentFrame(GFrame frame);
+
+void GWindow_Redraw(GWindow window);
 
 GWindowGraphicsInterface GWindow_GetGraphicsInterface(GWindow window);
 

@@ -13,6 +13,9 @@
 
 
 typedef struct {
+    
+    void* userData;
+
     uintptr_t rawHandle;
     int width;
     int height;
@@ -38,6 +41,7 @@ typedef struct {
     GShader shader;
     GTexture texture;
     GVertexBuffer vertexBuffer;
+    bool redrawFlag;
 } GWindowDef;
 
 // called once by system

@@ -1,8 +1,6 @@
 #ifndef GVECTOR_H
 #define GVECTOR_H
 
-// INTERNAL ONLY CLASS
-
 // GVector - a lightweight, dynamically resizable vector container for pointer types.
 // It is naturally zero-indexed
 

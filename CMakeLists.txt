@@ -21,8 +21,8 @@ if (UNIX)
     find_package(Cairo REQUIRED)
 
     set(GSPCORE_SRC
-        src/platform/x11/GSPCore_x11.c
-        src/platform/x11/GWindow_x11.c
+        src/platform/x11/GSPCore.c
+        src/platform/x11/GWindow.c
         src/GApplication.c
         src/GVector.c
         src/GLog.c
@@ -36,7 +36,7 @@ if (UNIX)
     # Set the C compiler flags
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
 
-    add_library(GSPCore STATIC ${GSPCORE_SRC})
+    add_library(GSPCore SHARED ${GSPCORE_SRC})
 
     target_include_directories(GSPCore PUBLIC ${CAIRO_INCLUDE_DIRS}  ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -49,7 +49,7 @@ elseif(WIN32)
     set(CMAKE_GENERATOR_PLATFORM x64)
 
     set(GSPCORE_SRC
-        src/platform/win32/win32_GSPCore.c
+        src/platform/win32/GSPCore.c
         src/GApplication.c
         src/GVector.c
         src/GLog.c
@@ -57,7 +57,7 @@ elseif(WIN32)
         src/graphics/win32/GTextProvider.c
     )
 
-    add_library(GSPCore STATIC ${GSPCORE_SRC})
+    add_library(GSPCore SHARED ${GSPCORE_SRC})
     target_include_directories(GSPCore PUBLIC ${CAIRO_INCLUDE_DIRS}  ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR})
 
     target_link_libraries(GSPCore PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib/glew32s.lib opengl32 gdi32)
@@ -76,7 +76,7 @@ endif()
 
 
 # Add executable target
-add_executable(Test ${CMAKE_CURRENT_SOURCE_DIR}/testing/main.c)
-target_link_libraries(Test PRIVATE GSPCore)
+#add_executable(Test ${CMAKE_CURRENT_SOURCE_DIR}/testing/main.c)
+#target_link_libraries(Test PRIVATE GSPCore)
 
-target_include_directories(Test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/libraries/GSPCore/include)
+#target_include_directories(Test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/libraries/GSPCore/include)

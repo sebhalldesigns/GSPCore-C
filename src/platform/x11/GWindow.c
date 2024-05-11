@@ -9,7 +9,7 @@
 #include "internal/def/Graphics/GShaderDef.h"
 #include "internal/def/Graphics/GTextureDef.h"
 #include "internal/def/Graphics/GVertexBufferDef.h"
-#include "internal/include/GVector.h"
+#include "GSPCore/GVector.h"
 
 #include "GSPCore/GLog.h"
 
@@ -21,6 +21,10 @@
 #include <GL/glew.h>
 #include <GL/gl.h>
 #include <GL/glx.h>
+
+
+#include <time.h>
+
 
 // common statics
 static GVector windowVector = NULL;
@@ -51,6 +55,11 @@ static int visual_attribs[] = {
     None
 };
 
+clock_t start = 0;
+clock_t end = 0;
+double cpu_time_used;
+
+
 #define GLX_CONTEXT_MAJOR_VERSION_ARB       0x2091
 #define GLX_CONTEXT_MINOR_VERSION_ARB       0x2092
 typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
@@ -66,7 +75,7 @@ int ctxErrorHandler( Display *dpy, XErrorEvent *ev) {
 }
 
 // Vertex shader source code
-const static char* vertexShaderSource = "                      \
+const static char* vertexShaderSource = "               \
     #version 330 core                                   \
     layout (location = 0) in vec3 aPos;                 \
     layout (location = 1) in vec2 aTexCoord;            \
@@ -80,7 +89,7 @@ const static char* vertexShaderSource = "                      \
 ";
 
 // Fragment shader source code
-const static char* fragmentShaderSource = "                    \
+const static char* fragmentShaderSource = "             \
     #version 330 core                                   \
     out vec4 FragColor;                                 \
                                                         \
@@ -96,10 +105,10 @@ const static char* fragmentShaderSource = "                    \
 // Define the vertices and texture coordinates of the quad
 static float vertices[] = {
     // Positions          // Texture Coordinates
-        0.5f,  0.5f, 0.0f,   1.0f, 0.0f, // Top Right
-        0.5f, -0.5f, 0.0f,   1.0f, 1.0f, // Bottom Right
-    -0.5f, -0.5f, 0.0f,   0.0f, 1.0f, // Bottom Left
-    -0.5f,  0.5f, 0.0f,   0.0f, 0.0f  // Top Left 
+    1.0f,  1.0f, 0.0f,   1.0f, 0.0f, // Top Right
+    1.0f, -1.0f, 0.0f,   1.0f, 1.0f, // Bottom Right
+    -1.0f, -1.0f, 0.0f,   0.0f, 1.0f, // Bottom Left
+    -1.0f,  1.0f, 0.0f,   0.0f, 0.0f  // Top Left 
 };
 
 static unsigned int indices[] = {
@@ -158,7 +167,7 @@ GWindow GWindow_Init(GWindowInfo info) {
     }
 
     if (xWindow == None) {
-        xWindow = XCreateSimpleWindow(xDisplay, xRoot, 0, 0, info.width, info.height, 0, 0, 0xffffffff);
+        xWindow = XCreateSimpleWindow(xDisplay, xRoot, 0, 0, info.width, info.height, 0, 0, 0);
     }
 
     if (xWindow == None) {
@@ -203,6 +212,15 @@ GWindow GWindow_Init(GWindowInfo info) {
         DEBUG_LOG(FAIL, "Failed to allocate a window vector.");
         return NULL;
     }
+
+}
+
+void GWindow_SetUserData(GWindow window, void* userData) {
+    if (window == NULL) {
+        return NULL;
+    }
+
+    ((GWindowDef*)window)->userData = userData;
 
 }
 
@@ -260,6 +278,15 @@ void GWindow_Close(GWindow window) {
     }
 }
 
+void GWindow_Redraw(GWindow window) {
+    if (GVector_Contains(windowVector, window)) {
+
+        GWindowDef* windowDef = (GWindowDef*)window;
+    
+        windowDef->redrawFlag = true;
+    }
+}
+
 void GWindowDef_Poll() {
 
 
@@ -276,67 +303,67 @@ void GWindowDef_Poll() {
         return;
     }
 
-    switch(xEvent.type) {
-        case Expose:
+    if (xEvent.type == Expose || windowDef->redrawFlag) {
+        //printf("EXPOSE\n");
 
-            printf("EXPOSE\n");
+            
+
             glXMakeCurrent(xDisplay, xEvent.xany.window, (GLXContext)windowDef->glContext);
-            glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT);
+            /*glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+            glClear(GL_COLOR_BUFFER_BIT);*/
 
-            glViewport(0,0,windowDef->width, windowDef->height);
+            //glViewport(0,0,windowDef->width, windowDef->height);
 
-                   // Bind texture
-            glBindTexture(GL_TEXTURE_2D, ((GTextureDef*)windowDef->texture)->glBuffer);
-
-             // Use shader program
-            glUseProgram(((GShaderDef*)windowDef->shader)->glShaderProgram);
-            glBindVertexArray(((GVertexBufferDef*)windowDef->vertexBuffer)->glVertexArrayBuffer);
-
-     
-
-            // Draw quad
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-             
-
-
-            /*GFrameInfo frameInfo = { 
+            GFrameInfo frameInfo = { 
                 windowDef->width,
                 windowDef->height
             };
 
+            printf("%d %d\n", windowDef->width, windowDef->height);
 
             GFrame frame = GFrame_Alloc(frameInfo);
 
-            GColor color = { 1.0, 0.0, 0.0, 1.0};
+            GColor color = { 1.0, 1.0, 0.0, 1.0};
             GRect rect = { 0.0, 0.0, 800.0, 600.0};
             GFrame_Fill(frame, rect, color );
 
+
             if (windowDef->drawDelegate != NULL) {
+                (windowDef->drawDelegate)(windowDef->userData, (GWindow)windowDef, frame);
+
                 
-                
-                
-                //(windowDef->drawDelegate)((GWindow)windowDef);
             }
 
+            
+                
+
+            
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
             glViewport(0,0,windowDef->width, windowDef->height);
 
              // Use shader program
-            glUseProgram(windowDef->simpleShader);
-            glBindVertexArray(windowDef->simpleVAO);
+            glUseProgram(((GShaderDef*)windowDef->shader)->glShaderProgram);
+            glBindVertexArray(((GVertexBufferDef*)windowDef->vertexBuffer)->glVertexArrayBuffer);
 
             glBindTexture(GL_TEXTURE_2D, ((GFrameDef*)frame)->glBuffer);
 
             // Draw quad
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-            GFrame_Free(frame);*/
+            GFrame_Free(frame);
+
+            
+
+            
+
 
             glXSwapBuffers(xDisplay, xEvent.xany.window);
 
-            break;
+            
+        windowDef->redrawFlag = false;
+    }
+
+    switch(xEvent.type) {
         case ConfigureNotify:
             
             int newWidth = xEvent.xconfigure.width;
@@ -350,24 +377,36 @@ void GWindowDef_Poll() {
                 windowDef->height = newHeight;
                 
                 if (windowDef->resizeDelegate != NULL) {
-                    (windowDef->resizeDelegate)(windowDef, newSize);
+                    (windowDef->resizeDelegate)(windowDef->userData, windowDef, newSize);
                 }
             }
             
             break;
         case MotionNotify:
 
-            GWindowPoint motionLocation = {xEvent.xmotion.x, xEvent.xmotion.y};
-            if (windowDef->pointerMoveDelegate != NULL) {
-                (windowDef->pointerMoveDelegate)(windowDef, motionLocation);
-            }
+            end = clock();
+            cpu_time_used = ((double) (end - start));
+
+            printf("Mouse event took %f us to arrive.\n", cpu_time_used);
+
+   
+            if (cpu_time_used > 1000000.0/144.0) {
+                GWindowPoint motionLocation = {xEvent.xmotion.x, xEvent.xmotion.y};
+                if (windowDef->pointerMoveDelegate != NULL) {
+                    (windowDef->pointerMoveDelegate)(windowDef->userData, windowDef, motionLocation);
+                }
+
+                start = clock();
+
+            } 
+            
 
             break;
         case ButtonPress:
         
             GWindowPoint buttonDownLocation = {xEvent.xbutton.x, xEvent.xbutton.y};
             if (windowDef->buttonDownDelegate != NULL) {
-                (windowDef->buttonDownDelegate)(windowDef, buttonDownLocation, (uint8_t)xEvent.xbutton.button);
+                (windowDef->buttonDownDelegate)(windowDef->userData, windowDef, buttonDownLocation, (uint8_t)xEvent.xbutton.button);
             }
 
             break;
@@ -375,7 +414,7 @@ void GWindowDef_Poll() {
 
             GWindowPoint buttonUpLocation = {xEvent.xbutton.x, xEvent.xbutton.y};
             if (windowDef->buttonUpDelegate != NULL) {
-                (windowDef->buttonUpDelegate)(windowDef, buttonUpLocation, (uint8_t)xEvent.xbutton.button);
+                (windowDef->buttonUpDelegate)(windowDef->userData, windowDef, buttonUpLocation, (uint8_t)xEvent.xbutton.button);
             }
 
             break;
@@ -391,9 +430,9 @@ void GWindowDef_Poll() {
 
                 if (windowDef->willCloseDelegate != NULL) {
 
-                    if ((windowDef->willCloseDelegate)((GWindow)windowDef)) {
+                    if ((windowDef->willCloseDelegate)(windowDef->userData, (GWindow)windowDef)) {
                         if (windowDef->closeDelegate != NULL) {
-                            (windowDef->closeDelegate)((GWindow)windowDef);
+                            (windowDef->closeDelegate)(windowDef->userData, (GWindow)windowDef);
                         }
 
                         GWindow_Close((GWindow)windowDef);
@@ -401,7 +440,7 @@ void GWindowDef_Poll() {
                 } else {
                     
                     if (windowDef->closeDelegate != NULL) {
-                        (windowDef->closeDelegate)((GWindow)windowDef);
+                        (windowDef->closeDelegate)(windowDef->userData, (GWindow)windowDef);
                     }
 
                     GWindow_Close((GWindow)windowDef);
@@ -557,6 +596,7 @@ void TryMakeGlxWindow(Window* xWindow, GLXContext* context, GWindowInfo info) {
         } else {
             return;
         }
+
     }
 
     // Sync to ensure any errors generated are processed.
@@ -582,3 +622,4 @@ void SetupShadersForWindow(GWindowDef* windowDef) {
 
     //windowDef->texture = GTexture_AllocFromFile("./gsp_logo.png");
 }
+

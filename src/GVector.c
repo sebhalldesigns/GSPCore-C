@@ -1,6 +1,6 @@
 #include "GSPCore/GLog.h"
 
-#include "internal/include/GVector.h"
+#include "GSPCore/GVector.h"
 #include "internal/def/GVectorDef.h"
 
 #include <stdlib.h>

@@ -19,8 +19,20 @@ void GRenderManager_Setup(GRenderManagerMode mode) {
 
 void GRenderManager_SetupWindow(GWindow window) {
 
-    if (!GHiperRenderManager_TrySetupWindow(window)) {
-        // set up legacy for window
+    if (isUsingHiper && GHiperRenderManager_TrySetupWindow(window)) {
+        return;
+    }
+
+    // set up legacy for window
+    
+}
+
+void GRenderManager_RenderWindow(GWindow window) {
+    
+    if (isUsingHiper) {
+        GHiperRenderManager_RenderWindow(window);
+    } else {
+        // render legacy
     }
 }
 

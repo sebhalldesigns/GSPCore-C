@@ -11,6 +11,10 @@
     #include <Windows.h>
 #endif
 
+#ifdef __unix__
+
+    #include <vulkan/vulkan.h>
+#endif
 
 typedef struct {
     
@@ -30,8 +34,37 @@ typedef struct {
     GWindowButtonUpDelegate buttonUpDelegate;
 
     #ifdef __unix__ 
-        uintptr_t glContext;
+        void* display;
         uintptr_t xDeleteAtom;
+        VkSurfaceKHR vkSurface;
+
+        VkDevice vkDevice;
+        uint32_t graphicsQueueFamily;
+        uint32_t presentQueueFamily;
+        VkQueue graphicsQueue;
+        VkQueue presentQueue;
+
+        VkSwapchainKHR vkSwapchain;
+        VkFormat vkSwapchainImageFormat;
+        VkExtent2D vkSwapchainExtent;
+
+        uint32_t vkImageCount;
+        VkImage* vkImages;
+        VkImageView* vkImageViews;
+
+        // possibly should be per-window rather than global
+        VkSemaphore imageAvailableSemaphore;
+        VkSemaphore renderingFinishedSemaphore;
+        VkFence inFlightFence;
+
+        VkRenderPass vkRenderPass;
+        VkPipelineLayout vkPipelineLayout;
+        VkPipeline vkPipeline;
+
+        VkFramebuffer* vkFramebuffers;
+
+        VkCommandPool vkCommandPool;
+        VkCommandBuffer vkCommandBuffer;
     #endif
 
     #ifdef _WIN32

@@ -11,6 +11,8 @@ bool GHiperRenderManager_TrySetup(GRenderManagerMode mode);
 
 bool GHiperRenderManager_TrySetupWindow(GWindow window);
 
+void GHiperRenderManager_RenderWindow(GWindow window);
+
 void GHiperRenderManager_CleanupWindow(GWindow window);
 
 void GHiperRenderManager_Cleanup();

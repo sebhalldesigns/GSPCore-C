@@ -16,6 +16,7 @@ void GRenderManager_Setup(GRenderManagerMode mode);
 
 void GRenderManager_SetupWindow(GWindow window);
 
+void GRenderManager_RenderWindow(GWindow window);
 
 void GRenderManager_CleanupWindow(GWindow window);
 

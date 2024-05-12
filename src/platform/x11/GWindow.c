@@ -103,15 +103,16 @@ GWindow GWindow_Init(GWindowInfo info) {
         return NULL;
     }
 
-    GRenderManager_SetupWindow(window);
+    
 
     window->xDeleteAtom = (uintptr_t)deleteMessage;
     window->title = info.title;
     window->rawHandle = (void*)xWindow;
+    window->display = (void*)xDisplay;
     window->width = info.width;
     window->height = info.height;
 
-
+    GRenderManager_SetupWindow(window);
     
 
     if (windowVector == NULL) {
@@ -393,6 +394,8 @@ void RenderWindow(GWindow window) {
     };
 
     printf("%d %d\n", windowDef->width, windowDef->height);
+
+    GRenderManager_RenderWindow(window);
 
     /*GFrame frame = GFrame_Alloc(frameInfo);
 

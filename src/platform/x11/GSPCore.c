@@ -2,6 +2,7 @@
 #include "internal/def/GApplicationDef.h"
 
 #include "GSPCore/GLog.h"
+#include "GSPCore/GRenderManager.h"
 #include "internal/def/GWindowDef.h"
 
 #include <stdlib.h>
@@ -12,8 +13,12 @@ int GSPRun(GApplication app) {
 
     GLog(INFO, "Starting GSPCore...");
 
-    GApplicationDef* applicationDef = (GApplicationDef*)app; 
 
+    GRenderManager_Init(DEFAULT);
+
+    GRenderManager_TryInitHighPerformance(DEFAULT);
+
+    GApplicationDef* applicationDef = (GApplicationDef*)app; 
 
     if (app == 0 || applicationDef->launchEvent == 0) {
         GLog(FAIL, "No app created, or app missing launch callback. Exiting application.");
@@ -32,6 +37,8 @@ int GSPRun(GApplication app) {
     }
 
     GLog(INFO, "No windows open. Exiting application.");
+
+    GRenderManager_Cleanup();
 
     free(applicationDef);
     return 0;

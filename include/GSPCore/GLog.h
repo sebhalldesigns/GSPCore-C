@@ -1,7 +1,10 @@
 #ifndef GLOG_H
 #define GLOG_H
 
-#define DEBUG
+#ifndef DEBUG
+    #define DEBUG
+#endif
+
 #ifdef DEBUG 
 #define DEBUG_LOG(level, ...) GLog(level, __VA_ARGS__)
 #else

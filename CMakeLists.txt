@@ -31,6 +31,8 @@ if (UNIX)
         src/graphics/unix/GShader_gl.c
         src/graphics/unix/GTexture_gl.c
         src/graphics/unix/unix_GTextProvider.c
+
+        src/graphics/vulkan/GRenderManager.c
     )
 
     # Set the C compiler flags

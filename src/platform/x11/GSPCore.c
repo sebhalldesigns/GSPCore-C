@@ -3,6 +3,7 @@
 
 #include "GSPCore/GLog.h"
 #include "GSPCore/GRenderManager.h"
+#include "GSPCore/GHiperRenderManager.h"
 #include "internal/def/GWindowDef.h"
 
 #include <stdlib.h>
@@ -14,9 +15,7 @@ int GSPRun(GApplication app) {
     GLog(INFO, "Starting GSPCore...");
 
 
-    GRenderManager_Init(DEFAULT);
-
-    GRenderManager_TryInitHighPerformance(DEFAULT);
+    GRenderManager_Setup(DEFAULT);
 
     GApplicationDef* applicationDef = (GApplicationDef*)app; 
 

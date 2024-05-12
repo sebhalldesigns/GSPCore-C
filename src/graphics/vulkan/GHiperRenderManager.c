@@ -1,6 +1,6 @@
 // https://github.com/seb-hall/UniversalUI/blob/5bcbce94ba820519da9586a627d0409d2ebd115a/Rendering/source/uRenderManager.cpp
 
-#include "GSPCore/GRenderManager.h"
+#include "GSPCore/GHiperRenderManager.h"
 #include "GSPCore/GLog.h"
 
 #include <stdio.h>
@@ -92,13 +92,8 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL VulkanDebugCallback(
 }
 
 
-
-void GRenderManager_Init(GRenderManagerMode mode) { 
-
-}
-
-bool GRenderManager_TryInitHighPerformance(GRenderManagerMode mode) {
-    GLog(INFO, "Starting Render Manager...");
+bool GHiperRenderManager_TrySetup(GRenderManagerMode mode) {
+    GLog(INFO, "Starting Hiper Render Manager...");
 
     // try to load the vulkan library
     #if WIN32
@@ -436,9 +431,16 @@ bool GRenderManager_TryInitHighPerformance(GRenderManagerMode mode) {
 
 }
 
+bool GHiperRenderManager_TrySetupWindow(GWindow window) {
 
+    GLog(INFO, "GHiperRenderManager setting up for window");
+}
 
-void GRenderManager_Cleanup() {
+void GHiperRenderManager_CleanupWindow(GWindow window) {
+
+}
+
+void GHiperRenderManager_Cleanup() {
 
     // DESTROY DEBUG CALLBACK
     if (ENABLE_VULKAN_DEBUG) { 

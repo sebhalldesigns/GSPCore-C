@@ -10,7 +10,7 @@ typedef struct {
     int minorVersion;
 } GApplicationInfo;
 
-typedef void(*GApplicationLaunchEvent)(void* userData);
+typedef void (*GApplicationLaunchEvent)(void* userData);
 
 // constructor requires info to create. Maybe info should only be constant for that object.
 GApplication GApplication_Init(GApplicationInfo info);

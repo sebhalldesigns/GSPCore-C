@@ -3,8 +3,12 @@
 #include "GSPCore/GHiperRenderManager.h"
 #include "GSPCore/GLog.h"
 
-
+#ifdef _WIN32
+#define VK_USE_PLATFORM_WIN32_KHR
+#endif
+#ifdef __unix__
 #define VK_USE_PLATFORM_XLIB_KHR
+#endif
 #include <vulkan/vulkan.h>
 
 #include "internal/def/GWindowDef.h"
@@ -15,8 +19,9 @@
 #include <stdbool.h>
 #include <string.h>
 
+#ifdef __unix__
 #include <dlfcn.h>
-
+#endif
 
 
 void* vulkanLibrary = NULL;
@@ -39,7 +44,7 @@ typedef struct {
 } VulkanDependency;
 
 VulkanDependency validationLayers[] = {
-    (VulkanDependency) { "VK_LAYER_KHRONOS_validation", false },
+    { "VK_LAYER_KHRONOS_validation", false },
 };
 
 const char* validationLayerNames[] = {
@@ -47,19 +52,19 @@ const char* validationLayerNames[] = {
 };
 
 VulkanDependency extensionDependencies[] = {
-    (VulkanDependency) { "VK_KHR_surface", false },
+    { "VK_KHR_surface", false },
     #ifdef _WIN32
-    (VulkanDependency) { "VK_KHR_win32_surface", false },
+    { "VK_KHR_win32_surface", false },
     #endif
 
     #ifdef __unix__
-    (VulkanDependency) { "VK_KHR_wayland_surface", false },
-    (VulkanDependency) { "VK_KHR_xlib_surface", false },
+    { "VK_KHR_wayland_surface", false },
+    { "VK_KHR_xlib_surface", false },
     #endif
 
     #ifdef DEBUG
-    (VulkanDependency) { "VK_EXT_debug_report", false },
-    (VulkanDependency) { "VK_EXT_debug_utils", false },
+     { "VK_EXT_debug_report", false },
+    { "VK_EXT_debug_utils", false },
     #endif
 };
 
@@ -100,7 +105,7 @@ bool GHiperRenderManager_TrySetup(GRenderManagerMode mode) {
     GLog(INFO, "Starting Hiper Render Manager...");
 
     // try to load the vulkan library
-    #if WIN32
+    #if _WIN32
         vulkanLibrary = LoadLibrary( "vulkan-1.dll" );
     #elif __unix__
         vulkanLibrary = dlopen( "libvulkan.so",  RTLD_NOW | RTLD_GLOBAL );
@@ -195,7 +200,7 @@ bool GHiperRenderManager_TrySetup(GRenderManagerMode mode) {
     // MARK: CREATE INSTANCE
 
     // app info
-    VkApplicationInfo appInfo = {};
+    VkApplicationInfo appInfo = {0};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     appInfo.pApplicationName = "GSPCore";
     appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
@@ -203,7 +208,7 @@ bool GHiperRenderManager_TrySetup(GRenderManagerMode mode) {
     appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
     appInfo.apiVersion = VK_API_VERSION_1_0;
 
-    VkInstanceCreateInfo createInfo = {};
+    VkInstanceCreateInfo createInfo = {0};
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     createInfo.pApplicationInfo = &appInfo;
     createInfo.enabledExtensionCount = numExtensionDependencies;
@@ -363,7 +368,18 @@ bool GHiperRenderManager_TrySetupWindow(GWindow window) {
 
     VkSurfaceKHR surface;
 
-    #ifdef WIN32
+    #ifdef _WIN32
+        VkWin32SurfaceCreateInfoKHR surfaceCreateInfo = {0};
+        surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+        surfaceCreateInfo.hwnd = ((GWindowDef*)window)->rawHandle;
+        surfaceCreateInfo.hinstance = ((GWindowDef*)window)->hinstance;
+
+        if (vkCreateWin32SurfaceKHR(vkInstance, &surfaceCreateInfo, NULL, &surface) != VK_SUCCESS) {
+            GLog(WARNING, "Failed to create Vulkan surface for window!");
+            return false;
+        }
+
+        GLog(INFO, "Created Vulkan surface for window ok!");
     #endif
 
     #ifdef __unix__ 
@@ -500,7 +516,7 @@ bool GHiperRenderManager_TrySetupWindow(GWindow window) {
     VkPresentModeKHR* presentModes = calloc(presentModeCount, sizeof(VkPresentModeKHR));
     vkGetPhysicalDeviceSurfacePresentModesKHR(vkPhysicalDevice,  windowDef->vkSurface,  &presentModeCount, presentModes);
     
-    VkPresentModeKHR presentMode;
+    VkPresentModeKHR presentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
     
     for (int i = 0; i < presentModeCount; i++) {
         if (presentModes[i] == VK_PRESENT_MODE_MAILBOX_KHR) {

@@ -49,21 +49,24 @@ if (UNIX)
 elseif(WIN32)
 
     message("Building GSPCore for Microsoft Windows")
+
+    find_package(Vulkan REQUIRED)
     set(CMAKE_GENERATOR_PLATFORM x64)
 
     set(GSPCORE_SRC
         src/platform/win32/GSPCore.c
+        src/platform/win32/GWindow.c
         src/GApplication.c
         src/GVector.c
         src/GLog.c
-        src/platform/win32/GWindow.c
-        src/graphics/win32/GTextProvider.c
+        src/GRenderManager.c
+        src/graphics/vulkan/GHiperRenderManager.c
     )
 
-    add_library(GSPCore SHARED ${GSPCORE_SRC})
-    target_include_directories(GSPCore PUBLIC ${CAIRO_INCLUDE_DIRS}  ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR})
+    add_library(GSPCore STATIC ${GSPCORE_SRC})
+    target_include_directories(GSPCore PUBLIC  $ENV{VK_SDK_PATH}/include ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR})
 
-    target_link_libraries(GSPCore PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib/glew32s.lib opengl32 gdi32)
+    target_link_libraries(GSPCore PRIVATE gdi32 ${Vulkan_LIBRARIES})
 
 else()
     message("Unknown platform" ${CMAKE_PLATFORM})
@@ -79,7 +82,7 @@ endif()
 
 
 # Add executable target
-#add_executable(Test ${CMAKE_CURRENT_SOURCE_DIR}/testing/main.c)
-#target_link_libraries(Test PRIVATE GSPCore)
+add_executable(Test ${CMAKE_CURRENT_SOURCE_DIR}/testing/main.c)
+target_link_libraries(Test PRIVATE GSPCore)
 
-#target_include_directories(Test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/libraries/GSPCore/include)
+target_include_directories(Test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/libraries/GSPCore/include)

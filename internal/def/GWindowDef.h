@@ -9,6 +9,7 @@
 
 #ifdef _WIN32
     #include <Windows.h>
+     #include <vulkan/vulkan.h>
 #endif
 
 #ifdef __unix__
@@ -36,6 +37,7 @@ typedef struct {
     #ifdef __unix__ 
         void* display;
         uintptr_t xDeleteAtom;
+    #endif
         VkSurfaceKHR vkSurface;
 
         VkDevice vkDevice;
@@ -65,10 +67,10 @@ typedef struct {
 
         VkCommandPool vkCommandPool;
         VkCommandBuffer vkCommandBuffer;
-    #endif
+    
 
     #ifdef _WIN32
-        HGLRC glContext;
+        void* hinstance;
     #endif
 
     GShader shader;

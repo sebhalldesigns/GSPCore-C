@@ -4,6 +4,8 @@
 #include "GSPCore/GLog.h"
 #include "internal/def/GWindowDef.h"
 
+#include "GSPCore/GRenderManager.h"
+#include "GSPCore/GHiperRenderManager.h"
 
 #include <stdlib.h>
 #include <Windows.h>
@@ -11,6 +13,9 @@
 int GSPRun(GApplication app) {
 
     GLog(INFO, "Starting GSPCore...");
+
+    GRenderManager_Setup(DEFAULT);
+
 
     GApplicationDef* applicationDef = (GApplicationDef*)app; 
 
@@ -31,6 +36,8 @@ int GSPRun(GApplication app) {
         GWindowDef_Poll();
         Sleep(0);
     }
+
+     GRenderManager_Cleanup();
 
     GLog(INFO, "No windows open. Exiting application.");
 

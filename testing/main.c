@@ -14,11 +14,11 @@ void Draw(GWindow window) {
 void WindowResized(GWindow window, GWindowSize newSize) {
     printf("window resized to %d %d \n", newSize.width, newSize.height);
 
-    GTextProvider textProvider = GTextProvider_Alloc("Ubuntu Mono", 20.0);
+   // GTextProvider textProvider = GTextProvider_Alloc("Ubuntu Mono", 20.0);
 
-    GTexture texture = GTextProvider_Render(textProvider, "hello world from GSPCore!");
+    //GTexture texture = GTextProvider_Render(textProvider, "hello world from GSPCore!");
 
-    GTextProvider_Free(textProvider);
+    //GTextProvider_Free(textProvider);
 }
 
 void MouseMove(GWindow window, GWindowPoint point) {

@@ -1,6 +1,9 @@
 #include <stdint.h>
 
-
+// unsure if data type should refer to just this message or subsequent messages as well
+// if calling a function that requires different types, needs to be separate
+// if calling a function with a long type such as string, may want a single variable 
+// to take up more than 1 packet
 // UPPER HALF OF dataType byte (0xF0 mask), lower half is max array index (1-16)
 #define VOID 0
 #define OBJECT 1
@@ -15,8 +18,8 @@
 #define FLOAT32 10
 #define FLOAT64 11
 #define STRING 12
-#define STRUCT 13
-#define ENUM 14
+#define ENUM 13
+#define TYPE 14 // e.g a class or struct type, used for intialisation or registering a class at runtime
 #define ARBITRARY 15
 
 // UPPER HALF OF commandByte (0xF0 mask), lower half is number of messages remaining for this call (up to 128 bytes per call)

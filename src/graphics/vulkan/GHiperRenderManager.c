@@ -464,7 +464,7 @@ bool GHiperRenderManager_TrySetupWindow(GWindow window) {
 
     // enable GPU features here
     VkPhysicalDeviceFeatures enabledFeatures = {0};
-
+    enabledFeatures.shaderClipDistance = VK_TRUE;
     deviceCreateInfo.pEnabledFeatures = &enabledFeatures;
 
     // enable swapchain for logical device

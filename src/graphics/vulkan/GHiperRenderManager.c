@@ -906,7 +906,7 @@ void GHiperRenderManager_RenderWindow(GWindow window) {
 
     vkWaitForFences(windowDef->vkDevice, 1, &windowDef->inFlightFence, VK_TRUE, UINT64_MAX);
 
-    if (windowDef->vkSwapchainExtent.width != windowDef->width || windowDef->vkSwapchainExtent.height != windowDef->height) {
+    if ( false /*windowDef->vkSwapchainExtent.width != windowDef->width || windowDef->vkSwapchainExtent.height != windowDef->height*/) {
         GLog(INFO, "Window resized! Recreating swapchain...");
         vkDeviceWaitIdle(windowDef->vkDevice);
 

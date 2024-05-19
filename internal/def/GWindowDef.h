@@ -38,40 +38,44 @@ typedef struct {
         void* display;
         uintptr_t xDeleteAtom;
     #endif
-        VkSurfaceKHR vkSurface;
 
-        VkDevice vkDevice;
-        uint32_t graphicsQueueFamily;
-        uint32_t presentQueueFamily;
-        VkQueue graphicsQueue;
-        VkQueue presentQueue;
-
-        VkSwapchainKHR vkSwapchain;
-        VkFormat vkSwapchainImageFormat;
-        VkExtent2D vkSwapchainExtent;
-
-        uint32_t vkImageCount;
-        VkImage* vkImages;
-        VkImageView* vkImageViews;
-
-        // possibly should be per-window rather than global
-        VkSemaphore imageAvailableSemaphore;
-        VkSemaphore renderingFinishedSemaphore;
-        VkFence inFlightFence;
-
-        VkRenderPass vkRenderPass;
-        VkPipelineLayout vkPipelineLayout;
-        VkPipeline vkPipeline;
-
-        VkFramebuffer* vkFramebuffers;
-
-        VkCommandPool vkCommandPool;
-        VkCommandBuffer vkCommandBuffer;
-    
-
-    #ifdef _WIN32
+        #ifdef _WIN32
         void* hinstance;
     #endif
+
+
+    VkSurfaceKHR vkSurface;
+
+    VkDevice vkDevice;
+    uint32_t graphicsQueueFamily;
+    uint32_t presentQueueFamily;
+    VkQueue graphicsQueue;
+    VkQueue presentQueue;
+
+    VkSwapchainKHR vkSwapchain;
+    VkFormat vkSwapchainImageFormat;
+    VkExtent2D vkSwapchainExtent;
+
+    uint32_t vkImageCount;
+    VkImage* vkImages;
+    VkImageView* vkImageViews;
+
+    // possibly should be per-window rather than global
+    VkSemaphore imageAvailableSemaphore;
+    VkSemaphore renderingFinishedSemaphore;
+    VkFence inFlightFence;
+
+    VkRenderPass vkRenderPass;
+    VkPipelineLayout vkPipelineLayout;
+    VkPipeline vkPipeline;
+
+    size_t vkFramebufferCount;
+    VkFramebuffer* vkFramebuffers; 
+
+    VkCommandPool vkCommandPool;
+    VkCommandBuffer vkCommandBuffer;
+
+
 
     GShader shader;
     GTexture texture;

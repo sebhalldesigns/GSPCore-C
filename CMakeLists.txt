@@ -19,6 +19,7 @@ if (UNIX)
     # Find X11 library
     find_package(X11 REQUIRED)
     find_package(Cairo REQUIRED)
+        find_package(Vulkan REQUIRED)
 
     set(GSPCORE_SRC
         src/platform/x11/GSPCore.c
@@ -44,7 +45,7 @@ if (UNIX)
     target_include_directories(GSPCore PUBLIC ${CAIRO_INCLUDE_DIRS}  ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR})
 
     # Link X11 library
-    target_link_libraries(GSPCore ${X11_LIBRARIES} GL GLEW m ${CAIRO_LIBRARIES})
+    target_link_libraries(GSPCore ${X11_LIBRARIES} GL GLEW m ${CAIRO_LIBRARIES} ${Vulkan_LIBRARIES})
 
 elseif(WIN32)
 

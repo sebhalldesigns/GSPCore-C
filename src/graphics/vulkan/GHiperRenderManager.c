@@ -821,6 +821,7 @@ bool GHiperRenderManager_TrySetupWindow(GWindow window) {
     // MARK: CREATE FRAMEBUFFERS
 
     // ALLOC @windowDef->vkFramebuffers
+    windowDef->vkFramebufferCount = windowDef->vkImageCount;
     windowDef->vkFramebuffers = calloc(windowDef->vkImageCount, sizeof(VkFramebuffer));
 
     for (int i = 0; i < windowDef->vkImageCount; i++) {
@@ -904,7 +905,173 @@ void GHiperRenderManager_RenderWindow(GWindow window) {
     GLog(INFO, "High Performance Render Manager rendering...");
 
     vkWaitForFences(windowDef->vkDevice, 1, &windowDef->inFlightFence, VK_TRUE, UINT64_MAX);
+
+    if (windowDef->vkSwapchainExtent.width != windowDef->width || windowDef->vkSwapchainExtent.height != windowDef->height) {
+        GLog(INFO, "Window resized! Recreating swapchain...");
+        vkDeviceWaitIdle(windowDef->vkDevice);
+
+        for (size_t i = 0; i < windowDef->vkFramebufferCount; i++) {
+            vkDestroyFramebuffer(windowDef->vkDevice, windowDef->vkFramebuffers[i], NULL);
+        }
+
+        for (size_t i = 0; i < windowDef->vkImageCount; i++) {
+            vkDestroyImageView(windowDef->vkDevice, windowDef->vkImageViews[i], NULL);
+        }
+
+        vkDestroySwapchainKHR(windowDef->vkDevice, windowDef->vkSwapchain, NULL);
+
+        // get surface formats and present modes
+        uint32_t formatCount;
+        vkGetPhysicalDeviceSurfaceFormatsKHR(vkPhysicalDevice,  windowDef->vkSurface, &formatCount, NULL);
+
+        // ALLOC @surfaceFormats
+        VkSurfaceFormatKHR* surfaceFormats = calloc(formatCount, sizeof(VkSurfaceFormatKHR));
+        vkGetPhysicalDeviceSurfaceFormatsKHR(vkPhysicalDevice, windowDef->vkSurface, &formatCount, surfaceFormats);
+
+        VkSurfaceFormatKHR surfaceFormat = surfaceFormats[0];
+        
+        for (int i = 0; i < formatCount; i++) {
+            if (surfaceFormats[i].colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR && surfaceFormats[i].format == VK_FORMAT_B8G8R8A8_SRGB) {
+                surfaceFormat = surfaceFormats[i];
+            }
+        }
+
+        // FREE @surfaceFormats
+        free(surfaceFormats);
+
+        uint32_t presentModeCount;
+        vkGetPhysicalDeviceSurfacePresentModesKHR(vkPhysicalDevice,  windowDef->vkSurface, &presentModeCount, NULL);
+
+        // ALLOC @presentModes
+        VkPresentModeKHR* presentModes = calloc(presentModeCount, sizeof(VkPresentModeKHR));
+        vkGetPhysicalDeviceSurfacePresentModesKHR(vkPhysicalDevice,  windowDef->vkSurface,  &presentModeCount, presentModes);
+        
+        VkPresentModeKHR presentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
+        
+        for (int i = 0; i < presentModeCount; i++) {
+            if (presentModes[i] == VK_PRESENT_MODE_MAILBOX_KHR) {
+                presentMode = presentModes[i];
+            }
+        }
+
+        // FREE @presentModes
+        free(presentModes);
+
+        VkExtent2D extent;
+
+        VkSurfaceCapabilitiesKHR capabilities = {0};
+        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(vkPhysicalDevice, windowDef->vkSurface, &capabilities);
+
+        if (capabilities.currentExtent.width != UINT32_MAX) {
+            extent = capabilities.currentExtent;
+        } else if (capabilities.minImageExtent.width < windowDef->width && 
+                capabilities.maxImageExtent.width > windowDef->width && 
+                capabilities.minImageExtent.height < windowDef->height && 
+                capabilities.maxImageExtent.height > windowDef->height) {
+            extent = (VkExtent2D) { windowDef->width, windowDef->height };
+        }
+
+        uint32_t imageCount = capabilities.minImageCount + 1;
+        if (capabilities.maxImageCount > 0 && imageCount > capabilities.maxImageCount) {
+            imageCount = capabilities.maxImageCount;
+        }
+
+        VkSwapchainCreateInfoKHR swapchainCreateInfo = {0};
+        swapchainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+        swapchainCreateInfo.surface = windowDef->vkSurface;
+
+        swapchainCreateInfo.minImageCount = imageCount;
+        swapchainCreateInfo.imageFormat = surfaceFormat.format;
+        swapchainCreateInfo.imageColorSpace = surfaceFormat.colorSpace;
+        swapchainCreateInfo.imageExtent = extent;
+        swapchainCreateInfo.imageArrayLayers = 1;
+        swapchainCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+
+        uint32_t queueFamilyIndices[] = { windowDef->graphicsQueueFamily, windowDef->presentQueueFamily};
+
+        if (queueFamilyIndices[0] != queueFamilyIndices[1]) {
+            swapchainCreateInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+            swapchainCreateInfo.queueFamilyIndexCount = 2;
+            swapchainCreateInfo.pQueueFamilyIndices = queueFamilyIndices;
+        } else {
+            swapchainCreateInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+        }
+
+        swapchainCreateInfo.preTransform = capabilities.currentTransform;
+        swapchainCreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+        swapchainCreateInfo.presentMode = presentMode;
+        swapchainCreateInfo.clipped = VK_TRUE;
+
+        swapchainCreateInfo.oldSwapchain = VK_NULL_HANDLE;
+
+        if (vkCreateSwapchainKHR(windowDef->vkDevice, &swapchainCreateInfo, NULL, &windowDef->vkSwapchain) != VK_SUCCESS) {
+            GLog(WARNING, "Failed to create Vulkan swapchain!");
+            return false;
+        }
+    
+        windowDef->vkSwapchainImageFormat = surfaceFormat.format;
+        windowDef->vkSwapchainExtent = extent;
+
+
+        // MARK: CREATE IMAGES
+
+        vkGetSwapchainImagesKHR(windowDef->vkDevice, windowDef->vkSwapchain, &windowDef->vkImageCount, NULL);
+
+        // ALLOC @windowDef->vkImages
+        windowDef->vkImages = calloc(windowDef->vkImageCount, sizeof(VkImage));
+        vkGetSwapchainImagesKHR(windowDef->vkDevice, windowDef->vkSwapchain, &windowDef->vkImageCount, windowDef->vkImages);
+        
+        // ALLOC @windowDef->vkImageViews
+        windowDef->vkImageViews = calloc(windowDef->vkImageCount, sizeof(VkImageView));
+
+        VkImageViewCreateInfo imageViewCreateInfo = {0};
+        imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+        imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        imageViewCreateInfo.format = windowDef->vkSwapchainImageFormat;
+        imageViewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+        imageViewCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+        imageViewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+        imageViewCreateInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+        imageViewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        imageViewCreateInfo.subresourceRange.baseMipLevel = 0;
+        imageViewCreateInfo.subresourceRange.levelCount = 1;
+        imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
+        imageViewCreateInfo.subresourceRange.layerCount = 1;
+
+        for (int i = 0; i < windowDef->vkImageCount; i++) {
+            imageViewCreateInfo.image = windowDef->vkImages[i];
+            if (vkCreateImageView(windowDef->vkDevice, &imageViewCreateInfo, NULL, &windowDef->vkImageViews[i]) != VK_SUCCESS) {
+                GLog(WARNING, "Failed to create Vulkan image view!");
+                return false;
+            }
+        }
+
+            for (int i = 0; i < windowDef->vkImageCount; i++) {
+
+                VkImageView attachments[] = {
+                    windowDef->vkImageViews[i]
+                };
+
+                VkFramebufferCreateInfo framebufferInfo = {0};
+                framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+                framebufferInfo.renderPass = windowDef->vkRenderPass;
+                framebufferInfo.attachmentCount = 1;
+                framebufferInfo.pAttachments = attachments;
+                framebufferInfo.width = windowDef->vkSwapchainExtent.width;
+                framebufferInfo.height = windowDef->vkSwapchainExtent.height;
+                framebufferInfo.layers = 1;
+
+                if (vkCreateFramebuffer(windowDef->vkDevice, &framebufferInfo, NULL, &windowDef->vkFramebuffers[i]) != VK_SUCCESS) {
+                    GLog(WARNING, "Failed to create Vulkan framebuffer");
+                    return false;
+                }
+            }
+
+
+    }
+
     vkResetFences(windowDef->vkDevice, 1, &windowDef->inFlightFence);
+
 
     uint32_t imageIndex;
     vkAcquireNextImageKHR(windowDef->vkDevice, windowDef->vkSwapchain, UINT64_MAX, windowDef->imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);

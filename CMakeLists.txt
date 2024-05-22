@@ -10,7 +10,48 @@ message("\nBuilding GSPCore")
 
 add_compile_definitions(DEBUG)
 
-if (UNIX)
+if(EMSCRIPTEN)
+    message("Building GSPCore for WASM")
+
+    set(GSPCORE_SRC
+        src/platform/wasm/GSPCore.c
+        ##src/platform/wasm/GWindow.c
+        src/GApplication.c
+        src/GVector.c
+        src/GLog.c
+        #src/graphics/unix/GFrame_gl.c
+        #src/graphics/unix/GVertexBuffer_gl.c
+        #src/graphics/unix/GShader_gl.c
+        #src/graphics/unix/GTexture_gl.c
+        #src/graphics/unix/unix_GTextProvider.c
+
+        #src/GRenderManager.c
+        #src/graphics/vulkan/GHiperRenderManager.c
+    )
+
+    add_library(GSPCore STATIC ${GSPCORE_SRC})
+    set_target_properties(GSPCore PROPERTIES LINK_FLAGS "-s EXPORTED_RUNTIME_METHODS=['ccall','cwrap']")
+
+    target_include_directories(GSPCore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR})
+
+    # Add executable target
+    add_executable(Test ${CMAKE_CURRENT_SOURCE_DIR}/testing/main.c)
+    target_link_libraries(Test PRIVATE GSPCore)
+    target_include_directories(Test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/libraries/GSPCore/include)
+    
+    set(CMAKE_EXECUTABLE_SUFFIX ".js")
+    set_target_properties(Test PROPERTIES OUTPUT_NAME "index")
+    set_target_properties(Test PROPERTIES LINK_FLAGS "-s EXPORTED_RUNTIME_METHODS=['ccall','cwrap']")
+
+
+    # Copy custom HTML file to the output directory
+    add_custom_command(
+        TARGET Test POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/resources/wasm/gspcore.html ${CMAKE_BINARY_DIR}/index.html
+    )
+
+
+elseif (UNIX)
 
     message("Building GSPCore for UNIX/Linux")
 
@@ -47,6 +88,12 @@ if (UNIX)
     # Link X11 library
     target_link_libraries(GSPCore ${X11_LIBRARIES} GL GLEW m ${CAIRO_LIBRARIES} ${Vulkan_LIBRARIES})
 
+    # Add executable target
+    add_executable(Test ${CMAKE_CURRENT_SOURCE_DIR}/testing/main.c)
+    target_link_libraries(Test PRIVATE GSPCore)
+
+    target_include_directories(Test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/libraries/GSPCore/include)
+
 elseif(WIN32)
 
     message("Building GSPCore for Microsoft Windows")
@@ -68,6 +115,12 @@ elseif(WIN32)
     target_include_directories(GSPCore PUBLIC  $ENV{VK_SDK_PATH}/include ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR})
 
     target_link_libraries(GSPCore PRIVATE gdi32 ${Vulkan_LIBRARIES})
+    
+    # Add executable target
+    add_executable(Test ${CMAKE_CURRENT_SOURCE_DIR}/testing/main.c)
+    target_link_libraries(Test PRIVATE GSPCore)
+
+    target_include_directories(Test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/libraries/GSPCore/include)
 
 else()
     message("Unknown platform" ${CMAKE_PLATFORM})
@@ -78,12 +131,3 @@ endif()
 
 
 
-
-#add_subdirectory(libraries)
-
-
-# Add executable target
-add_executable(Test ${CMAKE_CURRENT_SOURCE_DIR}/testing/main.c)
-target_link_libraries(Test PRIVATE GSPCore)
-
-target_include_directories(Test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/libraries/GSPCore/include)

@@ -178,7 +178,7 @@ size_t GVector_IndexOf(GVector vector, GVectorItem item) {
 void GVector_Inspect(GVector vector) {
 
     if (vector == NULL) {
-        return SIZE_MAX;
+        return;
     } 
 
     uintptr_t* data = ((GVectorDef*)vector)->data;

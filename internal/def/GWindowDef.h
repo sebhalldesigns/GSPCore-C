@@ -7,12 +7,13 @@
 
 #include <stdbool.h>
 
-#ifdef _WIN32
+#ifdef EMSCRIPTEN
+
+#elif  _WIN32
     #include <Windows.h>
      #include <vulkan/vulkan.h>
-#endif
 
-#ifdef __unix__
+#elif __unix__
 
     #include <vulkan/vulkan.h>
 #endif
@@ -33,47 +34,50 @@ typedef struct {
     GWindowPointerMoveDelegate pointerMoveDelegate;
     GWindowButtonDownDelegate buttonDownDelegate;
     GWindowButtonUpDelegate buttonUpDelegate;
-
-    #ifdef __unix__ 
+    
+    #ifdef EMSCRIPTEN
+    
+    #elif  _WIN32
+           void* hinstance;
+    #elif __unix__ 
         void* display;
         uintptr_t xDeleteAtom;
     #endif
 
-        #ifdef _WIN32
-        void* hinstance;
+    #ifdef EMSCRIPTEN
+
+    #elif defined _WIN32 || defined __unix__
+        VkSurfaceKHR vkSurface;
+
+        VkDevice vkDevice;
+        uint32_t graphicsQueueFamily;
+        uint32_t presentQueueFamily;
+        VkQueue graphicsQueue;
+        VkQueue presentQueue;
+
+        VkSwapchainKHR vkSwapchain;
+        VkFormat vkSwapchainImageFormat;
+        VkExtent2D vkSwapchainExtent;
+
+        uint32_t vkImageCount;
+        VkImage* vkImages;
+        VkImageView* vkImageViews;
+
+        // possibly should be per-window rather than global
+        VkSemaphore imageAvailableSemaphore;
+        VkSemaphore renderingFinishedSemaphore;
+        VkFence inFlightFence;
+
+        VkRenderPass vkRenderPass;
+        VkPipelineLayout vkPipelineLayout;
+        VkPipeline vkPipeline;
+
+        size_t vkFramebufferCount;
+        VkFramebuffer* vkFramebuffers; 
+
+        VkCommandPool vkCommandPool;
+        VkCommandBuffer vkCommandBuffer;
     #endif
-
-
-    VkSurfaceKHR vkSurface;
-
-    VkDevice vkDevice;
-    uint32_t graphicsQueueFamily;
-    uint32_t presentQueueFamily;
-    VkQueue graphicsQueue;
-    VkQueue presentQueue;
-
-    VkSwapchainKHR vkSwapchain;
-    VkFormat vkSwapchainImageFormat;
-    VkExtent2D vkSwapchainExtent;
-
-    uint32_t vkImageCount;
-    VkImage* vkImages;
-    VkImageView* vkImageViews;
-
-    // possibly should be per-window rather than global
-    VkSemaphore imageAvailableSemaphore;
-    VkSemaphore renderingFinishedSemaphore;
-    VkFence inFlightFence;
-
-    VkRenderPass vkRenderPass;
-    VkPipelineLayout vkPipelineLayout;
-    VkPipeline vkPipeline;
-
-    size_t vkFramebufferCount;
-    VkFramebuffer* vkFramebuffers; 
-
-    VkCommandPool vkCommandPool;
-    VkCommandBuffer vkCommandBuffer;
 
 
 

@@ -1,6 +1,9 @@
 #include "GSPCore/GSPCore.h"
 #include "GSPCore/GLog.h"
 
+#include "GSPCore/GWindow.h"
+#include "GSPCore/UI/GView.h"
+
 #include <stdio.h>
 
 void LaunchEvent() {
@@ -17,7 +20,14 @@ void LaunchEvent() {
     GWindow_SetButtonDownDelegate(window, MouseDown);
     GWindow_SetButtonUpDelegate(window, MouseUp);
     GWindow_SetDrawDelegate(window, Draw);*/
+    GViewInfo viewInfo = (GViewInfo) { 
+        (URect) { 10.0, 10.0, 100.0, 100.0 },
+        (UColor) { 255.0, 0.0, 0.0, 255.0 }
+    };
 
+    GView rootView = GView_Alloc(viewInfo);
+
+    GWindow_SetRootView(rootView);
 }
 
 int main() {

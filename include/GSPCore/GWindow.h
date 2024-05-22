@@ -7,6 +7,8 @@
 
 #include "Graphics/GFrame.h"
 
+#include "UI/GView.h"
+
 typedef void* GWindow;
 
 typedef struct {
@@ -62,6 +64,9 @@ void GWindow_SetResizeDelegate(GWindow window, GWindowResizeDelegate resizeDeleg
 void GWindow_SetPointerMoveDelegate(GWindow window, GWindowPointerMoveDelegate pointerMoveDelegate);
 void GWindow_SetButtonDownDelegate(GWindow window, GWindowButtonDownDelegate buttonDownDelegate);
 void GWindow_SetButtonUpDelegate(GWindow window, GWindowButtonUpDelegate buttonUpDelegate);
+
+// Stateful functions
+void GWindow_SetRootView(GView view);
 
 
 #endif // GWINDOW_H

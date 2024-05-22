@@ -4,13 +4,6 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-typedef void* GView;
-
-
-GView GView_Alloc();
-
-void GView_Free();
-
 // UPoint defines a simple point in view space
 typedef struct {
     float x;
@@ -44,5 +37,43 @@ typedef struct {
     URotation rotation;
     UScale scale;
 } UTransform;
+
+typedef struct {
+    float red;
+    float green;
+    float blue;
+    float alpha;
+} UColor;
+
+typedef enum {
+    GVIEWLAYOUT_NONE,
+    
+    
+
+    // for fixed element width and height
+    GVIEWLAYOUT_FITWRAP,
+    
+    // for elements with fixed min width, can expand
+    GVIEWLAYOUT_FILLWRAP,
+
+    
+
+} GViewLayout;
+
+
+typedef struct {
+    URect frame;
+    UColor color;
+} GViewInfo;
+
+typedef void* GView;
+
+
+GView GView_Alloc(GViewInfo info);
+
+void GView_Free();
+
+
+
 
 #endif // GVIEW_H

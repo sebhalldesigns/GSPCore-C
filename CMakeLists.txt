@@ -15,10 +15,11 @@ if(EMSCRIPTEN)
 
     set(GSPCORE_SRC
         src/platform/wasm/GSPCore.c
-        ##src/platform/wasm/GWindow.c
+        src/platform/wasm/GWindow.c
         src/GApplication.c
         src/GVector.c
         src/GLog.c
+        src/UI/GView.c
         #src/graphics/unix/GFrame_gl.c
         #src/graphics/unix/GVertexBuffer_gl.c
         #src/graphics/unix/GShader_gl.c

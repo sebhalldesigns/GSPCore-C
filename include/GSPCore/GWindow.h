@@ -66,7 +66,7 @@ void GWindow_SetButtonDownDelegate(GWindow window, GWindowButtonDownDelegate but
 void GWindow_SetButtonUpDelegate(GWindow window, GWindowButtonUpDelegate buttonUpDelegate);
 
 // Stateful functions
-void GWindow_SetRootView(GView view);
+void GWindow_SetRootView(GWindow window, GView view);
 
 
 #endif // GWINDOW_H

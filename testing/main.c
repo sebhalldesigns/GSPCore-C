@@ -27,7 +27,7 @@ void LaunchEvent() {
 
     GView rootView = GView_Alloc(viewInfo);
 
-    GWindow_SetRootView(rootView);
+    GWindow_SetRootView(NULL, rootView);
 }
 
 int main() {

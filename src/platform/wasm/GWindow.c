@@ -16,7 +16,7 @@ void GWindow_SetResizeDelegate(GWindow window, GWindowResizeDelegate resizeDeleg
 
 
 
-void GWindow_SetRootView(GView view) {
+void GWindow_SetRootView(GWindow window, GView view) {
     printf("SETTING ROOT VIEW\n");
     /*
     EM_ASM({

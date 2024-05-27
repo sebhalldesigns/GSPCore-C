@@ -34,11 +34,11 @@ out vec2 TexCoord;\n\
 uniform vec2 uPos;\n\
 uniform vec2 uSize;\n\
 uniform vec2 uViewportSize;\n\
-uniform mat4 uProjectionMatrix; // Orthographic projection matrix uniform \n\
 \n\
 void main() {\n\
-    vec2 normalised = vec2((aPos*uSize)/uViewportSize);\n\
-    gl_Position = vec4(normalised * 2.0 - 1.0, 0.0, 1.0);\n\
+    vec2 proportionalPosition = vec2((aPos*uSize + uPos)/uViewportSize);\n\
+    vec2 normalisedPosition = (proportionalPosition * 2.0 - 1.0); \n\
+    gl_Position = vec4(normalisedPosition  * vec2(1.0, -1.0), 0.0, 1.0);\n\
     TexCoord = aPos;\n\
 }\n\
 ";
@@ -53,7 +53,7 @@ out vec4 FragColor;\n\
 uniform sampler2D uTexture;\n\
 \n\
 void main() {\n\
-    FragColor = vec4(1.0, 0.0, 0.0, 1.0);//texture(uTexture, TexCoord);\n\
+    FragColor = texture(uTexture, TexCoord);\n\
 }\n\
 ";
 
@@ -192,7 +192,7 @@ void GWebGLRenderer_RenderView(GView view) {
     
     //for (int i = 0; i < NUM_VIEWS; i++) {
         GViewInfo viewInfo = (GViewInfo) { 
-            (GRect) { 0, 0, 100, 100 },
+            (GRect) { 10.0, 0, 250, 25 },
             (GColor) { 255.0, 0.0, 0.0, 255.0 }
         };
 
@@ -208,6 +208,10 @@ void GWebGLRenderer_RenderView(GView view) {
         glClear(GL_COLOR_BUFFER_BIT);
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        GWebGLRenderer_RenderTextForView(rootView, "some text");
+
+
         glUniform2f(uPos, (float)viewDef->frame.x, (float)viewDef->frame.y);
         glUniform2f(uSize, (float)viewDef->frame.width, (float)viewDef->frame.height);
 
@@ -265,4 +269,50 @@ void GWebGLRenderer_InitForView(GView view) {
 void GWebGLRenderer_SetViewportSize(double width, double height) {
     viewportWidth = width;
     viewportHeight = height;
+}
+
+
+
+void GWebGLRenderer_RenderTextForView(GView view, char* text) {
+    GViewDef* viewDef = (GViewDef*) view;
+    glBindTexture(GL_TEXTURE_2D, viewDef->texture);
+
+    EM_ASM({
+
+        var textCanvas = document.getElementById("textCanvas");
+        var ctx = textCanvas.getContext('2d');
+        var text = 'lots of very long text here';
+        var fontSize = 20;
+
+        ctx.font = `${fontSize}px`;
+        ctx.fillStyle = 'white';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        const textWidth = ctx.measureText(text).width;
+        textCanvas.width = textWidth;
+        textCanvas.height = fontSize;
+
+        ctx.font = `${fontSize}px`;
+        ctx.fillStyle = 'white';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(text, textCanvas.width / 2, textCanvas.height / 2);
+
+        var imageData = ctx.getImageData(0, 0, textCanvas.width, textCanvas.height);
+        //var imageDataArray = new Uint8Array(imageData.data.buffer);
+        //var imagePtr = Module._malloc(imageDataArray.length);
+        //Module.HEAPU8.set(imageDataArray, imagePtr);
+
+        let canvasElement = document.getElementById("canvas");
+        var gl = canvasElement.getContext("webgl2");
+
+        var texture = GL.textures[$1];
+        var context = GL.contexts[0];
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageData);
+        //Module._glTexImage2D
+        //Module._free(imagePtr);
+
+    }, text, viewDef->texture);
 }

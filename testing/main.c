@@ -21,8 +21,8 @@ void LaunchEvent() {
     GWindow_SetButtonUpDelegate(window, MouseUp);
     GWindow_SetDrawDelegate(window, Draw);*/
     GViewInfo viewInfo = (GViewInfo) { 
-        (URect) { 10.0, 10.0, 100.0, 100.0 },
-        (UColor) { 255.0, 0.0, 0.0, 255.0 }
+        (GRect) { 10.0, 10.0, 100.0, 100.0 },
+        (GColor) { 255.0, 0.0, 0.0, 255.0 }
     };
 
     GView rootView = GView_Alloc(viewInfo);

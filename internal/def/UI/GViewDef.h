@@ -4,8 +4,8 @@
 #include "GSPCore/UI/GView.h"
 
 typedef struct {
-    URect frame;
-    UColor color;
+    GRect frame;
+    GColor color;
 } GViewDef;
 
 

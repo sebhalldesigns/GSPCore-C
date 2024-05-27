@@ -8,9 +8,17 @@
 
 #include <emscripten.h>
 
+
+
+void GWindow_SetResizeDelegate(GWindow window, GWindowResizeDelegate resizeDelegate) {
+
+}
+
+
+
 void GWindow_SetRootView(GView view) {
     printf("SETTING ROOT VIEW\n");
-
+    /*
     EM_ASM({
 
         const canvas = document.createElement('canvas');
@@ -64,6 +72,6 @@ void GWindow_SetRootView(GView view) {
     
 
         
-    }, view);
+    }, view);*/
 
 }

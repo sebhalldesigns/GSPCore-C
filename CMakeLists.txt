@@ -20,6 +20,7 @@ if(EMSCRIPTEN)
         src/GVector.c
         src/GLog.c
         src/UI/GView.c
+        src/rendering/webgl/GWebGLRenderer.c
         #src/graphics/unix/GFrame_gl.c
         #src/graphics/unix/GVertexBuffer_gl.c
         #src/graphics/unix/GShader_gl.c
@@ -31,7 +32,7 @@ if(EMSCRIPTEN)
     )
 
     add_library(GSPCore STATIC ${GSPCORE_SRC})
-    set_target_properties(GSPCore PROPERTIES LINK_FLAGS "-s EXPORTED_RUNTIME_METHODS=['ccall','cwrap']")
+    set_target_properties(GSPCore PROPERTIES LINK_FLAGS "-s USE_WEBGL2=1 -s EXPORTED_RUNTIME_METHODS=['ccall','cwrap']")
 
     target_include_directories(GSPCore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -42,7 +43,7 @@ if(EMSCRIPTEN)
     
     set(CMAKE_EXECUTABLE_SUFFIX ".js")
     set_target_properties(Test PROPERTIES OUTPUT_NAME "index")
-    set_target_properties(Test PROPERTIES LINK_FLAGS "-s EXPORTED_RUNTIME_METHODS=['ccall','cwrap']")
+    set_target_properties(Test PROPERTIES LINK_FLAGS "-s USE_WEBGL2=1 -s EXPORTED_RUNTIME_METHODS=['ccall','cwrap']")
 
 
     # Copy custom HTML file to the output directory

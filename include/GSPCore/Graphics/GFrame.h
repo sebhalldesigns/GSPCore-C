@@ -3,14 +3,16 @@
 
 // The GFrame type describes a plaform-independant in-memory bitmap
 
-typedef void* GFrame;
 
+typedef void* GFrame;
+/*
 typedef struct {
     float red;
     float green;
     float blue;
     float alpha;
 } GColor;
+
 
 typedef struct {
     float x;
@@ -27,11 +29,11 @@ typedef struct {
 
 
 
-GFrame GFrame_Alloc(GFrameInfo info);
+GFrame GFrame_Alloc(GFrameInfo info);*/
 void GFrame_Free(GFrame frame);
 
-void GFrame_Fill(GFrame frame, GRect rect, GColor color);
+//void GFrame_Fill(GFrame frame, GRect rect, GColor color);
 
-void GFrame_Composite(GFrame frame, GRect rect, GFrame source);
+//void GFrame_Composite(GFrame frame, GRect rect, GFrame source);
 
 #endif // GFRAME_H

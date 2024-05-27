@@ -8,7 +8,7 @@
 typedef struct {
     float x;
     float y;
-} UPoint;
+} GPoint;
 
 // URect defines a simple rectangular region in view space
 typedef struct {
@@ -16,34 +16,34 @@ typedef struct {
     float y;
     float width;
     float height;
-} URect;
+} GRect;
 
 typedef struct {
     float x;
     float y;
-} UScale;
+} GScale;
 
 typedef struct {
     float x;
     float y;
-} UTranslation;
+} GTranslation;
 
 typedef struct {
     float degrees;
-} URotation;
+} GRotation;
 
 typedef struct {
-    UTranslation translation;
-    URotation rotation;
-    UScale scale;
-} UTransform;
+    GTranslation translation;
+    GRotation rotation;
+    GScale scale;
+} GTransform;
 
 typedef struct {
     float red;
     float green;
     float blue;
     float alpha;
-} UColor;
+} GColor;
 
 typedef enum {
     GVIEWLAYOUT_NONE,
@@ -62,8 +62,8 @@ typedef enum {
 
 
 typedef struct {
-    URect frame;
-    UColor color;
+    GRect frame;
+    GColor color;
 } GViewInfo;
 
 typedef void* GView;

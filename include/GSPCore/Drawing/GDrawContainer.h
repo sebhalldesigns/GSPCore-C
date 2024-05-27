@@ -6,10 +6,10 @@
 typedef enum {
 
     FILL, // most basic container, simply sets the size of each child to the full size of the container
-    WRAP, 
-    GRID,
-    
-} GDrawContainerType;
+    LAYOUT_WRAP, // a wrap render type, designed specifically for text rendering
+    DOCK,
+
+} GDrawContainerLayoutType;
 
 
 #endif // GDRAWCONTAINER_H

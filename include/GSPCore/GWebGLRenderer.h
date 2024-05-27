@@ -9,8 +9,10 @@
 bool GWebGLRenderer_Init();
 
 void GWebGLRenderer_RenderView(GView view);
+void GWebGLRenderer_SetViewportSize(double width, double height);
 
-
+void GWebGLRenderer_InitForView(GView view);
+void GWebGLRenderer_FreeForView(GView view);
 
 
 

@@ -22,3 +22,7 @@ GView GView_Alloc(GViewInfo info) {
     return view;
 
 }
+
+void GView_Free(GView view) {
+    free(view);
+}

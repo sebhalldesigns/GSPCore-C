@@ -18,9 +18,19 @@
 EMSCRIPTEN_KEEPALIVE
 void MouseMove(double mouseX, double mouseY) {
     //printf("%f %f\n", mouseX, mouseY);
+    //GWebGLRenderer_RenderView(NULL);
+
+}
+
+EMSCRIPTEN_KEEPALIVE
+void WindowResize(double width, double height) {
+    //printf("%f %f\n", mouseX, mouseY);
+    GWebGLRenderer_SetViewportSize(width, height);
     GWebGLRenderer_RenderView(NULL);
 
 }
+
+
 
 void main_loop() {
     // do nothing here
@@ -38,6 +48,16 @@ int GSPRun(GApplication app) {
     EM_ASM({
         addEventListener("mousemove", (event) => {
             Module.ccall("MouseMove", null, ["float", "float"], [event.clientX, event.clientY])
+        });
+
+        window.addEventListener("resize", (event) => {
+            let canvasElement = document.getElementById("canvas");
+            canvasElement.width = window.innerWidth;
+            canvasElement.height = window.innerHeight;
+        });
+
+        window.addEventListener("resize", (event) => {
+            Module.ccall("WindowResize", null, ["float", "float"], [window.innerWidth, window.innerHeight]);
         });
     });
 

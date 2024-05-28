@@ -32,7 +32,9 @@ if(EMSCRIPTEN)
     )
 
     add_library(GSPCore STATIC ${GSPCORE_SRC})
-    set_target_properties(GSPCore PROPERTIES LINK_FLAGS "-s USE_WEBGL2=1 -s EXPORTED_RUNTIME_METHODS=['ccall','cwrap'] -s EXPORTED_FUNCTIONS=['_malloc']")
+    set(USE_FLAGS "-s USE_SDL=2 -s USE_SDL_IMAGE=2 -s USE_SDL_TTF=2 -s USE_FREETYPE=1 --preload-file ../resources/wasm/assets")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${USE_FLAGS}")
+    set_target_properties(GSPCore PROPERTIES LINK_FLAGS "-s USE_WEBGL2=1 -s USE_SDL=0 -s USE_SDL_TTF=2 -s EXPORTED_RUNTIME_METHODS=['ccall','cwrap'] -s EXPORTED_FUNCTIONS=['_malloc']")
 
     target_include_directories(GSPCore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -44,7 +46,7 @@ if(EMSCRIPTEN)
     set(CMAKE_EXECUTABLE_SUFFIX ".js")
     set_target_properties(Test PROPERTIES OUTPUT_NAME "index")
     #set_target_properties(Test PROPERTIES LINK_FLAGS "-s USE_WEBGL2=1 -s EXPORTED_RUNTIME_METHODS=['ccall','cwrap'] -s EXPORTED_FUNCTIONS=['_main', '_malloc']")
-    set_target_properties(Test PROPERTIES LINK_FLAGS "-s USE_WEBGL2=1 -s EXPORTED_FUNCTIONS=\"['_main', '_malloc']\" -s EXPORTED_RUNTIME_METHODS=\"['ccall','cwrap']\"")
+    set_target_properties(Test PROPERTIES LINK_FLAGS "-s USE_WEBGL2=1  -s USE_SDL=2 -s USE_SDL_TTF=2  -s EXPORTED_FUNCTIONS=\"['_main', '_malloc']\" -s EXPORTED_RUNTIME_METHODS=\"['ccall','cwrap']\"")
 
 
     # Copy custom HTML file to the output directory

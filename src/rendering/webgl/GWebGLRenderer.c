@@ -8,10 +8,16 @@
 
 #include <stdio.h>
 #include <stdbool.h>
-#include <emscripten.h>
-#include <emscripten/html5.h>
+
 #include <GLES3/gl3.h>
 #include <time.h>
+
+#include <emscripten.h>
+#include <emscripten/html5.h>
+
+#include <SDL/SDL.h>
+#include <SDL/SDL_image.h>
+#include <SDL/SDL_ttf.h>
 
 
 #define NUM_VIEWS 100
@@ -100,6 +106,27 @@ bool GWebGLRenderer_Init() {
     emscripten_webgl_make_context_current(context);
 
     GLog(INFO, "Created WebGL2 Context");
+
+
+    // set up SDL
+    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+       GLog(FAIL, "Could not initialize SDL: %s\n", SDL_GetError());
+        return false;
+    }
+
+    if (TTF_Init() == -1) {
+        GLog(FAIL, "Could not initialize TTF: %s\n", TTF_GetError());
+        SDL_Quit();
+        return false;
+    }
+
+    TTF_Font* font = TTF_OpenFont("resources/wasm/assets/FreeSans.ttf", 24);
+    if (!font) {
+        GLog(FAIL, "Failed to load font: %s\n", TTF_GetError());
+        return false;
+    }
+    TTF_CloseFont(font);
+
 
     GLuint vertexShader = compileShader(GL_VERTEX_SHADER, vertexShaderSource);
     GLuint fragmentShader = compileShader(GL_FRAGMENT_SHADER, fragmentShaderSource);
@@ -275,8 +302,21 @@ void GWebGLRenderer_SetViewportSize(double width, double height) {
 
 void GWebGLRenderer_RenderTextForView(GView view, char* text) {
     GViewDef* viewDef = (GViewDef*) view;
-    glBindTexture(GL_TEXTURE_2D, viewDef->texture);
+    glBindTexture(GL_TEXTURE_2D, viewDef->texture); 
 
+    TTF_Font* font = TTF_OpenFont("resources/wasm/assets/FreeSans.ttf", 10);
+    SDL_Color color = {255, 255, 255, 255};  // White color
+    SDL_Surface* text_surface = TTF_RenderText_Solid(font, text, color);
+    glTexImage2D(GL_TEXTURE_2D, 0, text_surface->format->BytesPerPixel, text_surface->w, text_surface->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, text_surface->pixels);
+    SDL_FreeSurface(text_surface);
+    TTF_CloseFont(font);
+
+    glBindTexture(GL_TEXTURE_2D, 0); 
+
+    printf("RENDERED TEXT\n");
+
+
+    /*
     EM_ASM({
 
         var textCanvas = document.getElementById("textCanvas");
@@ -314,5 +354,5 @@ void GWebGLRenderer_RenderTextForView(GView view, char* text) {
         //Module._glTexImage2D
         //Module._free(imagePtr);
 
-    }, text, viewDef->texture);
+    }, text, viewDef->texture);*/
 }

@@ -8,6 +8,7 @@
 
 #include <stdio.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 #include <GLES3/gl3.h>
 #include <time.h>
@@ -59,6 +60,8 @@ out vec4 FragColor;\n\
 uniform sampler2D uTexture;\n\
 \n\
 void main() {\n\
+//float gray = texture(uTexture, TexCoord).r;\n\
+//    FragColor = vec4(gray, gray, 0.5, 1.0);\n\
     FragColor = texture(uTexture, TexCoord);\n\
 }\n\
 ";
@@ -72,6 +75,8 @@ float vertices[] = {
 
 GLuint VAO, VBO;
 GLint uPos, uSize, uViewportSize, uProjectionMatrix, uTexture;
+
+TTF_Font* font;
 
 
 GLuint compileShader(GLenum type, const char *source) {
@@ -120,12 +125,12 @@ bool GWebGLRenderer_Init() {
         return false;
     }
 
-    TTF_Font* font = TTF_OpenFont("resources/wasm/assets/FreeSans.ttf", 24);
+    font = TTF_OpenFont("../resources/wasm/assets/FreeSans.ttf", 24);
     if (!font) {
         GLog(FAIL, "Failed to load font: %s\n", TTF_GetError());
         return false;
     }
-    TTF_CloseFont(font);
+    //TTF_CloseFont(font);
 
 
     GLuint vertexShader = compileShader(GL_VERTEX_SHADER, vertexShaderSource);
@@ -210,6 +215,9 @@ void GWebGLRenderer_RenderView(GView view) {
     glClearColor(0.0, 1.0, 0.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
 
+    glEnable(GL_BLEND); 
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  
+
     glUseProgram(program);
     glViewport(0, 0, viewportWidth, viewportHeight);
     glUniform2f(uViewportSize, viewportWidth, viewportHeight);
@@ -229,14 +237,14 @@ void GWebGLRenderer_RenderView(GView view) {
 
         GViewDef* viewDef = (GViewDef*) rootView;
 
-        glBindFramebuffer(GL_FRAMEBUFFER, viewDef->framebuffer);
-        glViewport(0, 0, viewDef->frame.width, viewDef->frame.height);
-        glClearColor((float)rand() / RAND_MAX, (float)rand() / RAND_MAX, (float)rand() / RAND_MAX, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        //glBindFramebuffer(GL_FRAMEBUFFER, viewDef->framebuffer);
+        //glViewport(0, 0, viewDef->frame.width, viewDef->frame.height);
+        //glClearColor((float)rand() / RAND_MAX, (float)rand() / RAND_MAX, (float)rand() / RAND_MAX, 1.0f);
+        //glClear(GL_COLOR_BUFFER_BIT);
 
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        //glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-        GWebGLRenderer_RenderTextForView(rootView, "some text");
+        GWebGLRenderer_RenderTextForView(rootView, "this is some longer text");
 
 
         glUniform2f(uPos, (float)viewDef->frame.x, (float)viewDef->frame.y);
@@ -304,20 +312,56 @@ void GWebGLRenderer_RenderTextForView(GView view, char* text) {
     GViewDef* viewDef = (GViewDef*) view;
     glBindTexture(GL_TEXTURE_2D, viewDef->texture); 
 
-    TTF_Font* font = TTF_OpenFont("resources/wasm/assets/FreeSans.ttf", 10);
+    
     SDL_Color color = {255, 255, 255, 255};  // White color
-    SDL_Surface* text_surface = TTF_RenderText_Solid(font, text, color);
-    glTexImage2D(GL_TEXTURE_2D, 0, text_surface->format->BytesPerPixel, text_surface->w, text_surface->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, text_surface->pixels);
-    SDL_FreeSurface(text_surface);
-    TTF_CloseFont(font);
+    SDL_Color bgColr = {0,0,0,0};  // White color
+    SDL_Surface* text_surface = TTF_RenderText_Blended(font, text, color );
+    SDL_LockSurface(text_surface);
+
+    printf("SURFACE HAS %d x %d, %d\n", text_surface->w, text_surface->h, text_surface->pitch);
+
+
+     if (!text_surface) {
+        printf("Failed to create text surface: %s\n", TTF_GetError());
+        return;
+    }
+
+    //SDL_Surface* optimizedSurface = SDL_ConvertSurfaceFormat(text_surface, SDL_PIXELFORMAT_ARGB8888, 0);
+    //SDL_FreeSurface(text_surface);
+    
+
+    //if (!optimizedSurface) {
+    //    printf("Failed to convert surface format: %s\n", SDL_GetError());
+    ///}
+    //SDL_Surface* formattedSurface = SDL_ConvertSurface(text_surface, SDL_PIXELFORMAT_ARGB8888, 0);
+    //SDL_Surface* optimizedSurface = SDL_ConvertSurfaceFormat(text_surface, SDL_PIXELFORMAT_RGBA8888, 0);
+    //printf("SURFACE2 HAS %d x %d, %d\n", formattedSurface->w, formattedSurface->h, formattedSurface->pitch);
+    
+    int width = text_surface->w;
+    int height = text_surface->h;
+    int pitch = text_surface->pitch; 
+    int bytes = text_surface->format->BytesPerPixel;
+    
+    printf("BYTES PER PIXEL: %d\n", bytes);
+        
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, pitch / 4   );
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, text_surface->pixels);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  
 
     glBindTexture(GL_TEXTURE_2D, 0); 
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 
+    SDL_FreeSurface(text_surface);
     printf("RENDERED TEXT\n");
 
 
-    /*
-    EM_ASM({
+    
+    /*EM_ASM({
 
         var textCanvas = document.getElementById("textCanvas");
         var ctx = textCanvas.getContext('2d');

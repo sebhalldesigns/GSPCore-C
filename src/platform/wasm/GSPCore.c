@@ -59,6 +59,11 @@ int GSPRun(GApplication app) {
         window.addEventListener("resize", (event) => {
             Module.ccall("WindowResize", null, ["float", "float"], [window.innerWidth, window.innerHeight]);
         });
+
+            let canvasElement = document.getElementById("canvas");
+            canvasElement.width = window.innerWidth;
+            canvasElement.height = window.innerHeight;
+         Module.ccall("WindowResize", null, ["float", "float"], [window.innerWidth, window.innerHeight]);
     });
 
 

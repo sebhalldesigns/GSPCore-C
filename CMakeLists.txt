@@ -55,6 +55,27 @@ if(EMSCRIPTEN)
         COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/resources/wasm/gspcore.html ${CMAKE_BINARY_DIR}/index.html
     )
 
+elseif($ENV{GSP_IOS})
+    message("Building GSPCore for iOS")
+
+    set(CMAKE_SYSTEM_NAME iOS)
+    set(CMAKE_OSX_SYSROOT iphoneos)
+
+    set(CMAKE_OSX_ARCHITECTURES "arm64")
+    set(CMAKE_IOS_INSTALL_COMBINED YES)
+
+    add_executable(GSP MACOSX_BUNDLE testing/helloworld.c)
+    set_target_properties(GSP PROPERTIES XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.mycompany.myexampleapp3" XCODE_ATTRIBUTE_EXECUTABLE_FILE "GSP" MACOSX_BUNDLE YES MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/resources/macos/build/minimal.plist)
+
+elseif(APPLE)
+
+    message("Building GSPCore for MACOS")
+
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.12" CACHE STRING "Minimum OS X deployment version")
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.12" CACHE STRING "Minimum OS X deployment version")
+
+    add_executable(GSP MACOSX_BUNDLE testing/helloworld.c)
+    set_target_properties(GSP PROPERTIES XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.mycompany.myexampleapp3" XCODE_ATTRIBUTE_EXECUTABLE_FILE "GSP" MACOSX_BUNDLE YES MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/resources/macos/build/minimal.plist)
 
 elseif (UNIX)
 

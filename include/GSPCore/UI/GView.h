@@ -4,11 +4,18 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-// UPoint defines a simple point in view space
+// GPoint defines a simple point in view space
 typedef struct {
     float x;
     float y;
 } GPoint;
+
+// GSize defines a simple 2 dimensional size
+typedef struct {
+    float width;
+    float height;
+} GSize;
+
 
 // URect defines a simple rectangular region in view space
 typedef struct {

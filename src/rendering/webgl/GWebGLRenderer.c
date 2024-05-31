@@ -125,7 +125,7 @@ bool GWebGLRenderer_Init() {
         return false;
     }
 
-    font = TTF_OpenFont("../resources/wasm/assets/FreeSans.ttf", 24);
+    font = TTF_OpenFont("../resources/wasm/assets/Inter-Regular.ttf", 14);
     if (!font) {
         GLog(FAIL, "Failed to load font: %s\n", TTF_GetError());
         return false;
@@ -212,7 +212,7 @@ void GWebGLRenderer_RenderView(GView view) {
 
 
     // Clear the screen with a color    
-    glClearColor(0.0, 1.0, 0.0, 1.0);
+    glClearColor(1.0, 1.0, 1.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
 
     glEnable(GL_BLEND); 
@@ -223,13 +223,18 @@ void GWebGLRenderer_RenderView(GView view) {
     glUniform2f(uViewportSize, viewportWidth, viewportHeight);
 
 
+    GSize textSize = GWebGLRenderer_MeasureTextForView(NULL, "here is some text 불닭 すし строганина 👍");
+    printf("text size is %f %f\n", textSize.width, textSize.height);
+
     //GViewDef* viewDef = (GViewDef*) view;
     
     //for (int i = 0; i < NUM_VIEWS; i++) {
         GViewInfo viewInfo = (GViewInfo) { 
-            (GRect) { 10.0, 0, 250, 25 },
+            (GRect) { 10.0, 0, textSize.width, textSize.height },
             (GColor) { 255.0, 0.0, 0.0, 255.0 }
         };
+
+
 
         GView rootView = GView_Alloc(viewInfo);
 
@@ -244,7 +249,7 @@ void GWebGLRenderer_RenderView(GView view) {
 
         //glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-        GWebGLRenderer_RenderTextForView(rootView, "this is some longer text");
+        GWebGLRenderer_RenderTextForView(rootView, "here is some text 불닭 すし строганина👍");
 
 
         glUniform2f(uPos, (float)viewDef->frame.x, (float)viewDef->frame.y);
@@ -313,30 +318,19 @@ void GWebGLRenderer_RenderTextForView(GView view, char* text) {
     glBindTexture(GL_TEXTURE_2D, viewDef->texture); 
 
     
-    SDL_Color color = {255, 255, 255, 255};  // White color
+    SDL_Color color = {0, 0, 0, 255};  // black color
     SDL_Color bgColr = {0,0,0,0};  // White color
-    SDL_Surface* text_surface = TTF_RenderText_Blended(font, text, color );
+    SDL_Surface* text_surface = TTF_RenderUTF8_Blended(font, text, color );
     SDL_LockSurface(text_surface);
 
     printf("SURFACE HAS %d x %d, %d\n", text_surface->w, text_surface->h, text_surface->pitch);
 
 
-     if (!text_surface) {
+    if (!text_surface) {
         printf("Failed to create text surface: %s\n", TTF_GetError());
         return;
     }
 
-    //SDL_Surface* optimizedSurface = SDL_ConvertSurfaceFormat(text_surface, SDL_PIXELFORMAT_ARGB8888, 0);
-    //SDL_FreeSurface(text_surface);
-    
-
-    //if (!optimizedSurface) {
-    //    printf("Failed to convert surface format: %s\n", SDL_GetError());
-    ///}
-    //SDL_Surface* formattedSurface = SDL_ConvertSurface(text_surface, SDL_PIXELFORMAT_ARGB8888, 0);
-    //SDL_Surface* optimizedSurface = SDL_ConvertSurfaceFormat(text_surface, SDL_PIXELFORMAT_RGBA8888, 0);
-    //printf("SURFACE2 HAS %d x %d, %d\n", formattedSurface->w, formattedSurface->h, formattedSurface->pitch);
-    
     int width = text_surface->w;
     int height = text_surface->h;
     int pitch = text_surface->pitch; 
@@ -359,44 +353,16 @@ void GWebGLRenderer_RenderTextForView(GView view, char* text) {
     SDL_FreeSurface(text_surface);
     printf("RENDERED TEXT\n");
 
+}
 
-    
-    /*EM_ASM({
+GSize GWebGLRenderer_MeasureTextForView(GView view, char* text) {
 
-        var textCanvas = document.getElementById("textCanvas");
-        var ctx = textCanvas.getContext('2d');
-        var text = 'lots of very long text here';
-        var fontSize = 20;
+    int width = 0;
+    int height = 0;
 
-        ctx.font = `${fontSize}px`;
-        ctx.fillStyle = 'white';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
+    if (TTF_SizeUTF8(font, text, &width, &height) < 0) {
+        GLog(WARNING, "SDL TTF MeasureText failed");
+    }
 
-        const textWidth = ctx.measureText(text).width;
-        textCanvas.width = textWidth;
-        textCanvas.height = fontSize;
-
-        ctx.font = `${fontSize}px`;
-        ctx.fillStyle = 'white';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(text, textCanvas.width / 2, textCanvas.height / 2);
-
-        var imageData = ctx.getImageData(0, 0, textCanvas.width, textCanvas.height);
-        //var imageDataArray = new Uint8Array(imageData.data.buffer);
-        //var imagePtr = Module._malloc(imageDataArray.length);
-        //Module.HEAPU8.set(imageDataArray, imagePtr);
-
-        let canvasElement = document.getElementById("canvas");
-        var gl = canvasElement.getContext("webgl2");
-
-        var texture = GL.textures[$1];
-        var context = GL.contexts[0];
-        gl.bindTexture(gl.TEXTURE_2D, texture);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageData);
-        //Module._glTexImage2D
-        //Module._free(imagePtr);
-
-    }, text, viewDef->texture);*/
+    return (GSize) { (float) width, (float) height };
 }

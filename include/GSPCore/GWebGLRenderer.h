@@ -14,7 +14,9 @@ void GWebGLRenderer_SetViewportSize(double width, double height);
 void GWebGLRenderer_InitForView(GView view);
 void GWebGLRenderer_FreeForView(GView view);
 
+GSize GWebGLRenderer_MeasureTextForView(GView view, char* text);
 void GWebGLRenderer_RenderTextForView(GView view, char* text);
+
 
 
 #endif // GWEBGLRENDERER_H

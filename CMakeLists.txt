@@ -70,13 +70,31 @@ elseif($ENV{GSP_IOS})
 elseif(APPLE)
 
     message("Building GSPCore for MACOS")
+    add_compile_definitions(GSPCORE_BUILD_MACOS)
+
+    find_library(COCOA_LIBRARY Cocoa)
+
+    # temporarily setting the language to objc for all c files.
+    # this is because GSPCORE_BUILD_MACOS is defined for C files as well as Objc.
+    # ideally what should happen is the variants that have objc code are compiled with GSPCORE_BUILD_MACOS
+    # and then this definition is removed to compile business logic C.
+    set(CMAKE_C_FLAGS "-x objective-c")
 
     set(CMAKE_OSX_DEPLOYMENT_TARGET "10.12" CACHE STRING "Minimum OS X deployment version")
     set(CMAKE_OSX_DEPLOYMENT_TARGET "10.12" CACHE STRING "Minimum OS X deployment version")
 
-    add_executable(GSP MACOSX_BUNDLE testing/helloworld.c)
+    set(GSPCORE_SRC 
+        testing/helloGspInterface2.c
+        src2/Basic/GApplication/macos/GApplication.m
+        src2/Controllers/GApplicationController/macos/GApplicationController.m
+    )
+    add_executable(GSP MACOSX_BUNDLE ${GSPCORE_SRC})
+
     set_target_properties(GSP PROPERTIES XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.mycompany.myexampleapp3" XCODE_ATTRIBUTE_EXECUTABLE_FILE "GSP" MACOSX_BUNDLE YES MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/resources/macos/build/minimal.plist)
 
+    target_include_directories(GSP PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR})
+
+    target_link_libraries(GSP ${COCOA_LIBRARY})
 elseif (UNIX)
 
     message("Building GSPCore for UNIX/Linux")

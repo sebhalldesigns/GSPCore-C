@@ -8,10 +8,13 @@
 
 #include "../GSPCoreGeometry.h"
 #include "../Controllers/GWindowController.h"
+#include "../Graphics/GRenderer.h"
 
 // MARK: DEFINITION
 typedef void* GWindow;
 typedef void* GWindowController;
+typedef void* GRenderer;
+
 
 typedef struct {
     const char* title;
@@ -32,14 +35,21 @@ void GWindow_Render(GWindow window);
 // MARK: MACOS BUILD
 
 #import <Cocoa/Cocoa.h>
+#import <MetalKit/MetalKit.h>
 
 @interface CocoaWindow : NSWindow
 @property GWindow window;
 @end
 
+@interface CocoaMetalView: MTKView
+@property GWindow mywindow;
+@end
+
 typedef struct {
     CocoaWindow* cocoaWindow;
+    CocoaMetalView* cocoaMetalView;
     GWindowInfo info;
+    GRenderer renderer;
     GWindowController controller;
 } GWindowDef;
 

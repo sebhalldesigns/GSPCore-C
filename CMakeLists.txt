@@ -70,9 +70,7 @@ elseif($ENV{GSP_IOS})
 elseif(APPLE)
 
     message("Building GSPCore for MACOS")
-    add_compile_definitions(GSPCORE_BUILD_MACOS)
-
-    find_library(COCOA_LIBRARY Cocoa)
+    #add_compile_definitions(GSPCORE_BUILD_MACOS)
 
     # temporarily setting the language to objc for all c files.
     # this is because GSPCORE_BUILD_MACOS is defined for C files as well as Objc.
@@ -83,21 +81,41 @@ elseif(APPLE)
     set(CMAKE_OSX_DEPLOYMENT_TARGET "10.12" CACHE STRING "Minimum OS X deployment version")
     set(CMAKE_OSX_DEPLOYMENT_TARGET "10.12" CACHE STRING "Minimum OS X deployment version")
 
+    
+
+    find_library(COCOA_LIBRARY Cocoa)
+    find_library(METAL_FRAMEWORK Metal)
+    find_library(METALKIT_FRAMEWORK MetalKit)
+
+ 
+    
     set(GSPCORE_SRC 
-        testing/helloGspInterface2.c
         src2/Basic/GApplication/macos/GApplication.m
         src2/Basic/GWindow/macos/GWindow.m
         src2/Controllers/GApplicationController/macos/GApplicationController.m
         src2/Controllers/GWindowController/macos/GWindowController.m
-
+        src2/Graphics/GRenderer/macos/GRenderer.m
     )
-    add_executable(GSP MACOSX_BUNDLE ${GSPCORE_SRC})
+
+    add_library(GSPCore ${GSPCORE_SRC})
+    target_compile_definitions(GSPCore PUBLIC -DGSPCORE_BUILD_MACOS)
+
+    target_include_directories(GSPCore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR})
+    target_link_libraries(GSPCore ${COCOA_LIBRARY} ${METAL_FRAMEWORK} ${METALKIT_FRAMEWORK})
+
+
+
+    set(GSP_TEST_SRC
+        testing/helloGspInterface2.c
+    )
+
+    add_executable(GSP MACOSX_BUNDLE ${GSP_TEST_SRC})
 
     set_target_properties(GSP PROPERTIES XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.mycompany.myexampleapp3" XCODE_ATTRIBUTE_EXECUTABLE_FILE "GSP" MACOSX_BUNDLE YES MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/resources/macos/build/minimal.plist)
 
     target_include_directories(GSP PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR})
 
-    target_link_libraries(GSP ${COCOA_LIBRARY})
+    target_link_libraries(GSP PRIVATE GSPCore)
 elseif (UNIX)
 
     message("Building GSPCore for UNIX/Linux")

@@ -22,7 +22,7 @@ void AppLaunched() {
 
     GWindow_SetController(window, windowController);
 
-    
+    printf("FUNCTION COMPLETE\n");
 }
 
 int main() {

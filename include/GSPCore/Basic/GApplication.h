@@ -41,8 +41,36 @@ void GApplication_Free(GApplication application);
 
 void GApplication_SetController(GApplication application, GApplicationController controller);
 
+GWindow GApplication_GetMainWindow(GApplication application);
+void GApplication_SetMainWindow(GApplication application, GWindow window);
+
 int GApplication_Run(GApplication application);
-GWindow GApplication_GetRootWindow();
+
+
+
+
+#ifdef GSPCORE_BUILD_WASM
+
+#include <emscripten.h>
+
+typedef struct {
+    GApplicationController controller;
+    GApplicationInfo info;
+    GWindow mainWindow;
+} GApplicationDef;
+
+static GApplication app;
+
+EMSCRIPTEN_KEEPALIVE
+void WasmMainLoop();
+
+EMSCRIPTEN_KEEPALIVE
+void WasmMouseMove(double mouseX, double mouseY);
+
+EMSCRIPTEN_KEEPALIVE
+void WasmWindowResize(double width, double height);
+
+#endif
 
 #ifdef GSPCORE_BUILD_IOS
 // MARK: IOS BUILD
@@ -53,9 +81,10 @@ typedef struct {
     UIApplication* uiApplication;
     GApplicationController controller;
     GApplicationInfo info;
+    GWindow mainWindow;
 } GApplicationDef;
 
-GApplication app;
+static GApplication app;
 #endif
 
 #ifdef GSPCORE_BUILD_MACOS
@@ -68,9 +97,11 @@ typedef struct {
     NSApplication* nsApplication;
     GApplicationController controller;
     GApplicationInfo info;
+    GWindow mainWindow;
+    GVector windows;
 } GApplicationDef;
 
-GApplication app;
+static GApplication app;
 
 #endif
 
@@ -84,10 +115,11 @@ typedef struct {
     HINSTANCE hInstance;
     GApplicationController controller;
     GApplicationInfo info;
+    GWindow mainWindow;
     GVector windows;
 } GApplicationDef;
 
-GApplication app;
+static GApplication app;
 
 #endif
 

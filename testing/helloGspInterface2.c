@@ -6,7 +6,7 @@ void WindowResized(GWindow window, GSize size) {
     printf("WINDOW RESIZED: %f %f\n", size.width, size.height);
 }
 
-void AppLaunched() {
+void AppLaunched(GApplication application) {
 
     printf("App launched!\n");
     
@@ -23,6 +23,7 @@ void AppLaunched() {
 
     GWindow_SetController(window, windowController);
 
+    GApplication_SetMainWindow(application, window);
 }
 
 int main(int argc, char* argv[]) {

@@ -5,14 +5,23 @@
 
 #include "../Basic/GApplication.h"
 
+typedef void* GApplication;
 typedef void* GApplicationController;
 
-typedef void (*GApplicationLaunchEvent)();
+typedef void (*GApplicationLaunchEvent)(GApplication application);
 
 GApplicationController GApplicationController_Init();
 void GApplicationController_Free(GApplicationController applicationController);
 
 void GApplicationController_SetLaunchEvent(GApplicationController applicationController, GApplicationLaunchEvent launchEvent);
+
+#ifdef GSPCORE_BUILD_WASM
+
+typedef struct {
+    GApplicationLaunchEvent launchEvent;
+} GApplicationControllerDef;
+
+#endif
 
 #ifdef GSPCORE_BUILD_IOS
 

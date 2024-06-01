@@ -14,24 +14,18 @@ if(EMSCRIPTEN)
     message("Building GSPCore for WASM")
 
     set(GSPCORE_SRC
-        src/platform/wasm/GSPCore.c
-        src/platform/wasm/GWindow.c
-        src/GApplication.c
-        src/GVector.c
-        src/GLog.c
-        src/UI/GView.c
-        src/rendering/webgl/GWebGLRenderer.c
-        #src/graphics/unix/GFrame_gl.c
-        #src/graphics/unix/GVertexBuffer_gl.c
-        #src/graphics/unix/GShader_gl.c
-        #src/graphics/unix/GTexture_gl.c
-        #src/graphics/unix/unix_GTextProvider.c
-
-        #src/GRenderManager.c
-        #src/graphics/vulkan/GHiperRenderManager.c
+        src/Basic/GLog.c
+        src/Basic/GVector.c
+        src/Basic/GApplication/wasm/GApplication.c
+        src/Basic/GWindow/wasm/GWindow.c
+        src/Controllers/GApplicationController/wasm/GApplicationController.c
+        src/Controllers/GWindowController/wasm/GWindowController.c
     )
 
     add_library(GSPCore STATIC ${GSPCORE_SRC})
+    target_compile_definitions(GSPCore PUBLIC -DGSPCORE_BUILD -DGSPCORE_BUILD_WASM)
+
+
     set(USE_FLAGS "-s USE_SDL=2 -s USE_SDL_IMAGE=2 -s USE_SDL_TTF=2 -s USE_FREETYPE=1 --preload-file ../resources/wasm/assets")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${USE_FLAGS}")
     set_target_properties(GSPCore PROPERTIES LINK_FLAGS "-s USE_WEBGL2=1 -s USE_SDL=0 -s USE_SDL_TTF=2 -s EXPORTED_RUNTIME_METHODS=['ccall','cwrap'] -s EXPORTED_FUNCTIONS=['_malloc']")
@@ -39,7 +33,7 @@ if(EMSCRIPTEN)
     target_include_directories(GSPCore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR})
 
     # Add executable target
-    add_executable(Test ${CMAKE_CURRENT_SOURCE_DIR}/testing/main.c)
+    add_executable(Test testing/helloGspInterface2.c)
     target_link_libraries(Test PRIVATE GSPCore)
     target_include_directories(Test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/libraries/GSPCore/include)
     

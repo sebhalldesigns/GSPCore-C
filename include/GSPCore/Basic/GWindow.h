@@ -32,6 +32,18 @@ void GWindow_Close(GWindow window);
 // Request a window render. This should be handled automatically by the system when a window is resized etc.
 void GWindow_Render(GWindow window);
 
+#ifdef GSPCORE_BUILD_WASM
+
+typedef struct {
+    GWindowInfo info;
+    GRenderer renderer;
+    GWindowController controller;
+} GWindowDef;
+
+#endif
+
+
+
 #ifdef GSPCORE_BUILD_MACOS
 
 // MARK: MACOS BUILD

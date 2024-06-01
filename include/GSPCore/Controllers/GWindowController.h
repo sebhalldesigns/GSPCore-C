@@ -27,6 +27,13 @@ void GWindowController_Free(GWindowController windowController);
 
 void GWindowController_SetResizeEvent(GWindowController windowController, GWindowResizeEvent resizeEvent);
 
+#ifdef GSPCORE_BUILD_WASM
+
+typedef struct {
+    GWindowResizeEvent resizeEvent;
+} GWindowControllerDef;
+
+#endif
 
 #ifdef GSPCORE_BUILD_MACOS
 

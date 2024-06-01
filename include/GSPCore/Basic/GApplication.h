@@ -8,6 +8,7 @@
 // for working with the GSPCore system
 
 #include "GWindow.h"
+#include "GVector.h"
 #include "../Controllers/GApplicationController.h"
 
 #include <stdbool.h>
@@ -67,6 +68,23 @@ typedef struct {
     NSApplication* nsApplication;
     GApplicationController controller;
     GApplicationInfo info;
+} GApplicationDef;
+
+GApplication app;
+
+#endif
+
+#ifdef GSPCORE_BUILD_WIN32
+
+#include <Windows.h>
+
+const static wchar_t CLASS_NAME[]  = L"GSPCore Window";
+
+typedef struct {
+    HINSTANCE hInstance;
+    GApplicationController controller;
+    GApplicationInfo info;
+    GVector windows;
 } GApplicationDef;
 
 GApplication app;

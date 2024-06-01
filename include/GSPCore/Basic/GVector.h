@@ -42,4 +42,14 @@ size_t GVector_IndexOf(GVector vector, GVectorItem item);
 // logs contents of vector to console. Requires debug
 void GVector_Inspect(GVector vector);
 
+
+#ifdef GSPCORE_BUILD
+
+typedef struct {
+    uintptr_t* data;
+    size_t size;
+} GVectorDef;
+
+#endif 
+
 #endif // GVECTOR_H

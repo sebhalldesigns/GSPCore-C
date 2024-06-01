@@ -1,4 +1,4 @@
-#include "GSPCore2/Basic/GApplication.h"
+#include "GSPCore/Basic/GApplication.h"
 
 #include <stdlib.h>
 #include <stddef.h>

@@ -45,5 +45,13 @@ typedef struct {
 
 #endif
 
+#ifdef GSPCORE_BUILD_WIN32
+
+typedef struct {
+    GWindowResizeEvent resizeEvent;
+} GWindowControllerDef;
+
+#endif
+
 
 #endif // GWINDOWCONTROLLER_H

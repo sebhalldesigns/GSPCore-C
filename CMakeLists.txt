@@ -76,8 +76,8 @@ elseif($ENV{GSP_IOS})
     find_library(METALKIT_FRAMEWORK MetalKit)
 
     set(GSPCORE_SRC 
-        src2/Basic/GApplication/ios/GApplication.m
-        src2/Controllers/GApplicationController/ios/GApplicationController.m
+        src/Basic/GApplication/ios/GApplication.m
+        src/Controllers/GApplicationController/ios/GApplicationController.m
     )
 
     add_library(GSPCore ${GSPCORE_SRC})
@@ -116,11 +116,11 @@ elseif(APPLE)
     find_library(METALKIT_FRAMEWORK MetalKit)
 
     set(GSPCORE_SRC 
-        src2/Basic/GApplication/macos/GApplication.m
-        src2/Basic/GWindow/macos/GWindow.m
-        src2/Controllers/GApplicationController/macos/GApplicationController.m
-        src2/Controllers/GWindowController/macos/GWindowController.m
-        src2/Graphics/GRenderer/macos/GRenderer.m
+        src/Basic/GApplication/macos/GApplication.m
+        src/Basic/GWindow/macos/GWindow.m
+        src/Controllers/GApplicationController/macos/GApplicationController.m
+        src/Controllers/GWindowController/macos/GWindowController.m
+        src/Graphics/GRenderer/macos/GRenderer.m
     )
 
     add_library(GSPCore ${GSPCORE_SRC})
@@ -174,6 +174,7 @@ elseif (UNIX)
 
     add_library(GSPCore SHARED ${GSPCORE_SRC})
 
+
     target_include_directories(GSPCore PUBLIC ${CAIRO_INCLUDE_DIRS}  ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR})
 
     # Link X11 library
@@ -193,22 +194,23 @@ elseif(WIN32)
     set(CMAKE_GENERATOR_PLATFORM x64)
 
     set(GSPCORE_SRC
-        src/platform/win32/GSPCore.c
-        src/platform/win32/GWindow.c
-        src/GApplication.c
-        src/GVector.c
-        src/GLog.c
-        src/GRenderManager.c
-        src/graphics/vulkan/GHiperRenderManager.c
+        src/Basic/GLog.c
+        src/Basic/GVector.c
+        src/Basic/GApplication/win32/GApplication.c
+        src/Basic/GWindow/win32/GWindow.c
+        src/Controllers/GApplicationController/win32/GApplicationController.c
+        src/Controllers/GWindowController/win32/GWindowController.c
     )
 
     add_library(GSPCore STATIC ${GSPCORE_SRC})
+    target_compile_definitions(GSPCore PUBLIC -DGSPCORE_BUILD -DGSPCORE_BUILD_WIN32)
+
     target_include_directories(GSPCore PUBLIC  $ENV{VK_SDK_PATH}/include ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR})
 
     target_link_libraries(GSPCore PRIVATE gdi32 ${Vulkan_LIBRARIES})
     
     # Add executable target
-    add_executable(Test ${CMAKE_CURRENT_SOURCE_DIR}/testing/main.c)
+    add_executable(Test testing/helloGspInterface2.c)
     target_link_libraries(Test PRIVATE GSPCore)
 
     target_include_directories(Test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/libraries/GSPCore/include)

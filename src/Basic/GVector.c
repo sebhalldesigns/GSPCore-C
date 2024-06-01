@@ -1,7 +1,5 @@
-#include "GSPCore/GLog.h"
-
-#include "GSPCore/GVector.h"
-#include "internal/def/GVectorDef.h"
+#include "GSPCore/Basic/GVector.h"
+#include "GSPCore/Basic/GLog.h"
 
 #include <stdlib.h>
 #include <string.h>

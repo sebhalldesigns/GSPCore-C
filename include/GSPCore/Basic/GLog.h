@@ -2,7 +2,7 @@
 #define GLOG_H
 
 
-    #define DEBUG
+#define DEBUG
 
 #ifdef DEBUG 
 #define DEBUG_LOG(level, ...) GLog(level, __VA_ARGS__)

@@ -27,6 +27,8 @@ void GWindow_Free(GWindow window);
 
 void GWindow_SetController(GWindow window, GWindowController windowController);
 
+
+void GWindow_Close(GWindow window);
 // Request a window render. This should be handled automatically by the system when a window is resized etc.
 void GWindow_Render(GWindow window);
 
@@ -48,6 +50,19 @@ void GWindow_Render(GWindow window);
 typedef struct {
     CocoaWindow* cocoaWindow;
     CocoaMetalView* cocoaMetalView;
+    GWindowInfo info;
+    GRenderer renderer;
+    GWindowController controller;
+} GWindowDef;
+
+#endif
+
+#ifdef GSPCORE_BUILD_WIN32
+
+#include <Windows.h>
+
+typedef struct {
+    HWND rawHandle;
     GWindowInfo info;
     GRenderer renderer;
     GWindowController controller;

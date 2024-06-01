@@ -46,6 +46,14 @@ typedef struct {
 
 #endif
 
+#ifdef GSPCORE_BUILD_WIN32
+
+typedef struct {
+    GApplicationLaunchEvent launchEvent;
+} GApplicationControllerDef;
+
+#endif 
+
 
 
 #endif // GAPPLICATIONCONTROLLER_H

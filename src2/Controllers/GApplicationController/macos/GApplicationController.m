@@ -20,13 +20,13 @@ void GApplicationController_Free(GApplicationController applicationController) {
     free(applicationController);
 }
 
-void GApplicationController_SetLaunchedEvent(GApplicationController applicationController, GApplicationLaunchedEvent launchedEvent) {
+void GApplicationController_SetLaunchEvent(GApplicationController applicationController, GApplicationLaunchEvent launchEvent) {
     if (applicationController == NULL) {
         return;
     }
 
     GApplicationControllerDef* controllerDef = (GApplicationControllerDef*)applicationController;
-    controllerDef->launchedEvent = launchedEvent;
+    controllerDef->launchEvent = launchEvent;
 }
 
 
@@ -36,8 +36,8 @@ void GApplicationController_SetLaunchedEvent(GApplicationController applicationC
 
     GApplicationControllerDef* controllerDef = (GApplicationControllerDef*)self.controller;
 
-    if (controllerDef->launchedEvent != NULL) {
-        (controllerDef->launchedEvent)();
+    if (controllerDef->launchEvent != NULL) {
+        (controllerDef->launchEvent)();
     }
 
 }

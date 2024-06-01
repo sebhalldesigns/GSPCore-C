@@ -19,7 +19,15 @@ GApplication GApplication_Init(GApplicationInfo info) {
 
     ((GApplicationDef*)app)->info = info;
 
+    @autoreleasepool {
+        ((GApplicationDef*)app)->nsApplication = [NSApplication sharedApplication];
+    }
+
     return app;
+}
+
+void GApplication_Free(GApplication application) {
+    free(application);
 }
 
 void GApplication_SetController(GApplication application, GApplicationController controller) {
@@ -27,7 +35,16 @@ void GApplication_SetController(GApplication application, GApplicationController
         return;
     }
 
-    ((GApplicationDef*)application)->controller = controller;
+    GApplicationDef* appDef = (GApplicationDef*)application;
+
+    appDef->controller = controller;
+
+    @autoreleasepool {
+        if (controller != NULL) {
+            GApplicationControllerDef* controllerDef = (GApplicationControllerDef*)controller;
+            [appDef->nsApplication setDelegate:controllerDef->cocoaApplicationDelegate];
+        }
+    }
 }
 
 int GApplication_Run(GApplication application) {
@@ -40,15 +57,6 @@ int GApplication_Run(GApplication application) {
     GApplicationDef* appDef = (GApplicationDef*)application;
 
     @autoreleasepool {
-        appDef->nsApplication = [NSApplication sharedApplication];
-
-        if (appDef->controller != NULL) {
-            GApplicationControllerDef* controllerDef = (GApplicationControllerDef*)appDef->controller;
-            [appDef->nsApplication setDelegate:controllerDef->cocoaApplicationDelegate];
-        } else {
-            printf("NO DELEGATE SET\n");
-        }
-
         [appDef->nsApplication run];
     }
 }

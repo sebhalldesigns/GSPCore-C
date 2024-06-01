@@ -7,12 +7,12 @@
 
 typedef void* GApplicationController;
 
-typedef void (*GApplicationLaunchedEvent)();
+typedef void (*GApplicationLaunchEvent)();
 
 GApplicationController GApplicationController_Init();
 void GApplicationController_Free(GApplicationController applicationController);
 
-void GApplicationController_SetLaunchedEvent(GApplicationController applicationController, GApplicationLaunchedEvent launchedEvent);
+void GApplicationController_SetLaunchEvent(GApplicationController applicationController, GApplicationLaunchEvent launchEvent);
 
 
 #ifdef GSPCORE_BUILD_MACOS
@@ -28,7 +28,7 @@ void GApplicationController_SetLaunchedEvent(GApplicationController applicationC
 
 typedef struct {
     CocoaApplicationDelegate* cocoaApplicationDelegate;
-    GApplicationLaunchedEvent launchedEvent;
+    GApplicationLaunchEvent launchEvent;
 } GApplicationControllerDef;
 
 #endif

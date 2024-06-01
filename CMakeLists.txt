@@ -86,7 +86,10 @@ elseif(APPLE)
     set(GSPCORE_SRC 
         testing/helloGspInterface2.c
         src2/Basic/GApplication/macos/GApplication.m
+        src2/Basic/GWindow/macos/GWindow.m
         src2/Controllers/GApplicationController/macos/GApplicationController.m
+        src2/Controllers/GWindowController/macos/GWindowController.m
+
     )
     add_executable(GSP MACOSX_BUNDLE ${GSPCORE_SRC})
 

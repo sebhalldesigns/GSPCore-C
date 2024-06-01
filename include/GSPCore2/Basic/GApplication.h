@@ -32,7 +32,9 @@ typedef struct {
 // MARK: CONSTRUCTOR
 
 // constructor requires info to create. Maybe info should only be constant for that object.
-GApplication GApplication_Init(GApplicationInfo creationInfo);
+GApplication GApplication_Init(GApplicationInfo info);
+void GApplication_Free(GApplication application);
+
 
 // MARK: METHODS
 

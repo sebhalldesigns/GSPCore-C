@@ -56,16 +56,46 @@ if(EMSCRIPTEN)
     )
 
 elseif($ENV{GSP_IOS})
+    # export GSP_IOS=true     
+
     message("Building GSPCore for iOS")
 
     set(CMAKE_SYSTEM_NAME iOS)
     set(CMAKE_OSX_SYSROOT iphoneos)
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "13.0")
 
     set(CMAKE_OSX_ARCHITECTURES "arm64")
     set(CMAKE_IOS_INSTALL_COMBINED YES)
 
-    add_executable(GSP MACOSX_BUNDLE testing/helloworld.c)
+    set(CMAKE_C_FLAGS "-x objective-c")
+
+
+    #find_library(UIKIT_LIBRARY UIKit)
+    #find_library(COREVIDEO_FRAMEWORK CoreVideo)
+    find_library(METAL_FRAMEWORK Metal)
+    find_library(METALKIT_FRAMEWORK MetalKit)
+
+    set(GSPCORE_SRC 
+        src2/Basic/GApplication/ios/GApplication.m
+        src2/Controllers/GApplicationController/ios/GApplicationController.m
+    )
+
+    add_library(GSPCore ${GSPCORE_SRC})
+    target_compile_definitions(GSPCore PUBLIC -DGSPCORE_BUILD_IOS)
+    target_include_directories(GSPCore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR})
+    target_link_libraries(GSPCore)
+
+    set(GSP_TEST_SRC
+        testing/helloGspInterface2.c
+    )
+
+    add_executable(GSP MACOSX_BUNDLE ${GSP_TEST_SRC})
+
     set_target_properties(GSP PROPERTIES XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.mycompany.myexampleapp3" XCODE_ATTRIBUTE_EXECUTABLE_FILE "GSP" MACOSX_BUNDLE YES MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/resources/macos/build/minimal.plist)
+    
+    target_include_directories(GSP PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR})
+
+    target_link_libraries(GSP PRIVATE GSPCore)
 
 elseif(APPLE)
 
@@ -81,14 +111,10 @@ elseif(APPLE)
     set(CMAKE_OSX_DEPLOYMENT_TARGET "10.12" CACHE STRING "Minimum OS X deployment version")
     set(CMAKE_OSX_DEPLOYMENT_TARGET "10.12" CACHE STRING "Minimum OS X deployment version")
 
-    
-
     find_library(COCOA_LIBRARY Cocoa)
     find_library(METAL_FRAMEWORK Metal)
     find_library(METALKIT_FRAMEWORK MetalKit)
 
- 
-    
     set(GSPCORE_SRC 
         src2/Basic/GApplication/macos/GApplication.m
         src2/Basic/GWindow/macos/GWindow.m

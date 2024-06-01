@@ -10,22 +10,23 @@ void AppLaunched() {
 
     printf("App launched!\n");
     
-    GWindowInfo info;
+    /*GWindowInfo info;
     info.title = "MyApp Window";
     info.size.width = 800;
-    info.size.height = 600;
+    info.size.height = 600; 
 
     GWindow window = GWindow_Init(info);
 
     GWindowController windowController = GWindowController_Init();
     GWindowController_SetResizeEvent(windowController, WindowResized);
 
-    GWindow_SetController(window, windowController);
+    GWindow_SetController(window, windowController);*/
 
     printf("FUNCTION COMPLETE\n");
 }
 
-int main() {
+int main(int argc, char* argv[]) {
+
 
     printf("HELLO WORLD\n");    
 

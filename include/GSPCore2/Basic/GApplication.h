@@ -43,6 +43,20 @@ void GApplication_SetController(GApplication application, GApplicationController
 int GApplication_Run(GApplication application);
 GWindow GApplication_GetRootWindow();
 
+#ifdef GSPCORE_BUILD_IOS
+// MARK: IOS BUILD
+
+#import <UIKit/UIKit.h>
+
+typedef struct {
+    UIApplication* uiApplication;
+    GApplicationController controller;
+    GApplicationInfo info;
+} GApplicationDef;
+
+GApplication app;
+#endif
+
 #ifdef GSPCORE_BUILD_MACOS
 
 // MARK: MACOS BUILD

@@ -14,6 +14,20 @@ void GApplicationController_Free(GApplicationController applicationController);
 
 void GApplicationController_SetLaunchEvent(GApplicationController applicationController, GApplicationLaunchEvent launchEvent);
 
+#ifdef GSPCORE_BUILD_IOS
+
+#import <UIKit/UIKit.h>
+
+@interface UIKitApplicationDelegate : UIResponder <UIApplicationDelegate>
+@property GApplicationController controller;
+@end
+
+typedef struct {
+    UIKitApplicationDelegate* uiKitApplicationDelegate;
+    GApplicationLaunchEvent launchEvent;
+} GApplicationControllerDef;
+
+#endif
 
 #ifdef GSPCORE_BUILD_MACOS
 
@@ -24,7 +38,6 @@ void GApplicationController_SetLaunchEvent(GApplicationController applicationCon
 @interface CocoaApplicationDelegate : NSObject <NSApplicationDelegate>
 @property GApplicationController controller;
 @end
-
 
 typedef struct {
     CocoaApplicationDelegate* cocoaApplicationDelegate;

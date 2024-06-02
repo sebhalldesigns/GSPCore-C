@@ -42,6 +42,9 @@ size_t GVector_IndexOf(GVector vector, GVectorItem item);
 // logs contents of vector to console. Requires debug
 void GVector_Inspect(GVector vector);
 
+// removes and returns last element of vector or NULL if the vector was empty.
+GVectorItem GVector_Pop(GVector vector);
+
 
 #ifdef GSPCORE_BUILD
 

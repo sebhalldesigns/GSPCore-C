@@ -55,7 +55,7 @@ static GLint uPos, uSize, uViewportSize, uProjectionMatrix, uTexture;
 GRenderer GRenderer_Init() {
 
     // MARK: SET UP WEBGL
-    if (context == NULL) {
+    if (context == 0) {
         GLog(INFO, "Setting up WebGL");
 
         EmscriptenWebGLContextAttributes attrs;
@@ -277,7 +277,7 @@ void GRenderer_RenderRoot(GRenderer renderer) {
 }
 
 
-GLuint WebGLCompileShader(GLenum type, char* source) {
+GLuint WebGLCompileShader(GLenum type, const char* source) {
 
     GLuint shader = glCreateShader(type);
     glShaderSource(shader, 1, &source, NULL);

@@ -13,14 +13,32 @@
 
 typedef void(*GViewLoadedEvent)(GView view);
 
+typedef void(*GViewMouseEnterEvent)(GView view);
+typedef void(*GViewMouseExitEvent)(GView view);
+
 
 
 GViewController GViewController_Init();
 
-void GViewController_SetLoadedEvent(GViewController viewController, GViewLoadedEvent loadedEvent);
-
 void GViewController_Free(GViewController viewController);
 
+void GViewController_SetLoadedEvent(GViewController viewController, GViewLoadedEvent loadedEvent);
+void GViewController_SetMouseEnterEvent(GViewController viewController, GViewMouseEnterEvent mouseEnterEvent);
+void GViewController_SetMouseExitEvent(GViewController viewController, GViewMouseExitEvent mouseExitEvent);
 
+
+#ifdef GSPCORE_BUILD
+
+#include <stdlib.h>
+
+typedef struct {
+    GViewLoadedEvent loadedEvent;
+    GViewMouseEnterEvent mouseEnterEvent;
+    GViewMouseExitEvent mouseExitEvent;
+} GViewControllerDef;
+
+
+
+#endif
 
 #endif // GVIEWCONTROLLER_H

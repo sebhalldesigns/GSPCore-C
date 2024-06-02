@@ -14,6 +14,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 
 
@@ -69,6 +70,9 @@ GView GView_Init(GViewInfo info);
 // frees view and all children
 void GView_Free(GView view);
 
+void GView_SetController(GView view, GViewController viewController);
+
+
 // update frame of each child
 void GView_LayoutChildren();
 
@@ -76,6 +80,8 @@ void GView_LayoutChildren();
 void GView_Render(GView view);
 
 void GView_AddSubview(GView view, GView subview);
+
+size_t GView_SubviewCount(GView view);
 
 
 //#ifdef GSPCORE_BUILD
@@ -104,6 +110,8 @@ typedef struct {
     GAlignment verticalAlignment;
 
     GColor backgroundColor;
+
+    bool isMouseInside;
 
 } GViewDef;
 

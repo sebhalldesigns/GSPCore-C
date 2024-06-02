@@ -47,7 +47,7 @@ typedef struct {
 #include <SDL/SDL_image.h>
 #include <SDL/SDL_ttf.h>
 
-GLuint WebGLCompileShader(GLenum type, char* source);
+GLuint WebGLCompileShader(GLenum type, const char* source);
 GLuint WebGLCreateProgram(GLuint vertexShader, GLuint fragmentShader);
 
 typedef struct {

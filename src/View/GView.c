@@ -53,6 +53,16 @@ GView GView_Init(GViewInfo info) {
 }
 
 void GView_Free(GView view) {
+    free(view);
+}
+
+void GView_SetController(GView view, GViewController viewController) {
+    if (view == NULL) {
+        return;
+    }
+
+    GViewDef* viewDef = (GViewDef*)view;
+    viewDef->controller = viewController;
 
 }
 
@@ -89,4 +99,17 @@ void GView_AddSubview(GView view, GView subview) {
 
     GVector_Add(viewDef->subviews, subview);
     subviewDef->parentView = view;
+}
+
+size_t GView_SubviewCount(GView view) {
+    if (view == NULL) {
+        return 0;
+    }
+
+    GViewDef* viewDef = (GViewDef*)view;
+    if (viewDef->subviews == NULL) {
+        return 0;
+    }
+
+    return GVector_Size(viewDef->subviews);
 }

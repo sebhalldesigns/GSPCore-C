@@ -15,7 +15,7 @@ GVector GVector_Init() {
         return NULL;
     }
 
-    DEBUG_LOG(INFO, "Allocated GVector at %lu", vector);
+    //DEBUG_LOG(INFO, "Allocated GVector at %lu", vector);
 
     ((GVectorDef*)vector)->data = NULL;
     ((GVectorDef*)vector)->size = 0;
@@ -27,7 +27,7 @@ GVector GVector_Init() {
 void GVector_Free(GVector vector) {
 
     free(vector);
-    DEBUG_LOG(INFO, "Freed vector from %lu", vector);
+    //DEBUG_LOG(INFO, "Freed vector from %lu", vector);
 
 }
 
@@ -186,4 +186,31 @@ void GVector_Inspect(GVector vector) {
         uintptr_t item = data[i];
         DEBUG_LOG(INFO, "Vector %lu [%d] - %lu", vector, i, item);
     }
+}
+
+GVectorItem GVector_Pop(GVector vector) {
+
+    if (vector == NULL) {
+        return NULL;
+    } 
+
+    GVectorDef* vectorDef = (GVectorDef*)vector;
+    if (vectorDef->size < 1) {
+        return NULL;
+    }
+
+    GVectorItem item = (GVectorItem)vectorDef->data[vectorDef->size - 1];
+
+    uintptr_t* newData = realloc(vectorDef->data, sizeof(uintptr_t) * (vectorDef->size - 1));
+
+    if (newData == NULL) {
+        DEBUG_LOG(FAIL, "Failed to resize vector at %lu", vector);
+        return NULL;
+    }
+
+    vectorDef->size--;
+    vectorDef->data = newData;
+
+    return item;
+
 }

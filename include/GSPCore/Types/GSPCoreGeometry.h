@@ -1,6 +1,8 @@
 #ifndef GSPCOREGEOMETRY_H
 #define GSPCOREGEOMETRY_H
 
+#include <stdbool.h>
+
 typedef float GFloat;
 
 typedef struct {
@@ -17,6 +19,8 @@ typedef struct {
     GSize size;
     GPoint origin;
 } GRect;
+
+bool GRect_ContainsPoint(GRect rect, GPoint point);
 
 typedef struct {
     GFloat left;

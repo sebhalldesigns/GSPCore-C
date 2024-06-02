@@ -14,6 +14,7 @@ if(EMSCRIPTEN)
     message("Building GSPCore for WASM")
 
     set(GSPCORE_SRC
+        src/Types/GSPCoreGeometry.c
         src/Debug/GLog.c
         src/Basic/GVector.c
         src/View/GView.c
@@ -21,6 +22,7 @@ if(EMSCRIPTEN)
         src/Basic/GWindow/wasm/GWindow.c
         src/Controllers/GApplicationController/wasm/GApplicationController.c
         src/Controllers/GWindowController/wasm/GWindowController.c
+        src/Controllers/GViewController.c
         src/Graphics/GRenderer/wasm/GRenderer.c
     )
 

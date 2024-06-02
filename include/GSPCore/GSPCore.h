@@ -17,6 +17,7 @@
 #include "View/GView.h"
 #include "Controllers/GApplicationController.h"
 #include "Controllers/GWindowController.h"
+#include "Controllers/GViewController.h"
 
 #include "Debug/GLog.h"
 

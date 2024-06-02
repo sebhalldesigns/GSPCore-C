@@ -29,13 +29,7 @@ out vec4 FragColor;\n\
 uniform sampler2D uTexture;\n\
 \n\
 void main() {\n\
-    if (TexCoord.x > 0.95 || TexCoord.x < 0.05 || TexCoord.y > 0.95 || TexCoord.y < 0.05) {\n\
-        FragColor = vec4(0.0, 0.0, 0.0, 1.0);\n\
-\n\
-    } else {\n\
         FragColor = texture(uTexture, TexCoord);\n\
-    }\n\
-    \n\
 }\n\
 ";
 

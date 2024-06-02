@@ -6,6 +6,10 @@
 //
 // GView represents a generic UI element, containing
 // rendering information and children.
+//
+// A note on the tree system
+// for speed, the parentView and parentWindow properties
+// must always be accurate. 
 
 #include "../Types/GSPCoreOpaqueTypes.h"
 #include "../Types/GSPCoreGeometry.h"
@@ -42,7 +46,6 @@ typedef struct {
 // MARK: CHILD STRUCTS
 
 typedef enum {
-    DOCK_FILL,
     DOCK_LEFT,
     DOCK_TOP,
     DOCK_RIGHT,
@@ -73,8 +76,6 @@ void GView_Free(GView view);
 void GView_SetController(GView view, GViewController viewController);
 
 
-// update frame of each child
-void GView_LayoutChildren();
 
 // render view and each child
 void GView_Render(GView view);
@@ -86,9 +87,20 @@ size_t GView_SubviewCount(GView view);
 
 
 
+
 //#ifdef GSPCORE_BUILD
 
+// MARK: TREE FUNCTIONS
+
+// update all children to the specified parent window
+void GView_UpdateParentWindow(GView view, GWindow parentWindow);
+
+// update all children with the specified mouse location
 void GView_UpdateMouseLocation(GView view, GPoint mouseLocation);
+
+// update frame of each child
+void GView_UpdateLayout(GView view);
+
 
 
 typedef struct {
@@ -111,6 +123,7 @@ typedef struct {
     GThickness padding;
     GAlignment horizontalAlignment;
     GAlignment verticalAlignment;
+    GViewDockLocation dockLocation;
 
     GColor backgroundColor;
 

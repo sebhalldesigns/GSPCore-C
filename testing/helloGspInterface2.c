@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 
-GWindow window;
+
 
 void MouseEnter(GView view) {
     printf("MOUSE ENTER\n");
@@ -12,7 +12,7 @@ void MouseEnter(GView view) {
     viewDef->backgroundColor = (GColor) { 0.0f, 0.0f, 1.0f, 1.0f };
     GView_Render(view);
 
-    GWindow_Render(window);
+    //GWindow_Render(window);
 }
 
 void MouseExit(GView view) {
@@ -23,7 +23,7 @@ void MouseExit(GView view) {
     viewDef->backgroundColor = (GColor) { 1.0f, 0.0f, 1.0f, 1.0f };
     GView_Render(view);
 
-        GWindow_Render(window);
+        //GWindow_Render(window);
 
 }
 
@@ -40,7 +40,7 @@ void AppLaunched(GApplication application) {
     info.size.width = 800;
     info.size.height = 600; 
 
-    /*GWindow*/ window = GWindow_Init(info);
+    GWindow window = GWindow_Init(info);
 
     
     GWindowController windowController = GWindowController_Init();
@@ -56,6 +56,8 @@ void AppLaunched(GApplication application) {
     GView rootView = GView_Init(viewInfo);
     GWindow_SetRootView(window, rootView);
 
+    GViewDef* rootViewDef = (GViewDef*)rootView;
+    rootViewDef->layout = LAYOUT_DOCK;
 
     
 
@@ -65,12 +67,25 @@ void AppLaunched(GApplication application) {
     GView view2 = GView_Init(view2Info);
     GView_AddSubview(rootView, view2);
 
+    GViewDef* view2Def = (GViewDef*)view2;
+    view2Def->dockLocation = DOCK_BOTTOM;
+
+
     GViewController view2Controller = GViewController_Init();
     GViewController_SetMouseEnterEvent(view2Controller, MouseEnter);
     GViewController_SetMouseExitEvent(view2Controller, MouseExit);
     GView_SetController(view2, view2Controller);
 
     GView_Render(view2);
+
+
+    GViewInfo view3Info;
+    view3Info.frame = (GRect) { 100.0, 100.0, 100.0, 100.0 };
+    view3Info.backgroundColor = (GColor) { 1.0f, 0.0f, 0.0f, 1.0f };
+    GView view3 = GView_Init(view3Info);
+    GView_AddSubview(rootView, view3);
+    GView_Render(view3);
+
 }
 
 int main(int argc, char* argv[]) {

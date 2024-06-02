@@ -66,9 +66,6 @@ void GView_SetController(GView view, GViewController viewController) {
 
 }
 
-void GView_LayoutChildren() {
-
-}
 
 void GView_Render(GView view) {
     if (view == NULL) {
@@ -77,6 +74,7 @@ void GView_Render(GView view) {
 
     GViewDef* viewDef = (GViewDef*)view;
     GRenderer_RenderSelf(viewDef->renderer);
+    GWindow_Render(viewDef->parentWindow);
 }
 
 void GView_AddSubview(GView view, GView subview) {
@@ -99,6 +97,7 @@ void GView_AddSubview(GView view, GView subview) {
 
     GVector_Add(viewDef->subviews, subview);
     subviewDef->parentView = view;
+    GView_UpdateParentWindow(subview, viewDef->parentWindow);
 }
 
 size_t GView_SubviewCount(GView view) {
@@ -149,4 +148,91 @@ void GView_UpdateMouseLocation(GView view, GPoint mouseLocation) {
     }
 
 
+}
+
+void GView_UpdateParentWindow(GView view, GWindow parentWindow) {
+    if (view == NULL) {
+        return;
+    }
+
+    GViewDef* viewDef = (GViewDef*)view;
+    viewDef->parentWindow = parentWindow;
+    size_t subviewCount = GVector_Size(viewDef->subviews);
+    for (size_t i = 0; i < subviewCount; i++) {
+        GView_UpdateParentWindow(GVector_Get(viewDef->subviews, i), parentWindow);
+    }
+}
+
+
+void GView_UpdateLayout(GView view) {
+    if (view == NULL) {
+        return;
+    }
+
+    GViewDef* viewDef = (GViewDef*)view;
+    size_t subviewCount = GVector_Size(viewDef->subviews);
+
+
+    switch (viewDef->layout) {
+        case LAYOUT_NONE:
+            break;
+        case LAYOUT_DOCK:
+
+            float consumedLeft = 0.0;
+            float consumedTop = 0.0;
+            float consumedRight = 0.0;
+            float consumedBottom = 0.0;
+
+            for (size_t i = 0; i < subviewCount; i++) {
+                
+                GViewDef* subview = GVector_Get(viewDef->subviews, i);
+
+                if (subview != NULL) {
+
+
+                    if (i == subviewCount - 1) {
+                        // i.e this is the last subview, so make it fill the remaining space
+                        subview->frame.origin = (GPoint) { viewDef->frame.origin.x + consumedLeft, viewDef->frame.origin.y + consumedTop };
+                        subview->frame.size = (GSize) { viewDef->frame.size.width - (consumedLeft + consumedRight), viewDef->frame.size.height - (consumedTop + consumedBottom) }; 
+                    } else {
+                        // n.b dock left is the default case so there isn't any undefined behaviour
+                        switch (subview->dockLocation) {
+                            case DOCK_TOP:
+                                subview->frame.origin = (GPoint) { viewDef->frame.origin.x + consumedLeft, viewDef->frame.origin.y + consumedTop };
+                                subview->frame.size = (GSize) { viewDef->frame.size.width - (consumedLeft + consumedRight), subview->frame.size.height }; 
+                                consumedTop += subview->frame.size.height;
+                                break;
+                            case DOCK_RIGHT:
+                                subview->frame.origin = (GPoint) { viewDef->frame.origin.x + (viewDef->frame.size.width - (consumedRight + subview->frame.size.width)), viewDef->frame.origin.y + consumedTop };
+                                subview->frame.size = (GSize) { subview->frame.size.width, viewDef->frame.size.height - (consumedTop + consumedBottom) }; 
+                                consumedRight += subview->frame.size.width;
+                                break;
+                            case DOCK_BOTTOM:
+                                subview->frame.origin = (GPoint) { viewDef->frame.origin.x + consumedLeft, viewDef->frame.origin.y + ( viewDef->frame.size.height - (consumedBottom + subview->frame.size.height)) };
+                                subview->frame.size = (GSize) { viewDef->frame.size.width - (consumedLeft + consumedRight), subview->frame.size.height }; 
+                                consumedBottom += subview->frame.size.height;
+                                break;
+                            default:
+                                subview->frame.origin = (GPoint) { viewDef->frame.origin.x + consumedLeft, viewDef->frame.origin.y + consumedTop };
+                                subview->frame.size = (GSize) { subview->frame.size.width, viewDef->frame.size.height - (consumedTop + consumedBottom) }; 
+                                consumedLeft += subview->frame.size.width;
+                                break;
+                            
+
+                        }
+                    }
+                }
+
+                
+            }
+
+            break;
+        case LAYOUT_STACK:
+            break;
+    }
+
+
+    for (size_t i = 0; i < subviewCount; i++) {
+        GView_UpdateLayout(GVector_Get(viewDef->subviews, i));
+    }
 }

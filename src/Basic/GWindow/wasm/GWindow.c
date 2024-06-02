@@ -65,6 +65,8 @@ void GWindow_Layout(GWindow window) {
     GViewDef* viewDef = (GViewDef*)windowDef->rootView;
     viewDef->frame.origin = (GPoint) { 0.0, 0.0 }; 
     viewDef->frame.size = (GSize) {windowDef->info.size.width, windowDef->info.size.height };
+
+    GView_UpdateLayout(viewDef);
     
 }
 
@@ -94,4 +96,6 @@ void GWindow_SetRootView(GWindow window, GView view) {
 
     GWindowDef* windowDef = (GWindowDef*)window;
     windowDef->rootView = view;
+    
+    GView_UpdateParentWindow(view, window);
 }

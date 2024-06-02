@@ -64,6 +64,12 @@ void WasmMouseMove(double mouseX, double mouseY);
 EMSCRIPTEN_KEEPALIVE
 void WasmWindowResize(double width, double height);
 
+EMSCRIPTEN_KEEPALIVE
+void WasmLightMode();
+
+EMSCRIPTEN_KEEPALIVE
+void WasmDarkMode();
+
 #endif
 
 #ifdef GSPCORE_BUILD_IOS

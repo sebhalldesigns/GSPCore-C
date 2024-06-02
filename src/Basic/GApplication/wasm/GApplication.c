@@ -111,6 +111,16 @@ int GApplication_Run(GApplication application) {
             
         });
 
+        window.matchMedia('(prefers-color-scheme: dark)')
+            .addEventListener('change',({ matches }) => {
+            if (matches) {
+                Module.ccall("WasmDarkMode", null, null, null);
+            } else {
+                Module.ccall("WasmLightMode", null, null, null);
+            }
+        });
+
+
         const newWidth = window.innerWidth;
         const newHeight = window.innerHeight;
 
@@ -201,4 +211,13 @@ void WasmWindowResize(double width, double height) {
 
 void WasmMainLoop() {
     // do nothing here
+}
+
+
+void WasmLightMode() {
+    printf("LIGHT MODE\n");
+}
+
+void WasmDarkMode() {
+    printf("DARK MODE\n");
 }

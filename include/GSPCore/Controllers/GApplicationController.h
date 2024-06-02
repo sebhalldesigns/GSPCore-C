@@ -6,6 +6,7 @@
 #include "../Types/GSPCoreOpaqueTypes.h"
 
 typedef void (*GApplicationLaunchEvent)(GApplication application);
+typedef void (*GApplicationColorModeChangeEvent)(GApplication application);
 
 GApplicationController GApplicationController_Init();
 void GApplicationController_Free(GApplicationController applicationController);

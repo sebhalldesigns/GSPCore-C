@@ -95,15 +95,20 @@ int GApplication_Run(GApplication application) {
         });
 
 
-        window.addEventListener("resize", (event) => {
+        window.addEventListener("resize", function (event) {
             const newWidth = window.innerWidth;
             const newHeight = window.innerHeight;
 
             const canvasElement = document.getElementById("canvas");
+
             canvasElement.width = newWidth;
             canvasElement.height = newHeight;
+            canvasElement.style.width = newWidth;
+            canvasElement.style.height = newHeight;
 
             Module.ccall("WasmWindowResize", null, ["float", "float"], [newWidth, newHeight]);
+
+            
         });
 
         const newWidth = window.innerWidth;
@@ -112,6 +117,8 @@ int GApplication_Run(GApplication application) {
         const canvasElement = document.getElementById("canvas");
         canvasElement.width = newWidth;
         canvasElement.height = newHeight;
+        canvasElement.style.width = newWidth;
+        canvasElement.style.height = newHeight;
 
         Module.ccall("WasmWindowResize", null, ["float", "float"], [newWidth, newHeight]);
 
@@ -170,6 +177,9 @@ void WasmWindowResize(double width, double height) {
         console.log('I received: ' + $0 + ' ' + $1);
     }, width, height);
 */
+    //    emscripten_set_canvas_size( width, height);
+
+    //emscripten_set_canvas_element_size("#canvas", width, height);
 }
 
 

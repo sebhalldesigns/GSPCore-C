@@ -3,10 +3,7 @@
 
 // MARK: PUBLIC INTERFACE
 
-#include "../Basic/GApplication.h"
-
-typedef void* GApplication;
-typedef void* GApplicationController;
+#include "../Types/GSPCoreOpaqueTypes.h"
 
 typedef void (*GApplicationLaunchEvent)(GApplication application);
 

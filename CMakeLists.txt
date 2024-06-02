@@ -14,12 +14,14 @@ if(EMSCRIPTEN)
     message("Building GSPCore for WASM")
 
     set(GSPCORE_SRC
-        src/Basic/GLog.c
+        src/Debug/GLog.c
         src/Basic/GVector.c
+        src/View/GView.c
         src/Basic/GApplication/wasm/GApplication.c
         src/Basic/GWindow/wasm/GWindow.c
         src/Controllers/GApplicationController/wasm/GApplicationController.c
         src/Controllers/GWindowController/wasm/GWindowController.c
+        src/Graphics/GRenderer/wasm/GRenderer.c
     )
 
     add_library(GSPCore STATIC ${GSPCORE_SRC})
@@ -188,7 +190,7 @@ elseif(WIN32)
     set(CMAKE_GENERATOR_PLATFORM x64)
 
     set(GSPCORE_SRC
-        src/Basic/GLog.c
+        src/Debug/GLog.c
         src/Basic/GVector.c
         src/Basic/GApplication/win32/GApplication.c
         src/Basic/GWindow/win32/GWindow.c

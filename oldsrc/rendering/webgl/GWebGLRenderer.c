@@ -259,10 +259,7 @@ void GWebGLRenderer_RenderView(GView view) {
         glBindTexture(GL_TEXTURE_2D, viewDef->texture);
         glUniform1i(uTexture, 0);
         
-        glViewport(0, 0, viewportWidth, viewportHeight);        
-        glUniformMatrix4fv(uProjectionMatrix, 1, GL_FALSE, ortho);
-        glUniform2f(uViewportSize, (float)viewportWidth, (float)viewportHeight);
-        printf("SET VIEWPORT SIZE TO %f %f\n", (float)viewportWidth, (float)viewportHeight);
+        
         glUniform2f(uPos, (float)viewDef->frame.x, (float)viewDef->frame.y);
         glUniform2f(uSize, (float)viewDef->frame.width, (float)viewDef->frame.height);
 

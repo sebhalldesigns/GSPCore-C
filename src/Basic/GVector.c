@@ -1,5 +1,5 @@
 #include "GSPCore/Basic/GVector.h"
-#include "GSPCore/Basic/GLog.h"
+#include "GSPCore/Debug/GLog.h"
 
 #include <stdlib.h>
 #include <string.h>

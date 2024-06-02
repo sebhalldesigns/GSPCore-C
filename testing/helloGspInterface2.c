@@ -24,6 +24,20 @@ void AppLaunched(GApplication application) {
     GWindow_SetController(window, windowController);
 
     GApplication_SetMainWindow(application, window);
+
+
+    GViewInfo viewInfo;
+    viewInfo.backgroundColor = (GColor) { 1.0f, 1.0f, 0.0f, 1.0f };
+    GView rootView = GView_Init(viewInfo);
+    GWindow_SetRootView(window, rootView);
+
+    GViewInfo view2Info;
+    view2Info.frame = (GRect) { 100.0, 100.0, 100.0, 100.0 };
+    view2Info.backgroundColor = (GColor) { 1.0f, 0.0f, 1.0f, 1.0f };
+    GView view2 = GView_Init(view2Info);
+    GView_AddSubview(rootView, view2);
+
+    GView_Render(view2);
 }
 
 int main(int argc, char* argv[]) {

@@ -7,16 +7,10 @@
 // GApplication is the root application structure
 // for working with the GSPCore system
 
-#include "GWindow.h"
-#include "GVector.h"
-#include "../Controllers/GApplicationController.h"
+
+#include "../Types/GSPCoreOpaqueTypes.h"
 
 #include <stdbool.h>
-
-// MARK: DEFINITION
-typedef void* GApplication;
-
-typedef void* GApplicationController;
 
 typedef struct {
     const char* title;

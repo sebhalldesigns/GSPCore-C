@@ -6,15 +6,8 @@
 //
 // GWindow is a generic top-level application window
 
-#include "../GSPCoreGeometry.h"
-#include "../Controllers/GWindowController.h"
-#include "../Graphics/GRenderer.h"
-
-// MARK: DEFINITION
-typedef void* GWindow;
-typedef void* GWindowController;
-typedef void* GRenderer;
-
+#include "../Types/GSPCoreOpaqueTypes.h"
+#include "../Types/GSPCoreGeometry.h"
 
 typedef struct {
     const char* title;
@@ -31,13 +24,17 @@ void GWindow_SetController(GWindow window, GWindowController windowController);
 void GWindow_Close(GWindow window);
 // Request a window render. This should be handled automatically by the system when a window is resized etc.
 void GWindow_Render(GWindow window);
+void GWindow_Layout(GWindow window);
+
+GView GWindow_GetRootView(GWindow window);
+void GWindow_SetRootView(GWindow window, GView view);
 
 #ifdef GSPCORE_BUILD_WASM
 
 typedef struct {
     GWindowInfo info;
-    GRenderer renderer;
     GWindowController controller;
+    GView rootView;
 } GWindowDef;
 
 #endif

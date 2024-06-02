@@ -8,9 +8,8 @@
 // recieves and handles events for instances
 // of GView.
 
-typedef void* GView;
+#include "../Types/GSPCoreOpaqueTypes.h"
 
-typedef void* GViewController;
 
 typedef void(*GViewLoadedEvent)(GView view);
 

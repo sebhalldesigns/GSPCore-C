@@ -9,17 +9,55 @@
 // to provide a simple, singular API for rendering.
 // It is provided on a per-window basis.
 
-#include "../Basic/GWindow.h"
-#include "../GSPCoreGeometry.h"
+#include "../Types/GSPCoreOpaqueTypes.h"
+#include "../Types/GSPCoreGeometry.h"
 
 #include <stdbool.h>
+#include <stddef.h>
 
-typedef void* GWindow;
-typedef void* GRenderer;
+// a window 
+GRenderer GRenderer_Init();
 
-GRenderer GRenderer_InitForWindow(GWindow window);
 void GRenderer_Free(GRenderer renderer);
 
+// GRenderer_CreatePipeline etc
+
+void GRenderer_RenderSelf(GRenderer renderer);
+void GRenderer_RenderRoot(GRenderer renderer);
+
+typedef enum {
+    GRAPHICS_TYPE_NONE,
+    GRAPHICS_TYPE_WEBGL,
+    GRAPHICS_TYPE_METAL,
+    GRAPHICS_TYPE_VULKAN
+} GRendererGraphicsType;
+
+typedef struct {
+    GRendererGraphicsType graphicsType;
+    char* graphicsDevice;
+    size_t imagesPerDrawCall;
+} GRendererSystemInfo;
+
+#ifdef GSPCORE_BUILD_WASM
+
+#include <emscripten.h>
+#include <emscripten/html5.h>
+#include <GLES3/gl3.h>
+#include <SDL/SDL.h>
+#include <SDL/SDL_image.h>
+#include <SDL/SDL_ttf.h>
+
+GLuint WebGLCompileShader(GLenum type, char* source);
+GLuint WebGLCreateProgram(GLuint vertexShader, GLuint fragmentShader);
+
+typedef struct {
+    GLuint framebuffer;
+    GLuint renderedTexture;
+    GSize textureSize;
+    GView view;
+} GRendererDef;
+
+#endif
 
 #ifdef GSPCORE_BUILD_MACOS
 
@@ -35,8 +73,8 @@ typedef struct {
     id<MTLTexture> mtlTexture;
 } GRendererDef;
 
-
 #endif
+
 
 
 #endif // GRENDERER_H

@@ -1,6 +1,8 @@
-#include "GSPCore/Basic/GApplication.h"
 
-#include "GSPCore/Basic/GLog.h"
+#include "GSPCore/Basic/GApplication.h"
+#include "GSPCore/Controllers/GApplicationController.h"
+
+#include "GSPCore/Debug/GLog.h"
 
 #ifndef UNICODE
 #define UNICODE

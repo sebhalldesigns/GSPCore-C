@@ -1,7 +1,4 @@
-#include "GSPCore/Basic/GApplication.h"
-
-#include "GSPCore/Basic/GLog.h"
-
+#include "GSPCore/GSPCore.h"
 
 #include <stdlib.h>
 #include <stddef.h>
@@ -97,20 +94,27 @@ int GApplication_Run(GApplication application) {
             Module.ccall("WasmMouseMove", null, ["float", "float"], [event.clientX, event.clientY])
         });
 
-        window.addEventListener("resize", (event) => {
-            let canvasElement = document.getElementById("canvas");
-            canvasElement.width = window.innerWidth;
-            canvasElement.height = window.innerHeight;
-        });
 
         window.addEventListener("resize", (event) => {
-            Module.ccall("WasmWindowResize", null, ["float", "float"], [window.innerWidth, window.innerHeight]);
+            const newWidth = window.innerWidth;
+            const newHeight = window.innerHeight;
+
+            const canvasElement = document.getElementById("canvas");
+            canvasElement.width = newWidth;
+            canvasElement.height = newHeight;
+
+            Module.ccall("WasmWindowResize", null, ["float", "float"], [newWidth, newHeight]);
         });
 
-            let canvasElement = document.getElementById("canvas");
-            canvasElement.width = window.innerWidth;
-            canvasElement.height = window.innerHeight;
-         Module.ccall("WasmWindowResize", null, ["float", "float"], [window.innerWidth, window.innerHeight]);
+        const newWidth = window.innerWidth;
+        const newHeight = window.innerHeight;
+
+        const canvasElement = document.getElementById("canvas");
+        canvasElement.width = newWidth;
+        canvasElement.height = newHeight;
+
+        Module.ccall("WasmWindowResize", null, ["float", "float"], [newWidth, newHeight]);
+
     });
 
 
@@ -124,34 +128,26 @@ int GApplication_Run(GApplication application) {
 
 
 void WasmMouseMove(double mouseX, double mouseY) {
-    printf("%f %f\n", mouseX, mouseY);
-    //GWebGLRenderer_RenderView(NULL);
 
 
 }
 
 
 void WasmWindowResize(double width, double height) {
-    printf("%f %f\n", width, height);
-    //GWebGLRenderer_SetViewportSize(width, height);
-    //GWebGLRenderer_RenderView(NULL);
-    
+
     if (app == NULL) {
-        printf("APP NULL\n");
         return;
     }
 
     GApplicationDef* appDef = (GApplicationDef*)app;
 
     if (appDef->mainWindow == NULL) {
-        printf("MAIN WINDOW NULL AT %lu\n", appDef);
         return;
     }
 
     GWindowDef* windowDef = (GWindowDef*) appDef->mainWindow;
 
     if (windowDef->controller == NULL) {
-        printf("CONTROLLER NULL\n");
         return;
     }
 
@@ -161,7 +157,19 @@ void WasmWindowResize(double width, double height) {
         (controllerDef->resizeEvent)(windowDef, (GSize) { (float) width, (float) height });
     }
 
-    printf("EVENT NULL\n");
+    windowDef->info.size = (GSize) { (float) width, (float) height };
+
+    GWindow_Layout(windowDef);
+
+    GWindow_Render(windowDef);
+    /*
+    EM_ASM({
+        const canvasElement = document.getElementById("canvas");
+        canvasElement.width = 100;
+        canvasElement.height = 200;
+        console.log('I received: ' + $0 + ' ' + $1);
+    }, width, height);
+*/
 }
 
 

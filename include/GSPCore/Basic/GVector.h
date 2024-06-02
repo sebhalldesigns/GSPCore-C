@@ -4,12 +4,12 @@
 // GVector - a lightweight, dynamically resizable vector container for pointer types.
 // It is naturally zero-indexed
 
+#include "../Types/GSPCoreOpaqueTypes.h"
+
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
 
-typedef void* GVector;
-typedef void* GVectorItem;
 
 // initialises vector
 GVector GVector_Init();

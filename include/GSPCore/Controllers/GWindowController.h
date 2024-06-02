@@ -8,14 +8,10 @@
 // recieves and handles events for instances
 // of GWindow.
 
-#include "../GSPCoreGeometry.h"
-#include "../Basic/GWindow.h"
+#include "../Types/GSPCoreOpaqueTypes.h"
+#include "../Types/GSPCoreGeometry.h"
 
 #include <stdbool.h>
-
-typedef void* GWindow;
-
-typedef void* GWindowController;
 
 typedef void(*GWindowCloseEvent)(GWindow window);
 typedef bool(*GWindowWillCloseEvent)(GWindow window);

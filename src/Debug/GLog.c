@@ -1,4 +1,4 @@
-#include "GSPCore/Basic/GLog.h"
+#include "GSPCore/Debug/GLog.h"
 
 #include <time.h>
 #include <stdio.h>

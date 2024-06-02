@@ -1,4 +1,5 @@
 #include "GSPCore/Controllers/GApplicationController.h"
+#include "GSPCore/GSPCore.h"
 
 GApplicationController GApplicationController_Init() {
     

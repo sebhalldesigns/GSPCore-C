@@ -113,3 +113,40 @@ size_t GView_SubviewCount(GView view) {
 
     return GVector_Size(viewDef->subviews);
 }
+
+void GView_UpdateMouseLocation(GView view, GPoint mouseLocation) {
+
+    if (view == NULL) {
+        return;
+    }
+
+    GViewDef* viewDef = (GViewDef*)view;
+
+    if (viewDef->controller != NULL && GRect_ContainsPoint(viewDef->frame, mouseLocation)) {
+
+        if (!viewDef->isMouseInside) {
+            // trigger mouse enter event    
+            if (((GViewControllerDef*)viewDef->controller)->mouseEnterEvent != NULL) {
+                (((GViewControllerDef*)viewDef->controller)->mouseEnterEvent)(viewDef);
+                viewDef->isMouseInside = true;
+            }
+        }
+
+    } else if (viewDef->controller != NULL) {
+        
+        if (viewDef->isMouseInside) {
+            // trigger mouse enter event
+            if (viewDef->controller != NULL && ((GViewControllerDef*)viewDef->controller)->mouseExitEvent != NULL) {
+                (((GViewControllerDef*)viewDef->controller)->mouseExitEvent)(viewDef);
+                viewDef->isMouseInside = false;
+            }
+        }
+    }
+
+    size_t subviewCount = GVector_Size(viewDef->subviews);
+    for (size_t i = 0; i < subviewCount; i++) {
+        GView_UpdateMouseLocation(GVector_Get(viewDef->subviews, i), mouseLocation);
+    }
+
+
+}

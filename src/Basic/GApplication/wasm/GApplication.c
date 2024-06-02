@@ -150,51 +150,7 @@ void WasmMouseMove(double mouseX, double mouseY) {
 
     GPoint mouseLocation = (GPoint) { mouseX, mouseY };
 
-    GVector viewStack = GVector_Init();
-    if (viewStack == NULL) {
-        return;
-    }
-
-    GVector_Add(viewStack, windowDef->rootView);
-
-    while (GVector_Size(viewStack) > 0) {
-
-        GViewDef* current = GVector_Pop(viewStack);
-        if (current == NULL) {
-            GVector_Free(viewStack);
-            return;
-        }
-
-        if (GRect_ContainsPoint(current->frame, mouseLocation)) {
-            //printf("IN VIEW\n");
-
-            if (!current->isMouseInside) {
-                // trigger mouse enter event    
-                if (current->controller != NULL && ((GViewControllerDef*)current->controller)->mouseEnterEvent != NULL) {
-                    (((GViewControllerDef*)current->controller)->mouseEnterEvent)(current);
-                    current->isMouseInside = true;
-                }
-            }
-
-        } else {
-            
-            if (current->isMouseInside) {
-                // trigger mouse enter event
-                if (current->controller != NULL && ((GViewControllerDef*)current->controller)->mouseExitEvent != NULL) {
-                    (((GViewControllerDef*)current->controller)->mouseExitEvent)(current);
-                    current->isMouseInside = false;
-                }
-            }
-        }
-
-        size_t subviewCount = GVector_Size(current->subviews);
-        for (size_t i = 0; i < subviewCount; i++) {
-            GVector_Add(viewStack, GVector_Get(current->subviews, i));
-        }
-
-    }
-
-    GVector_Free(viewStack);
+    GView_UpdateMouseLocation(windowDef->rootView, mouseLocation);
 
 }
 

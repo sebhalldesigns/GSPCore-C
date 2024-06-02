@@ -84,8 +84,11 @@ void GView_AddSubview(GView view, GView subview);
 size_t GView_SubviewCount(GView view);
 
 
+
+
 //#ifdef GSPCORE_BUILD
 
+void GView_UpdateMouseLocation(GView view, GPoint mouseLocation);
 
 
 typedef struct {

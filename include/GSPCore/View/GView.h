@@ -101,6 +101,7 @@ void GView_UpdateMouseLocation(GView view, GPoint mouseLocation);
 // update frame of each child
 void GView_UpdateLayout(GView view);
 
+void GView_SetDrawing(GView view, GDrawing drawing);
 
 
 typedef struct {

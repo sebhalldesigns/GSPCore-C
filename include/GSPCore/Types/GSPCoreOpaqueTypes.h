@@ -13,5 +13,8 @@ typedef void* GApplicationController;
 typedef void* GWindowController;
 typedef void* GViewController;
 
+typedef void* GFont;
+typedef void* GPath;
+typedef void* GDrawing;
 
 #endif // GSPCOREOPAQUETYPES_H

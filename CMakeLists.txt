@@ -30,7 +30,7 @@ if(EMSCRIPTEN)
     target_compile_definitions(GSPCore PUBLIC -DGSPCORE_BUILD -DGSPCORE_BUILD_WASM)
 
 
-    set(USE_FLAGS "-s USE_SDL=2 -s USE_SDL_IMAGE=2 -s USE_SDL_TTF=2 -s USE_FREETYPE=1 --preload-file ../resources/wasm/assets")
+    set(USE_FLAGS "-s USE_SDL=2 -s USE_SDL_IMAGE=2 -s USE_SDL_TTF=2 -s USE_FREETYPE=1 --preload-file ../resources/wasm/assets --preload-file ../resources/wasm/shaders")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${USE_FLAGS}")
     set_target_properties(GSPCore PROPERTIES LINK_FLAGS "-s USE_WEBGL2=1 -s USE_SDL=0 -s USE_SDL_TTF=2 -s EXPORTED_RUNTIME_METHODS=['ccall','cwrap'] -s EXPORTED_FUNCTIONS=['_malloc']")
 

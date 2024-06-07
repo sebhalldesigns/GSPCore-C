@@ -38,6 +38,8 @@ typedef struct {
     size_t imagesPerDrawCall;
 } GRendererSystemInfo;
 
+
+
 #ifdef GSPCORE_BUILD_WASM
 
 #include <emscripten.h>
@@ -47,7 +49,7 @@ typedef struct {
 #include <SDL/SDL_image.h>
 #include <SDL/SDL_ttf.h>
 
-GLuint WebGLCompileShader(GLenum type, const char* source);
+GLuint WebGLCompileShader(GLenum type, const char* path);
 GLuint WebGLCreateProgram(GLuint vertexShader, GLuint fragmentShader);
 
 typedef struct {

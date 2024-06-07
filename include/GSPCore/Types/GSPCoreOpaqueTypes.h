@@ -4,7 +4,9 @@
 typedef void* GApplication;
 typedef void* GWindow;
 typedef void* GView;
+
 typedef void* GRenderer;
+typedef void* GSurface;
 
 typedef void* GVector;
 typedef void* GVectorItem;

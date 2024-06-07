@@ -120,6 +120,8 @@ void GView_UpdateMouseLocation(GView view, GPoint mouseLocation) {
     }
 
     GViewDef* viewDef = (GViewDef*)view;
+    viewDef->lastMouseLocation = mouseLocation;
+    GView_Render(view);
 
     if (viewDef->controller != NULL && GRect_ContainsPoint(viewDef->frame, mouseLocation)) {
 
@@ -171,7 +173,7 @@ void GView_UpdateLayout(GView view) {
 
     GViewDef* viewDef = (GViewDef*)view;
     size_t subviewCount = GVector_Size(viewDef->subviews);
-
+    GView_Render(viewDef);
 
     switch (viewDef->layout) {
         case LAYOUT_NONE:

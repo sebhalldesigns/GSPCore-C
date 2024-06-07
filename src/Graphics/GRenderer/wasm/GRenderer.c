@@ -1,38 +1,6 @@
 #include "GSPCore/Graphics/GRenderer.h"
 #include "GSPCore/GSPCore.h"
 
-const char *textureVertexShaderSource = "\
-#version 300 es\n\
-layout (location = 0) in vec2 aPos;\n\
-\n\
-out vec2 TexCoord;\n\
-\n\
-uniform vec2 uPos;\n\
-uniform vec2 uSize;\n\
-uniform vec2 uViewportSize;\n\
-\n\
-void main() {\n\
-    vec2 proportionalPosition = vec2((aPos*uSize + uPos)/uViewportSize);\n\
-    vec2 normalisedPosition = (proportionalPosition * 2.0 - 1.0); \n\
-    gl_Position = vec4(normalisedPosition  * vec2(1.0, -1.0), 0.0, 1.0);\n\
-    TexCoord = aPos;\n\
-}\n\
-";
-
-const char *textureFragmentShaderSource = "\
-#version 300 es\n\
-precision mediump float;\n\
-\n\
-in vec2 TexCoord;\n\
-out vec4 FragColor;\n\
-\n\
-uniform sampler2D uTexture;\n\
-\n\
-void main() {\n\
-        FragColor = texture(uTexture, TexCoord);\n\
-}\n\
-";
-
 float rectVertices[] = {
     0.0f, 0.0f,
     0.0f, 1.0f,
@@ -40,10 +8,39 @@ float rectVertices[] = {
     1.0f, 1.0f
 };
 
+float vectorVertices[] = {
+    1.0f, 1.0f,
+    1.0f, -1.0f,
+    -1.0f, -1.0f,
+    -1.0f, 1.0f
+};
+
+unsigned int vectorIndices[] = {
+    0, 1, 3,
+    1, 2, 3
+};
+
 static EMSCRIPTEN_WEBGL_CONTEXT_HANDLE context;
 static GLuint textureShader;
 static GLuint rectVertexArray;
 static GLint uPos, uSize, uViewportSize, uProjectionMatrix, uTexture;
+
+static GLuint vectorShader;
+static GLuint vectorVertexArray;
+static GLint vectorUSize, vectorUNumEntries;
+static GLuint vectorUniformBuffer;
+
+typedef struct {
+    uint32_t type;
+    float padding[3];
+    float color[4];
+    float posAndStyle[4];
+    float paramsA[4];
+    float paramsB[4];
+    
+} VectorGeometry;
+
+VectorGeometry geometry[64];
 
 // a window renderer renders all subviews
 GRenderer GRenderer_Init() {
@@ -78,15 +75,57 @@ GRenderer GRenderer_Init() {
             return NULL;
         }
 
-        GLuint textureVertexShader = WebGLCompileShader(GL_VERTEX_SHADER, textureVertexShaderSource);
-        GLuint textureFragmentShader = WebGLCompileShader(GL_FRAGMENT_SHADER, textureFragmentShaderSource);
+        GLuint vectorVertexShader = WebGLCompileShader(GL_VERTEX_SHADER, "../resources/wasm/shaders/vector/GeneralVectorVert.glsl");
+        GLuint vectorFragmentShader = WebGLCompileShader(GL_FRAGMENT_SHADER, "../resources/wasm/shaders/vector/GeneralVectorFrag.glsl");
+        vectorShader = WebGLCreateProgram(vectorVertexShader, vectorFragmentShader);
+
+        glDeleteShader(vectorVertexShader);
+        glDeleteShader(vectorFragmentShader);
+
+        if (vectorShader == 0) {
+            GLog(FAIL, "Failed to compile vector shader");
+            return NULL;
+        }
+
+        GLog(INFO, "Compiled vector shader");
+
+        vectorUSize = glGetUniformLocation(vectorShader, "uSize");
+        vectorUNumEntries = glGetUniformLocation(vectorShader, "numEntries");
+
+
+        glUseProgram(vectorShader);
+
+        glGenVertexArrays(1, &vectorVertexArray);
+        glBindVertexArray(vectorVertexArray);
+
+        GLuint vectorVertexBuffer;
+        glGenBuffers(1, &vectorVertexBuffer);
+
+        GLuint vectorElementBuffer;
+        glGenBuffers(1, &vectorElementBuffer);
+
+        glBindBuffer(GL_ARRAY_BUFFER, vectorVertexBuffer);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vectorVertices), vectorVertices, GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vectorElementBuffer);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(vectorIndices), vectorIndices, GL_STATIC_DRAW);
+
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+
+
+        GLuint textureVertexShader = WebGLCompileShader(GL_VERTEX_SHADER, "../resources/wasm/shaders/compositor/RectangularCompositorVert.glsl");
+        GLuint textureFragmentShader = WebGLCompileShader(GL_FRAGMENT_SHADER, "../resources/wasm/shaders/compositor/RectangularCompositorFrag.glsl");
         textureShader = WebGLCreateProgram(textureVertexShader, textureFragmentShader);
 
         glDeleteShader(textureVertexShader);
         glDeleteShader(textureFragmentShader);
 
         if (textureShader == 0) {
-            GLog(FAIL, "Failed to compile textre shader");
+            GLog(FAIL, "Failed to compile texture shader");
             return NULL;
         }
 
@@ -192,8 +231,49 @@ void GRenderer_RenderSelf(GRenderer renderer) {
         GLog(INFO, "Resized framebuffer texture");
     }
 
-    glClearColor(viewDef->backgroundColor.red, viewDef->backgroundColor.green, viewDef->backgroundColor.blue, viewDef->backgroundColor.alpha); 
+    glClearColor(0.0, 0.0, 0.0, 1.0);
+    //glClearColor(viewDef->backgroundColor.red, viewDef->backgroundColor.green, viewDef->backgroundColor.blue, viewDef->backgroundColor.alpha); 
     glClear(GL_COLOR_BUFFER_BIT);
+
+    glViewport(0, 0, viewDef->frame.size.width, viewDef->frame.size.height);        
+    printf("SET BACKGROUND TO %f %f \n", viewDef->frame.size.width, viewDef->frame.size.height);
+
+
+    // RENDER VIEW HERE
+    glUseProgram(vectorShader);
+    glUniform2f(vectorUSize, (float)viewDef->frame.size.width, (float)viewDef->frame.size.height);
+
+    glUniform1i(vectorUNumEntries, 1);
+    /*
+    for (int i = 0; i < 64; i++) {
+        vectorData[i].position[0] = ((float)rand()/(float)(RAND_MAX)) * viewDef->frame.size.width;
+        vectorData[i].position[1] = ((  float)rand()/(float)(RAND_MAX)) * viewDef->frame.size.height;
+    }
+ 
+
+    vectorData[0].position[0] = viewDef->lastMouseLocation.x;
+    vectorData[0].position[1] = viewDef->lastMouseLocation.y;
+*/
+
+    geometry[0].type = 1;
+    geometry[0].posAndStyle[0] = viewDef->lastMouseLocation.x;
+    geometry[0].posAndStyle[1] = viewDef->lastMouseLocation.y;
+    geometry[0].paramsA[0] = 10.0;
+    geometry[0].posAndStyle[2] = 1.0;
+    
+    GLuint ubo;
+    glGenBuffers(1, &ubo);
+    glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(VectorGeometry) * 64, geometry, GL_STATIC_DRAW);
+    glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo);
+
+    GLuint blockIndex = glGetUniformBlockIndex(vectorShader, "VectorGeometryBlock");
+    glUniformBlockBinding(vectorShader, blockIndex, 0);
+
+    
+    glBindVertexArray(vectorVertexArray);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -271,11 +351,34 @@ void GRenderer_RenderRoot(GRenderer renderer) {
 }
 
 
-GLuint WebGLCompileShader(GLenum type, const char* source) {
+GLuint WebGLCompileShader(GLenum type, const char* path) {
+
+    char * buffer = 0;
+    long length;
+    FILE * f = fopen(path, "rb");
+
+    if (f) {
+        fseek (f, 0, SEEK_END);
+        length = ftell (f);
+        fseek (f, 0, SEEK_SET);
+        buffer = malloc (length + 1);
+        if (buffer) {
+            fread(buffer, 1, length, f);
+        }
+        fclose (f);
+        buffer[length] = '\0';
+    }
+
+    if (!buffer) {
+        GLog(FAIL, "Failed to read shader file %s\n", path);
+        return 0;
+    }
 
     GLuint shader = glCreateShader(type);
-    glShaderSource(shader, 1, &source, NULL);
+    glShaderSource(shader, 1, &buffer, NULL);
     glCompileShader(shader);
+
+    free(buffer);
 
     GLint success;
     glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
@@ -299,7 +402,7 @@ GLuint WebGLCreateProgram(GLuint vertexShader, GLuint fragmentShader) {
     if (!success) {
         char infoLog[512];
         glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-        GLog(FAIL, "Failed to create WebGL shader program!");
+        GLog(FAIL, "Failed to create WebGL shader program! \n%s\n", infoLog);
         return 0;
     }
 

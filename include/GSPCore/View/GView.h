@@ -129,7 +129,7 @@ typedef struct {
     GColor backgroundColor;
 
     bool isMouseInside;
-
+    GPoint lastMouseLocation;
 } GViewDef;
 
 

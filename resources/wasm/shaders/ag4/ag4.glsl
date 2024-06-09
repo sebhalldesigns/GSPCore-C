@@ -22,6 +22,8 @@ const uint32_t alphaMask = 0x000000FFu;
 const uint32_t AG4_VERSION = 0x0000u;
 const uint32_t AG4_BEGIN_ELEMENT = 0x0001u;
 const uint32_t AG4_FRAME = 0x0002u;
+const uint32_t AG4_CORNER_RADIUS = 0x0003u;
+const uint32_t AG4_FILL_COLOR = 0x0004u;
 const uint32_t AG4_END_ELEMENT = 0xFFFFu;
 
 
@@ -37,21 +39,28 @@ const uint32_t primitiveBezier = 0x05u;
 
 struct AG4Rectangle {
     vec4 frame;
+    float cornerRadius;
     vec4 fillColor;
 };
 
 const uint commands[] = uint[](
     //MMQQCCCC
-    0x01000001u,
-    0x00040002u,
-    floatBitsToUint(0.5),
-    floatBitsToUint(0.5),
-    floatBitsToUint(0.25),
-    floatBitsToUint(0.25),
-    0xFFFFFFFFu
+    0x01000001u,// BEGIN_ELEMENT (RECTANGLE)
+    0x00040002u, // FRAME (4 PARAMETERS)
+        floatBitsToUint(0.5), 
+        floatBitsToUint(0.5),
+        floatBitsToUint(0.25),
+        floatBitsToUint(0.25),
+    0x00010004u, // FILL_COLOR (1 PARAMETER)
+        0xFFFF00FFu,
+        
+    0x00010003u, // FRAME (4 PARAMETERS)
+        floatBitsToUint(0.05), 
+    
+    0xFFFFFFFFu // END_ELEMENT
 );
 
-const uint numCommands = 7u;
+const uint numCommands = 11u;
 
 
 vec4 AG4_GetColor(uint color) {
@@ -85,7 +94,13 @@ struct AG4ElementResult {
 
 float SdBox(vec2 x, vec2 p, vec2 b) {
     vec2 d = abs(p - x)-b;
-    return length(max(d,0.0)) + min(max(d.x,d.y),0.0);
+    return length(max(d,0.0)) + min(max(d.x,d.y),0.0) - 0.1;
+}
+
+
+float AG4Rectangle_Distance(vec2 pixel, AG4Rectangle rectangle) {
+    vec2 d = abs(rectangle.frame.xy - pixel) - (rectangle.frame.zw - vec2(rectangle.cornerRadius));
+    return length(max(d,0.0)) + min(max(d.x,d.y),0.0) - rectangle.cornerRadius;
 }
 
 float SdCircle(vec2 pixel, vec2 position, float radius) {
@@ -124,12 +139,27 @@ AG4ElementResult AG4_DrawElement(uint32_t startIndex, vec2 pixel) {
                            return AG4ElementResult(0u, vec4(0.0), false);
                        }
                        break;
-                   case AG4_END_ELEMENT:
-                       float dist = SdBox(pixel, rectangle.frame.xy, rectangle.frame.zw);
-                       if (dist < 0.0) {
-                           return AG4ElementResult(index+1u, vec4(0.0, 1.0, 1.0, 1.0), true);
+                   case AG4_CORNER_RADIUS:
+                       if ((commands[index] >> 16) == 1u) {
+                           rectangle.cornerRadius = uintBitsToFloat(commands[index + 1u]);
                        } else {
-                          return AG4ElementResult(index+1u, vec4(1.0, 1.0, 1.0, 1.0), true);
+                           return AG4ElementResult(0u, vec4(0.0), false);
+                       }
+                       break;
+                  case AG4_FILL_COLOR:
+                       if ((commands[index] >> 16) == 1u) {
+                           rectangle.fillColor = AG4_GetColor(commands[index + 1u]);
+                       } else {
+                           return AG4ElementResult(0u, vec4(0.0), false);
+                       }
+                       break;
+                   case
+                   AG4_END_ELEMENT:
+                       float dist = AG4Rectangle_Distance(pixel, rectangle);//SdBox(pixel, rectangle.frame.xy, rectangle.frame.zw);
+                       if (dist < 0.0) {
+                           return AG4ElementResult(index+1u, rectangle.fillColor, true);
+                       } else {
+                          return AG4ElementResult(index+1u, vec4(0.0), true);
                        }
                    default:
                        break;

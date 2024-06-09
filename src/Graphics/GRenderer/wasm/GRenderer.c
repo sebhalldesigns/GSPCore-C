@@ -52,6 +52,7 @@ GRenderer GRenderer_Init() {
         EmscriptenWebGLContextAttributes attrs;
         emscripten_webgl_init_context_attributes(&attrs);
         attrs.majorVersion = 2; // Request a WebGL2 context
+        attrs.powerPreference = EM_WEBGL_POWER_PREFERENCE_HIGH_PERFORMANCE;
 
         context = emscripten_webgl_create_context("#canvas", &attrs);
         if (context <= 0) {

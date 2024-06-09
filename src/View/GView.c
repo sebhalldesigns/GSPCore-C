@@ -238,3 +238,12 @@ void GView_UpdateLayout(GView view) {
         GView_UpdateLayout(GVector_Get(viewDef->subviews, i));
     }
 }
+
+void GView_SetDrawing(GView view, GDrawing drawing) {
+    if (view == NULL) {
+        return;
+    }
+
+    GViewDef* viewDef = (GViewDef*)view;
+    viewDef->drawing = drawing;
+}

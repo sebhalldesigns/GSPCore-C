@@ -19,6 +19,8 @@
 #include "Controllers/GWindowController.h"
 #include "Controllers/GViewController.h"
 
+#include "Drawing/GDrawing.h"
+
 #include "Debug/GLog.h"
 
 

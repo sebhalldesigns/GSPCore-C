@@ -86,6 +86,9 @@ void AppLaunched(GApplication application) {
     GView_AddSubview(rootView, view3);
     GView_Render(view3);
 
+    GDrawing drawing = GDrawing_Init();
+    GView_SetDrawing(view3, drawing);
+
 }
 
 int main(int argc, char* argv[]) {

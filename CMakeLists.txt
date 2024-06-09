@@ -24,6 +24,7 @@ if(EMSCRIPTEN)
         src/Controllers/GWindowController/wasm/GWindowController.c
         src/Controllers/GViewController.c
         src/Graphics/GRenderer/wasm/GRenderer.c
+        src/Drawing/GDrawing.c
     )
 
     add_library(GSPCore STATIC ${GSPCORE_SRC})

@@ -107,6 +107,7 @@ void GView_SetDrawing(GView view, GDrawing drawing);
 typedef struct {
     GViewController controller;
     GRenderer renderer;
+    GDrawing drawing;
 
     char* name;
     size_t allocationIndex;

@@ -621,3 +621,12 @@ Next:
 - Look at restructuring code so that there is less duplicated code between platforms and it becomes only platform specific code that isn't shared. Possibly use #ifdef GSPCORE_BUILD_MACOS etc within C files to have only 1 source file per class rather than multiple, with sections for each platform and lots of #ifdef macros.
 - Continue focusing on WebGL version, but start to bring other platforms up to speed.
 - The reduction in shared code also applies to this, where the GRenderer code for instance should contain a lot of shared code.
+
+
+## 11/06/2024
+
+Today had another look at code structure and languages, still happy that C is a good choice, mainly due to the Objective-C side of things. Otherwise Rust could be a good choice. Will save the pain and setback of refactoring in Rust for now.
+
+Thinking of implementing a custom memory pool to reduce the number of NULL checks. If it's in the memory pool, the worst that can happen is corrupted memory rather than a segfault.
+
+Also thinking about smart pointers.

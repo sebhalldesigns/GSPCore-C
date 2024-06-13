@@ -630,3 +630,16 @@ Today had another look at code structure and languages, still happy that C is a 
 Thinking of implementing a custom memory pool to reduce the number of NULL checks. If it's in the memory pool, the worst that can happen is corrupted memory rather than a segfault.
 
 Also thinking about smart pointers.
+
+## 13/06/2024
+
+Not going to do any development today, but will make sure to finish work early enough tomorrow that I can spend a good amount of time on the project. Just installed Fedora which had been great on Asahi linux and seems to be just as good on my desktop.
+
+Plans for the next steps:
+
+- add back in wayland code
+- start refactoring C code so that there are fewer objects created by the user, more by the system.
+- possibly look into a proxy ID system (rather than giving the user raw pointers that contain all the handles to objects, keep them internally).
+- use less (if any) dynamic memory allocation, instead use linked lists to do a lot more stuff as these are much more performant.
+- separate out duplicated code and define platform specific code better.
+- get Vulkan implementation to a better level.

@@ -17,10 +17,14 @@ typedef struct {
 
 
 bool GWaylandWindowManager_TryInit();
-GWindow GWaylandWindowManager_OpenWindow();
+GWindow* GWaylandWindowManager_OpenWindow();
+int GWaylandWindowManager_RunLoop();
 
 void GWaylandWindowManager_GlobalRegistryHandle(void *data, struct wl_registry *registry, uint32_t name, const char *interface, uint32_t version);
 void GWaylandWindowManager_GlobalRegistryRemoveHandle(void *data, struct wl_registry *registry, uint32_t name);
 void GWaylandWindowManager_XdgSurfaceConfigureCallback(void *data, struct xdg_surface *xdg_surface, uint32_t serial);
+void GWaylandWindowManager_TopLevelConfigureCallback(void* data, struct xdg_toplevel* toplevel, int32_t width, int32_t height, struct wl_array* states);
+void GWaylandWindowManager_TopLevelCloseCallback(void* data, struct xdg_toplevel* toplevel);
+
 
 #endif // GWAYLANDWINDOWMANAGER_H

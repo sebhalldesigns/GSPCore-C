@@ -4,6 +4,8 @@
 #include <GSPCore/Windowing/Platforms/Wayland/kde-server-decoration.h>
 #include <GSPCore/Windowing/GWindow.h>
 
+#include <GSPCore/Graphics/GRenderManager.h>
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -19,11 +21,17 @@
 
 static struct wl_display* waylandDisplay = NULL;
 static GWaylandState waylandState;
+static GWindow* rootWindow = NULL;
 
 
 const struct wl_registry_listener registry_listener = {
 	.global = GWaylandWindowManager_GlobalRegistryHandle,
 	.global_remove = GWaylandWindowManager_GlobalRegistryRemoveHandle,
+};
+
+static const struct xdg_toplevel_listener toplevelListener = {
+    .configure = GWaylandWindowManager_TopLevelConfigureCallback,
+    .close = GWaylandWindowManager_TopLevelCloseCallback,
 };
 
 static const struct xdg_surface_listener xdg_surface_listener = {
@@ -66,22 +74,48 @@ bool GWaylandWindowManager_TryInit() {
     return true;
 }   
 
-GWindow GWaylandWindowManager_OpenWindow() {
-    GWindow window;
-    window.platformHandles.surface = wl_compositor_create_surface(waylandState.compositor);
-    window.platformHandles.xd_surface = xdg_wm_base_get_xdg_surface(waylandState.xd_wm_base, window.platformHandles.surface);
-    xdg_surface_add_listener(window.platformHandles.xd_surface, &xdg_surface_listener, &waylandState);
-    window.platformHandles.xd_toplevel = xdg_surface_get_toplevel(window.platformHandles.xd_surface);
+GWindow* GWaylandWindowManager_OpenWindow() {
+    GWindow* window = calloc(1, sizeof(GWindow));
+    window->platformHandles.wl_display = waylandDisplay;
+    window->platformHandles.wl_surface = wl_compositor_create_surface(waylandState.compositor);
+    window->platformHandles.xd_surface = xdg_wm_base_get_xdg_surface(waylandState.xd_wm_base, window->platformHandles.wl_surface);
+    xdg_surface_add_listener(window->platformHandles.xd_surface, &xdg_surface_listener, &waylandState);
+    window->platformHandles.xd_toplevel = xdg_surface_get_toplevel(window->platformHandles.xd_surface);
 
-    xdg_toplevel_set_title(window.platformHandles.xd_toplevel, "Example client");
-    org_kde_kwin_server_decoration_manager_create(waylandState.kde_decorations, window.platformHandles.surface);
+    
+    xdg_toplevel_set_title(window->platformHandles.xd_toplevel, "Example client");
+    org_kde_kwin_server_decoration_manager_create(waylandState.kde_decorations, window->platformHandles.wl_surface);
+    xdg_toplevel_add_listener(window->platformHandles.xd_toplevel , &toplevelListener, NULL);
 
-    wl_surface_commit(window.platformHandles.surface);
+    wl_surface_commit(window->platformHandles.wl_surface);
+    wl_display_roundtrip(waylandDisplay);
 
-    while (wl_display_dispatch(waylandDisplay)) {
-        /* This space deliberately left blank */
+    printf("WAYLAND WINDOW MANAGER DONE");
+
+    //while (wl_display_dispatch(waylandDisplay)) {
+    //    /* This space deliberately left blank */
+    //}
+
+    //wl_display_disconnect(waylandDisplay);
+
+    window->frame.size.width = 100.0;
+    window->frame.size.height = 100.0;
+    rootWindow = window;
+    return window;
+}
+
+int GWaylandWindowManager_RunLoop() {
+
+    GRenderManager_RenderWindow(rootWindow);
+
+    while (true) {
+        //printf("RUNNING\n");
+        //GRenderManager_RenderWindow(rootWindow);
+        wl_display_roundtrip(waylandDisplay);
+        wl_display_dispatch(waylandDisplay);
+
     }
-
+   
     wl_display_disconnect(waylandDisplay);
 }
 
@@ -115,9 +149,29 @@ void GWaylandWindowManager_GlobalRegistryRemoveHandle(void *data, struct wl_regi
 }
 
 void GWaylandWindowManager_XdgSurfaceConfigureCallback(void *data, struct xdg_surface *xdg_surface, uint32_t serial) {
+    
     xdg_surface_ack_configure(xdg_surface, serial);
 
     //struct wl_buffer* buffer = draw_frame(state);
     //wl_surface_attach(waylandState.surface, buffer, 0, 0);
     //wl_surface_commit(xdg_surface);
+    if (rootWindow != NULL) {
+        GRenderManager_RenderWindow(rootWindow);
+    }
+    
+    printf("CONFIGURE CALLBACK\n");
+}
+
+void GWaylandWindowManager_TopLevelConfigureCallback(void* data, struct xdg_toplevel* toplevel, int32_t width, int32_t height, struct wl_array* states) {
+    
+    if (rootWindow != NULL) {
+            rootWindow->frame.size.width = width;
+    rootWindow->frame.size.height = height;
+    }
+    
+
+}
+
+void GWaylandWindowManager_TopLevelCloseCallback(void* data, struct xdg_toplevel* toplevel) {
+    printf("CLOSE REQUESTED!\n");
 }

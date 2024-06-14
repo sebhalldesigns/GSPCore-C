@@ -15,7 +15,7 @@ set(CMAKE_C_STANDARD 99)
 
             X11 development package: (fedora libX11-devel)
             Cairo development package: (fedora cairo-devel)
-            Vulkan SDK (follow LunarG instructions)
+            Vulkan SDK (follow LunarG instructions), (also fedora vulkan-validation-layers)
 
 ]]
 
@@ -167,7 +167,7 @@ elseif (UNIX)
     find_package(Vulkan REQUIRED)
 
     set(GSPCORE_SRC
-        src/Basic/GApplication.c
+        src/Application/GApplication.c
         src/Debug/GLog.c
 
         src/Windowing/GWindowManager.c
@@ -175,6 +175,10 @@ elseif (UNIX)
         src/Windowing/Platforms/Wayland/GWaylandWindowManager.c
         src/Windowing/Platforms/Wayland/xdg-shell-protocol.c
         src/Windowing/Platforms/Wayland/kde-server-decoration.c
+
+        src/Graphics/GRenderManager.c
+        src/Graphics/Backends/Vulkan/GVulkanRenderManager.c
+
     )
 
     # Set the C compiler flags

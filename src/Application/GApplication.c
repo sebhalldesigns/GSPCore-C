@@ -1,5 +1,6 @@
-#include "GSPCore/GSPCore.h"
-#include "GSPCore/Windowing/GWindowManager.h"
+#include <GSPCore/GSPCore.h>
+#include <GSPCore/Windowing/GWindowManager.h>
+#include <GSPCore/Graphics/GRenderManager.h>
 
 #include <stdlib.h>
 #include <stddef.h>
@@ -32,6 +33,7 @@ int GApplication_Run(GApplication *app) {
     GLog(INFO, "Starting GSPCore");
 
     GWindowManager_Init();
+    GRenderManager_Init();
 
 
 
@@ -44,8 +46,8 @@ int GApplication_Run(GApplication *app) {
 
     (controller.launchEvent)();
 
+    
 
-
-    return 0;
+    return GWindowManager_RunLoop();
 
 }

@@ -17,7 +17,10 @@ typedef enum {
 
 bool GWindowManager_Init();
 
-GWindow GWindowManager_OpenWindow();
+GWindow* GWindowManager_OpenWindow();
 
+GWindowManagerWindowingSystem GWindowManager_GetWindowingSystem();
+
+int GWindowManager_RunLoop();
 
 #endif GWINDOWMANAGER_H

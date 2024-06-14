@@ -9,20 +9,63 @@
 #include "../Types/GSPCoreOpaqueTypes.h"
 #include "../Types/GSPCoreGeometry.h"
 
+#define VK_USE_PLATFORM_XLIB_KHR
+#define VK_USE_PLATFORM_WAYLAND_KHR
+#include <vulkan/vulkan.h>
 #include <wayland-client.h>
+#include <X11/Xlib.h>
+
 //#include "./Platforms/Wayland/xdg-shell-client-header.h"
 
 typedef struct {
-    struct wl_surface* surface;
+    // Wayland handles
+    struct wl_display* wl_display;
+    struct wl_surface* wl_surface;
     struct xdg_surface* xd_surface;
     struct xdg_toplevel* xd_toplevel;
-} GWindowPlatformHandles;
 
+    // X11 handles
+    Display* xDisplay;
+    Window xWindow;
+
+    VkSurfaceKHR vkSurface;
+
+    VkDevice vkDevice;
+    uint32_t graphicsQueueFamily;
+    uint32_t presentQueueFamily;
+    VkQueue graphicsQueue;
+    VkQueue presentQueue;
+
+    VkSwapchainKHR vkSwapchain;
+    VkFormat vkSwapchainImageFormat;
+    VkExtent2D vkSwapchainExtent;
+
+    uint32_t vkImageCount;
+    VkImage* vkImages;
+    VkImageView* vkImageViews;
+
+    // possibly should be per-window rather than global
+    VkSemaphore imageAvailableSemaphore;
+    VkSemaphore renderingFinishedSemaphore;
+    VkFence inFlightFence;
+
+    VkRenderPass vkRenderPass;
+    VkPipelineLayout vkPipelineLayout;
+    VkPipeline vkPipeline;
+
+    size_t vkFramebufferCount;
+    VkFramebuffer* vkFramebuffers; 
+
+    VkCommandPool vkCommandPool;
+    VkCommandBuffer vkCommandBuffer;
+
+} GWindowPlatformHandles;
 
 struct GWindow{
     //GWindowInfo info;
     //GWindowController controller;
     //GView rootView;
+    GRect frame;
     const char* title;
     GWindow* nextWindow;
     GWindowPlatformHandles platformHandles;

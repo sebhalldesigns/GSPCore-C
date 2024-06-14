@@ -9,7 +9,7 @@ void launched() {
 
     printf("LAUNCHED!\n");
 
-    GWindow window = GWindowManager_OpenWindow();
+    GWindow* window = GWindowManager_OpenWindow();
 }
 
 int main() {

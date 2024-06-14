@@ -644,3 +644,17 @@ Plans for the next steps:
 - separate out duplicated code and define platform specific code better.
 - get Vulkan implementation to a better level.
 
+## 14/06/2024
+
+Refactoring going well. Simplified a few things already which has made the system significantly simpler already. Things like not having an application object but instead just a struct with a controller as a field. Taking inspiration from GLFW with their opaque struct GLFWwindow - the GWindow is also an opaque struct. GLFWwindow also just uses a linked list rather than an array of windows - this saves complexity, memory and time! Probably going to delete GVector because it's lazy programming TBH (and slow).
+
+Update at end of day:
+ 
+Now have a wayland window rendering with vulkan.
+Newer code is much cleaner, more maintainable and less overlap.
+
+Main issue right now is that there is a complete mix of old and new code. Need to do a purge of old code and refactor WASM and Win32 into new structure (macos + ios are behind enough that it doesn't really matter for them).
+
+This should be a priority tomorrow - get those cleaned up.
+Then start to get vulkan rendering more pinned down for 2D compositor stuff.
+Then implement fragment vector shader and text and we're in a much better position.

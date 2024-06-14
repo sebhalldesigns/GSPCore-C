@@ -17,28 +17,7 @@
 
 bool GRenderer_Init();
 
-// a window 
-//GRenderer GRenderer_Init();
 
-void GRenderer_Free(GRenderer renderer);
-
-// GRenderer_CreatePipeline etc
-
-void GRenderer_RenderSelf(GRenderer renderer);
-void GRenderer_RenderRoot(GRenderer renderer);
-
-typedef enum {
-    GRAPHICS_TYPE_NONE,
-    GRAPHICS_TYPE_WEBGL,
-    GRAPHICS_TYPE_METAL,
-    GRAPHICS_TYPE_VULKAN
-} GRendererGraphicsType;
-
-typedef struct {
-    GRendererGraphicsType graphicsType;
-    char* graphicsDevice;
-    size_t imagesPerDrawCall;
-} GRendererSystemInfo;
 
 
 

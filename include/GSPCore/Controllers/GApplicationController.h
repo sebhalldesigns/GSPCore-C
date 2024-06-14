@@ -5,13 +5,13 @@
 
 #include "../Types/GSPCoreOpaqueTypes.h"
 
-typedef void (*GApplicationLaunchEvent)(GApplication application);
-typedef void (*GApplicationColorModeChangeEvent)(GApplication application);
+typedef void (*GApplicationLaunchEvent)();
+typedef void (*GApplicationColorModeChangeEvent)();
 
-GApplicationController GApplicationController_Init();
-void GApplicationController_Free(GApplicationController applicationController);
-
-void GApplicationController_SetLaunchEvent(GApplicationController applicationController, GApplicationLaunchEvent launchEvent);
+typedef struct {
+    GApplicationLaunchEvent launchEvent;
+    GApplicationColorModeChangeEvent colorModeChanged;
+} GApplicationController;
 
 #ifdef GSPCORE_BUILD_WASM
 
@@ -52,6 +52,14 @@ typedef struct {
 } GApplicationControllerDef;
 
 #endif
+
+#ifdef GSPCORE_BUILD_UNIX 
+
+typedef struct {
+    GApplicationLaunchEvent launchEvent;
+} GApplicationControllerDef;
+
+#endif 
 
 #ifdef GSPCORE_BUILD_WIN32
 

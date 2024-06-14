@@ -10,7 +10,22 @@
 
 #include "../Types/GSPCoreOpaqueTypes.h"
 
+#include "../Controllers/GApplicationController.h"
 #include <stdbool.h>
+
+typedef enum {
+    ENVIRONMENT_UNIX,
+    ENVIRONMENT_MACOS,
+    ENVIRONMENT_WIN32,
+    ENVIRONMENT_IOS,
+    ENVIRONMENT_ANDROID,
+    ENVIRONMENT_WASM
+} GApplicationEnvironment;
+
+typedef struct {
+    bool isSet;
+    void* data;
+} GOptional;
 
 typedef struct {
     const char* title;
@@ -22,25 +37,18 @@ typedef struct {
     bool startSilently;
     int startWidth;
     int startHeight;
-} GApplicationInfo;
 
-// MARK: CONSTRUCTOR
-
-// constructor requires info to create. Maybe info should only be constant for that object.
-GApplication GApplication_Init(GApplicationInfo info);
-void GApplication_Free(GApplication application);
-
+    GApplicationController applicationController;
+} GApplication;
 
 // MARK: METHODS
 
-void GApplication_SetController(GApplication application, GApplicationController controller);
-
-GWindow GApplication_GetMainWindow(GApplication application);
-void GApplication_SetMainWindow(GApplication application, GWindow window);
-
-int GApplication_Run(GApplication application);
+GWindow GApplication_GetMainWindow();
+void GApplication_SetMainWindow(GWindow window);
+GApplicationEnvironment GApplication_GetEnvironment();
 
 
+int GApplication_Run(GApplication *app);
 
 
 #ifdef GSPCORE_BUILD_WASM
@@ -122,6 +130,8 @@ typedef struct {
 static GApplication app;
 
 #endif
+
+
 
 
 #endif // GAPPLICATION_H

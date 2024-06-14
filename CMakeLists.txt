@@ -5,6 +5,20 @@ project(GSPCore)
 # Set C standard to C99
 set(CMAKE_C_STANDARD 99)
 
+#[[
+    DEPENDENCIES:
+
+        LINUX:
+            gcc
+            g++
+            cmake
+
+            X11 development package: (fedora libX11-devel)
+            Cairo development package: (fedora cairo-devel)
+            Vulkan SDK (follow LunarG instructions)
+
+]]
+
 
 message("\nBuilding GSPCore")
 
@@ -150,34 +164,30 @@ elseif (UNIX)
     # Find X11 library
     find_package(X11 REQUIRED)
     find_package(Cairo REQUIRED)
-        find_package(Vulkan REQUIRED)
+    find_package(Vulkan REQUIRED)
 
     set(GSPCORE_SRC
-        src/platform/x11/GSPCore.c
-        src/platform/x11/GWindow.c
-        src/GApplication.c
-        src/GVector.c
-        src/GLog.c
-        src/graphics/unix/GFrame_gl.c
-        src/graphics/unix/GVertexBuffer_gl.c
-        src/graphics/unix/GShader_gl.c
-        src/graphics/unix/GTexture_gl.c
-        src/graphics/unix/unix_GTextProvider.c
+        src/Basic/GApplication.c
+        src/Debug/GLog.c
 
-        src/GRenderManager.c
-        src/graphics/vulkan/GHiperRenderManager.c
+        src/Windowing/GWindowManager.c
+        src/Windowing/Platforms/X11/GX11WindowManager.c
+        src/Windowing/Platforms/Wayland/GWaylandWindowManager.c
+        src/Windowing/Platforms/Wayland/xdg-shell-protocol.c
+        src/Windowing/Platforms/Wayland/kde-server-decoration.c
     )
 
     # Set the C compiler flags
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
 
     add_library(GSPCore SHARED ${GSPCORE_SRC})
+    target_compile_definitions(GSPCore PUBLIC -DGSPCORE_BUILD -DGSPCORE_BUILD_UNIX)
 
 
     target_include_directories(GSPCore PUBLIC ${CAIRO_INCLUDE_DIRS}  ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR})
 
     # Link X11 library
-    target_link_libraries(GSPCore ${X11_LIBRARIES} GL GLEW m ${CAIRO_LIBRARIES} ${Vulkan_LIBRARIES})
+    target_link_libraries(GSPCore ${X11_LIBRARIES} m wayland-client X11 ${CAIRO_LIBRARIES} ${Vulkan_LIBRARIES})
 
     # Add executable target
     add_executable(Test ${CMAKE_CURRENT_SOURCE_DIR}/testing/main.c)

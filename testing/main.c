@@ -1,46 +1,26 @@
 #include "GSPCore/GSPCore.h"
-#include "GSPCore/GLog.h"
+#include "GSPCore/Windowing/GWindowManager.h"
+#include "GSPCore/Windowing/GWindow.h"
 
-#include "GSPCore/GWindow.h"
-#include "GSPCore/UI/GView.h"
 
 #include <stdio.h>
 
-void LaunchEvent() {
-    printf("Launched!\n");
-    /*GWindowInfo info = {
-        800,
-        600,
-        "GSP Test Window"
-    };
+void launched() {
 
-    GWindow window = GWindow_Init(info);
-    GWindow_SetResizeDelegate(window, WindowResized);
-    GWindow_SetPointerMoveDelegate(window, MouseMove);
-    GWindow_SetButtonDownDelegate(window, MouseDown);
-    GWindow_SetButtonUpDelegate(window, MouseUp);
-    GWindow_SetDrawDelegate(window, Draw);*/
-    GViewInfo viewInfo = (GViewInfo) { 
-        (GRect) { 10.0, 10.0, 100.0, 100.0 },
-        (GColor) { 255.0, 0.0, 0.0, 255.0 }
-    };
+    printf("LAUNCHED!\n");
 
-    GView rootView = GView_Alloc(viewInfo);
-
-    GWindow_SetRootView(NULL, rootView);
+    GWindow window = GWindowManager_OpenWindow();
 }
 
 int main() {
 
-    GApplicationInfo info = {
-        "example app", 
-        "Seb Hall", 
-        0, 0
+    GApplication app = {
+        .title = "example app", 
+        .developer = "Seb Hall", 
+        .majorVersion = 0, 
+        .minorVersion = 0,
+        .applicationController.launchEvent = launched
     };
 
-    GApplication app = GApplication_Init(info);
-    
-    GApplication_SetLaunchEvent(app, LaunchEvent);
-
-    return GSPRun(app);
+    return GApplication_Run(&app);
 }

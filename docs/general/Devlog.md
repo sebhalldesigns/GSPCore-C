@@ -643,3 +643,4 @@ Plans for the next steps:
 - use less (if any) dynamic memory allocation, instead use linked lists to do a lot more stuff as these are much more performant.
 - separate out duplicated code and define platform specific code better.
 - get Vulkan implementation to a better level.
+

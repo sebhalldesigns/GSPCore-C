@@ -9,6 +9,27 @@
 #include "../Types/GSPCoreOpaqueTypes.h"
 #include "../Types/GSPCoreGeometry.h"
 
+#include <wayland-client.h>
+//#include "./Platforms/Wayland/xdg-shell-client-header.h"
+
+typedef struct {
+    struct wl_surface* surface;
+    struct xdg_surface* xd_surface;
+    struct xdg_toplevel* xd_toplevel;
+} GWindowPlatformHandles;
+
+
+struct GWindow{
+    //GWindowInfo info;
+    //GWindowController controller;
+    //GView rootView;
+    const char* title;
+    GWindow* nextWindow;
+    GWindowPlatformHandles platformHandles;
+};
+
+
+/*
 typedef struct {
     const char* title;
     GSize size;
@@ -28,6 +49,7 @@ void GWindow_Layout(GWindow window);
 
 GView GWindow_GetRootView(GWindow window);
 void GWindow_SetRootView(GWindow window, GView view);
+*/
 
 #ifdef GSPCORE_BUILD_WASM
 

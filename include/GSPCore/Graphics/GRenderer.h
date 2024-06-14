@@ -15,8 +15,10 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+bool GRenderer_Init();
+
 // a window 
-GRenderer GRenderer_Init();
+//GRenderer GRenderer_Init();
 
 void GRenderer_Free(GRenderer renderer);
 

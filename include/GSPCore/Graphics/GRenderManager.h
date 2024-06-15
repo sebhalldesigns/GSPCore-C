@@ -18,4 +18,6 @@ bool GRenderManager_Init();
 bool GRenderManager_SetupWindow(GWindow* window);
 void GRenderManager_RenderWindow(GWindow* window);
 
+
+
 #endif // GRENDERMANAGER_H

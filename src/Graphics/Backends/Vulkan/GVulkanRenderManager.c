@@ -356,6 +356,7 @@ bool GVulkanRenderManager_Init() {
     vkGetPhysicalDeviceProperties(vkPhysicalDevice, &deviceProperties);
     GLog(INFO, "Selected GPU device %s", deviceProperties.deviceName);
 
+    printf("SETUP DONE\n");
 
     return true;
 
@@ -369,8 +370,8 @@ bool GVulkanRenderManager_SetupWindow(GWindow* window) {
     #ifdef _WIN32
         VkWin32SurfaceCreateInfoKHR surfaceCreateInfo = {0};
         surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-        surfaceCreateInfo.hwnd = ((GWindowDef*)window)->rawHandle;
-        surfaceCreateInfo.hinstance = ((GWindowDef*)window)->hinstance;
+        surfaceCreateInfo.hwnd = window->platformHandles.handle;
+        surfaceCreateInfo.hinstance =  window->platformHandles.instance;
 
         if (vkCreateWin32SurfaceKHR(vkInstance, &surfaceCreateInfo, NULL, &surface) != VK_SUCCESS) {
             GLog(WARNING, "Failed to create Vulkan surface for window!");
@@ -688,6 +689,8 @@ bool GVulkanRenderManager_SetupWindow(GWindow* window) {
     long fragShaderSize;
 
     FILE *fileptr;
+
+    printf("about to open files\n");
     
     fileptr = fopen("./../resources/vulkan/shaders/vert.spv", "rb");  // Open the file in binary mode
     fseek(fileptr, 0, SEEK_END);          // Jump to the end of the file
@@ -706,6 +709,9 @@ bool GVulkanRenderManager_SetupWindow(GWindow* window) {
     fragShaderCode = (char *)malloc(fragShaderSize * sizeof(char)); // Enough memory for the file
     fread(fragShaderCode, fragShaderSize, 1, fileptr); // Read in the entire file
     fclose(fileptr); // Close the file
+
+    printf("opened files\n");
+
 
 
     // create vertex shader
@@ -861,7 +867,6 @@ bool GVulkanRenderManager_SetupWindow(GWindow* window) {
         }
     }
 
-
     // CREATE COMMAND POOL
 
     VkCommandPoolCreateInfo poolInfo = {0};
@@ -907,15 +912,21 @@ bool GVulkanRenderManager_SetupWindow(GWindow* window) {
         return false;
     }
 
-
-
+    printf("SETUP FOR WINDOW DONE\n");
     return true;
 }
 
 void GVulkanRenderManager_RenderWindow(GWindow* window) {
     vkWaitForFences(window->platformHandles.vkDevice, 1, &window->platformHandles.inFlightFence, VK_TRUE, UINT64_MAX);
 
-    if (window->platformHandles.vkSwapchainExtent.width != window->frame.size.width || window->platformHandles.vkSwapchainExtent.height != window->frame.size.height) {
+    #ifdef GSPCORE_BUILD_UNIX
+    bool recreateSwapchain = window->platformHandles.vkSwapchainExtent.width != window->frame.size.width || window->platformHandles.vkSwapchainExtent.height != window->frame.size.height;
+    #elif GSPCORE_BUILD_WIN32
+    bool recreateSwapchain = false;
+    #endif
+    
+
+    if (recreateSwapchain) {
         GLog(INFO, "Window resized! Recreating swapchain...");
         vkDeviceWaitIdle(window->platformHandles.vkDevice);
 
@@ -1169,5 +1180,6 @@ void GVulkanRenderManager_RenderWindow(GWindow* window) {
     presentInfo.pImageIndices = &imageIndex;
 
     vkQueuePresentKHR(window->platformHandles.presentQueue, &presentInfo);
+
 }
 

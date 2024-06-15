@@ -8,7 +8,12 @@
 
 #ifdef GSPCORE_BUILD_UNIX
     const static GApplicationEnvironment environment = ENVIRONMENT_UNIX;
+#elif GSPCORE_BUILD_WIN32
+    const static GApplicationEnvironment environment = ENVIRONMENT_WIN32;
+
 #endif
+
+
 
 GWindow GApplication_GetMainWindow() {
 
@@ -35,7 +40,7 @@ int GApplication_Run(GApplication *app) {
     GWindowManager_Init();
     GRenderManager_Init();
 
-
+    printf("SETUP DONE OK\n");
 
     GApplicationController controller = app->applicationController;
 
@@ -47,7 +52,7 @@ int GApplication_Run(GApplication *app) {
     (controller.launchEvent)();
 
     
-
+    printf("RUNNING LOOP NOW\n");
     return GWindowManager_RunLoop();
 
 }

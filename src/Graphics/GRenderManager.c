@@ -16,6 +16,14 @@ bool GRenderManager_Init() {
                 return true;
             }
 
+         case ENVIRONMENT_WIN32:
+            
+            if (GVulkanRenderManager_Init()) {
+                printf("DONE RENDER MANAGER INIT\n");
+                backend = BACKEND_VULKAN;
+                return true;
+            }
+
             return false;
         default:
             return false;

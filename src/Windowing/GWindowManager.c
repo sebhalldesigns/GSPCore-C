@@ -1,6 +1,11 @@
 #include "GSPCore/GSPCore.h"
+
+#ifdef GSPCORE_BUILD_UNIX
 #include "GSPCore/Windowing/Platforms/Wayland/GWaylandWindowManager.h"
 #include "GSPCore/Windowing/Platforms/X11/GX11WindowManager.h"
+#elif GSPCORE_BUILD_WIN32
+#include "GSPCore/Windowing/Platforms/Win32/GWin32WindowManager.h"
+#endif
 
 #include <GSPCore/Graphics/GRenderManager.h>
 
@@ -10,6 +15,8 @@ bool GWindowManager_Init() {
     GApplicationEnvironment environment = GApplication_GetEnvironment();
 
     switch (environment) {
+
+    #ifdef GSPCORE_BUILD_UNIX
         case ENVIRONMENT_UNIX:
             if (GWaylandWindowManager_TryInit()) {
                 windowingSystem = WINDOWING_SYSTEM_WAYLAND;
@@ -22,6 +29,15 @@ bool GWindowManager_Init() {
             }
 
             return false;
+    #elif GSPCORE_BUILD_WIN32
+        case ENVIRONMENT_WIN32:
+            if (GWin32WindowManager_TryInit()) {
+                windowingSystem = WINDOWING_SYSTEM_WIN32;
+                return true;
+            }
+
+            return false;
+    #endif
         default:
             return false;
     }
@@ -31,12 +47,16 @@ bool GWindowManager_Init() {
 GWindow* GWindowManager_OpenWindow() {
 
     switch (windowingSystem) {
+
+    #ifdef GSPCORE_BUILD_UNIX
+
         case WINDOWING_SYSTEM_WAYLAND:
             GWindow* waylandWindow = GWaylandWindowManager_OpenWindow();
 
             if (GRenderManager_SetupWindow(waylandWindow)) {
                 return waylandWindow;
             }
+            break;
 
         case WINDOWING_SYSTEM_X11:
             GWindow* x11Window = GX11WindowManager_OpenWindow();
@@ -46,7 +66,17 @@ GWindow* GWindowManager_OpenWindow() {
             }
 
             break;
+    #elif GSPCORE_BUILD_WIN32
+        case WINDOWING_SYSTEM_WIN32:
+            GWindow* win32Window = GWin32WindowManager_OpenWindow();
 
+            if (GRenderManager_SetupWindow(win32Window)) {
+                printf("RENDER MANAGER DONE\n");
+                return win32Window;
+            }
+
+            break;
+    #endif
         default:
             break;
     }
@@ -57,10 +87,16 @@ GWindow* GWindowManager_OpenWindow() {
 int GWindowManager_RunLoop() {
 
     switch (windowingSystem) {
+    #ifdef GSPCORE_BUILD_UNIX
+
         case WINDOWING_SYSTEM_WAYLAND:
             return GWaylandWindowManager_RunLoop();
         case WINDOWING_SYSTEM_X11:
             return GX11WindowManager_RunLoop();
+    #elif GSPCORE_BUILD_WIN32
+        case WINDOWING_SYSTEM_WIN32:
+            return GWin32WindowManager_RunLoop();
+    #endif
         default:
             return -1;
     }   

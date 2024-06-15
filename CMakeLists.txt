@@ -207,12 +207,14 @@ elseif(WIN32)
     set(CMAKE_GENERATOR_PLATFORM x64)
 
     set(GSPCORE_SRC
+        src/Application/GApplication.c
         src/Debug/GLog.c
-        src/Basic/GVector.c
-        src/Basic/GApplication/win32/GApplication.c
-        src/Basic/GWindow/win32/GWindow.c
-        src/Controllers/GApplicationController/win32/GApplicationController.c
-        src/Controllers/GWindowController/win32/GWindowController.c
+
+        src/Windowing/GWindowManager.c
+        src/Windowing/Platforms/Win32/GWin32WindowManager.c
+
+        src/Graphics/GRenderManager.c
+        src/Graphics/Backends/Vulkan/GVulkanRenderManager.c
     )
 
     add_library(GSPCore STATIC ${GSPCORE_SRC})
@@ -223,7 +225,7 @@ elseif(WIN32)
     target_link_libraries(GSPCore PRIVATE gdi32 ${Vulkan_LIBRARIES})
     
     # Add executable target
-    add_executable(Test testing/helloGspInterface2.c)
+    add_executable(Test testing/main.c)
     target_link_libraries(Test PRIVATE GSPCore)
 
     target_include_directories(Test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/libraries/GSPCore/include)

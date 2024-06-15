@@ -9,6 +9,8 @@
 #include "../Types/GSPCoreOpaqueTypes.h"
 #include "../Types/GSPCoreGeometry.h"
 
+#ifdef GSPCORE_BUILD_UNIX
+
 #define VK_USE_PLATFORM_XLIB_KHR
 #define VK_USE_PLATFORM_WAYLAND_KHR
 #include <vulkan/vulkan.h>
@@ -59,6 +61,55 @@ typedef struct {
     VkCommandBuffer vkCommandBuffer;
 
 } GWindowPlatformHandles;
+
+#elif GSPCORE_BUILD_WIN32
+
+    #define VK_USE_PLATFORM_WIN32_KHR
+    #include <vulkan/vulkan.h>
+
+    #include <Windows.h>
+    
+    typedef struct {
+        HINSTANCE instance;
+        HWND handle;
+
+        VkSurfaceKHR vkSurface;
+
+        VkDevice vkDevice;
+        uint32_t graphicsQueueFamily;
+        uint32_t presentQueueFamily;
+        VkQueue graphicsQueue;
+        VkQueue presentQueue;
+
+        VkSwapchainKHR vkSwapchain;
+        VkFormat vkSwapchainImageFormat;
+        VkExtent2D vkSwapchainExtent;
+
+        uint32_t vkImageCount;
+        VkImage* vkImages;
+        VkImageView* vkImageViews;
+
+        // possibly should be per-window rather than global
+        VkSemaphore imageAvailableSemaphore;
+        VkSemaphore renderingFinishedSemaphore;
+        VkFence inFlightFence;
+
+        VkRenderPass vkRenderPass;
+        VkPipelineLayout vkPipelineLayout;
+        VkPipeline vkPipeline;
+
+        size_t vkFramebufferCount;
+        VkFramebuffer* vkFramebuffers; 
+
+        VkCommandPool vkCommandPool;
+        VkCommandBuffer vkCommandBuffer;
+    } GWindowPlatformHandles;
+
+#else
+
+    typedef void* GWindowPlatformHandles;
+
+#endif
 
 struct GWindow{
     //GWindowInfo info;

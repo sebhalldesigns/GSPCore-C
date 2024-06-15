@@ -10,6 +10,8 @@ void launched() {
     printf("LAUNCHED!\n");
 
     GWindow* window = GWindowManager_OpenWindow();
+
+    printf("GOT TO HERE\n");
 }
 
 int main() {

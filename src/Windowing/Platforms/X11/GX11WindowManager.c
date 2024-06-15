@@ -1,9 +1,6 @@
 #include <GSPCore/GSPCore.h>
 #include <GSPCore/Windowing/Platforms/X11/GX11WindowManager.h>
-
-
 #include <GSPCore/Graphics/GRenderManager.h>
-
 
 // X11 headers
 #include <X11/Xlib.h>
@@ -22,7 +19,7 @@ bool GX11WindowManager_TryInit() {
         return false;
     }
 
-    GLog(INFO, "Started WindowManager on X11 backend");
+    GLog(INFO, "Started GWindowManager on X11 backend");
 
     return true;
 }   
@@ -73,11 +70,12 @@ int GX11WindowManager_RunLoop() {
                 int newWidth = state.event.xconfigure.width;
                 int newHeight = state.event.xconfigure.height;
 
-                rootWindow->frame.size.width = newWidth;
-                rootWindow->frame.size.height = newHeight;
+
                 
                 if (rootWindow != NULL) {
                     GRenderManager_RenderWindow(rootWindow);
+                    rootWindow->frame.size.width = newWidth;
+                    rootWindow->frame.size.height = newHeight;
                 }
 
 

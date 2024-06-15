@@ -10,16 +10,17 @@
     const static GApplicationEnvironment environment = ENVIRONMENT_UNIX;
 #elif GSPCORE_BUILD_WIN32
     const static GApplicationEnvironment environment = ENVIRONMENT_WIN32;
-
+#elif GSPCORE_BUILD_WEB
+    const static GApplicationEnvironment environment = ENVIRONMENT_WEB;
 #endif
 
 
 
-GWindow GApplication_GetMainWindow() {
-
+GWindow* GApplication_GetMainWindow() {
+    return NULL;
 }
 
-void GApplication_SetMainWindow(GWindow window) {
+void GApplication_SetMainWindow(GWindow* window) {
 
 }
 

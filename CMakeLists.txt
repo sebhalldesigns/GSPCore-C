@@ -28,21 +28,18 @@ if(EMSCRIPTEN)
     message("Building GSPCore for WASM")
 
     set(GSPCORE_SRC
-        src/Types/GSPCoreGeometry.c
+        src/Application/GApplication.c
         src/Debug/GLog.c
-        src/Basic/GVector.c
-        src/View/GView.c
-        src/Basic/GApplication/wasm/GApplication.c
-        src/Basic/GWindow/wasm/GWindow.c
-        src/Controllers/GApplicationController/wasm/GApplicationController.c
-        src/Controllers/GWindowController/wasm/GWindowController.c
-        src/Controllers/GViewController.c
-        src/Graphics/GRenderer/wasm/GRenderer.c
-        src/Drawing/GDrawing.c
+
+        src/Windowing/GWindowManager.c
+        src/Windowing/Platforms/Web/GWebWindowManager.c
+
+        src/Graphics/GRenderManager.c
+        src/Graphics/Backends/WebGL/GWebGLRenderManager.c
     )
 
     add_library(GSPCore STATIC ${GSPCORE_SRC})
-    target_compile_definitions(GSPCore PUBLIC -DGSPCORE_BUILD -DGSPCORE_BUILD_WASM)
+    target_compile_definitions(GSPCore PUBLIC -DGSPCORE_BUILD -DGSPCORE_BUILD_WEB)
 
 
     set(USE_FLAGS "-s USE_SDL=2 -s USE_SDL_IMAGE=2 -s USE_SDL_TTF=2 -s USE_FREETYPE=1 --preload-file ../resources/wasm/assets --preload-file ../resources/wasm/shaders")
@@ -52,7 +49,7 @@ if(EMSCRIPTEN)
     target_include_directories(GSPCore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR})
 
     # Add executable target
-    add_executable(Test testing/helloGspInterface2.c)
+    add_executable(Test testing/main.c)
     target_link_libraries(Test PRIVATE GSPCore)
     target_include_directories(Test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/libraries/GSPCore/include)
     

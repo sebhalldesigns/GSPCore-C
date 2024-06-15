@@ -105,9 +105,18 @@ typedef struct {
         VkCommandBuffer vkCommandBuffer;
     } GWindowPlatformHandles;
 
-#else
+#elif GSPCORE_BUILD_WEB
 
-    typedef void* GWindowPlatformHandles;
+#include <emscripten.h>
+#include <emscripten/html5.h>
+#include <GLES3/gl3.h>
+#include <SDL/SDL.h>
+#include <SDL/SDL_image.h>
+#include <SDL/SDL_ttf.h>
+
+ typedef struct {
+    GLuint framebuffer;
+} GWindowPlatformHandles;
 
 #endif
 

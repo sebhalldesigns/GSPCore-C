@@ -19,7 +19,7 @@ typedef enum {
     ENVIRONMENT_WIN32,
     ENVIRONMENT_IOS,
     ENVIRONMENT_ANDROID,
-    ENVIRONMENT_WASM
+    ENVIRONMENT_WEB
 } GApplicationEnvironment;
 
 struct GApplication {
@@ -38,8 +38,8 @@ struct GApplication {
 
 // MARK: METHODS
 
-GWindow GApplication_GetMainWindow();
-void GApplication_SetMainWindow(GWindow window);
+GWindow* GApplication_GetMainWindow();
+void GApplication_SetMainWindow(GWindow* window);
 GApplicationEnvironment GApplication_GetEnvironment();
 
 

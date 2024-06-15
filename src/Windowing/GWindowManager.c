@@ -5,6 +5,8 @@
 #include "GSPCore/Windowing/Platforms/X11/GX11WindowManager.h"
 #elif GSPCORE_BUILD_WIN32
 #include "GSPCore/Windowing/Platforms/Win32/GWin32WindowManager.h"
+#elif GSPCORE_BUILD_WEB
+#include "GSPCore/Windowing/Platforms/Web/GWebWindowManager.h"
 #endif
 
 #include <GSPCore/Graphics/GRenderManager.h>
@@ -33,6 +35,14 @@ bool GWindowManager_Init() {
         case ENVIRONMENT_WIN32:
             if (GWin32WindowManager_TryInit()) {
                 windowingSystem = WINDOWING_SYSTEM_WIN32;
+                return true;
+            }
+
+            return false;
+    #elif GSPCORE_BUILD_WEB
+        case ENVIRONMENT_WEB:
+            if (GWebWindowManager_TryInit()) {
+                windowingSystem = WINDOWING_SYSTEM_WEB;
                 return true;
             }
 
@@ -71,8 +81,17 @@ GWindow* GWindowManager_OpenWindow() {
             GWindow* win32Window = GWin32WindowManager_OpenWindow();
 
             if (GRenderManager_SetupWindow(win32Window)) {
-                printf("RENDER MANAGER DONE\n");
                 return win32Window;
+            }
+
+            break;
+    #elif GSPCORE_BUILD_WEB
+        case WINDOWING_SYSTEM_WEB:
+            GWindow* webWindow = GWebWindowManager_OpenWindow();
+
+            if (GRenderManager_SetupWindow(webWindow)) {
+                printf("RENDER MANAGER DONE\n");
+                return webWindow;
             }
 
             break;
@@ -96,6 +115,9 @@ int GWindowManager_RunLoop() {
     #elif GSPCORE_BUILD_WIN32
         case WINDOWING_SYSTEM_WIN32:
             return GWin32WindowManager_RunLoop();
+    #elif GSPCORE_BUILD_WEB
+        case WINDOWING_SYSTEM_WEB:
+            return GWebWindowManager_RunLoop();
     #endif
         default:
             return -1;

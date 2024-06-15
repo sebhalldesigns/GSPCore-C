@@ -18,4 +18,4 @@ wchar_t* GWin32WindowManager_GetClassName();
 
 LRESULT CALLBACK GWin32WindowManager_WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-#endif // GX11WINDOWMANAGER_H
+#endif // GWIN32WINDOWMANAGER_H

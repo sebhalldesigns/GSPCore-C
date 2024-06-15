@@ -12,7 +12,7 @@ typedef enum {
     WINDOWING_SYSTEM_WIN32,
     WINDOWING_SYSTEM_IOS,
     WINDOWING_SYSTEM_ANDROID,
-    WINDOWING_SYSTEM_WASM
+    WINDOWING_SYSTEM_WEB
 } GWindowManagerWindowingSystem;
 
 bool GWindowManager_Init();
@@ -23,4 +23,4 @@ GWindowManagerWindowingSystem GWindowManager_GetWindowingSystem();
 
 int GWindowManager_RunLoop();
 
-#endif GWINDOWMANAGER_H
+#endif // GWINDOWMANAGER_H

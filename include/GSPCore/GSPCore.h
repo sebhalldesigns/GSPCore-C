@@ -10,17 +10,10 @@
 #include "Types/GSPCoreGraphics.h"
 #include "Types/GSPCoreGeometry.h"
 
-#include "Types/GVector.h"
-#include "Graphics/GRenderer.h"
 #include "Application/GApplication.h"
 #include "Windowing/GWindow.h"
 #include "Windowing/GWindowManager.h"
-#include "View/GView.h"
 #include "Controllers/GApplicationController.h"
-#include "Controllers/GWindowController.h"
-#include "Controllers/GViewController.h"
-
-#include "Drawing/GDrawing.h"
 
 #include "Debug/GLog.h"
 

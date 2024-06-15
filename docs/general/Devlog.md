@@ -658,3 +658,11 @@ Main issue right now is that there is a complete mix of old and new code. Need t
 This should be a priority tomorrow - get those cleaned up.
 Then start to get vulkan rendering more pinned down for 2D compositor stuff.
 Then implement fragment vector shader and text and we're in a much better position.
+
+## 15/06/2024
+
+Have some time today although not completely free.
+Right now going to do a purge of old code, try and get a simple baseline functionality working for Linux (Wayland and X11), Win32 and WebGL.
+That is - app launch, window and rendermanager creation.
+
+GWindow is to be one of very few (possibly the only) items allocated dynamically. This is because I don't want to impose arbitrary restrictions on the number of windows that can be created. It will be tracked with a linked list, which will be used to determine if a window pointer is valid or not.

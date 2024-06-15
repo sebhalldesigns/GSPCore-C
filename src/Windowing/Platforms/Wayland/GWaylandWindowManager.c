@@ -19,7 +19,6 @@
 #include <time.h>
 #include <unistd.h>
 
-static struct wl_display* waylandDisplay = NULL;
 static GWaylandState waylandState;
 static GWindow* rootWindow = NULL;
 
@@ -54,9 +53,9 @@ bool GWaylandWindowManager_TryInit() {
 
 
 
-    waylandDisplay = wl_display_connect(NULL);
+    waylandState.display = wl_display_connect(NULL);
 
-    if (waylandDisplay == NULL) {
+    if (waylandState.display == NULL) {
         GLog(WARNING, "No Wayland display found. Falling back to X11");
         return false;
     }
@@ -64,9 +63,9 @@ bool GWaylandWindowManager_TryInit() {
 
 
     
-    waylandState.registry = wl_display_get_registry(waylandDisplay);
+    waylandState.registry = wl_display_get_registry(waylandState.display);
     wl_registry_add_listener(waylandState.registry, &registry_listener, &waylandState);
-	wl_display_roundtrip(waylandDisplay);
+	wl_display_roundtrip(waylandState.display);
 
 
     GLog(INFO, "Started WindowManager on Wayland backend");
@@ -76,7 +75,7 @@ bool GWaylandWindowManager_TryInit() {
 
 GWindow* GWaylandWindowManager_OpenWindow() {
     GWindow* window = calloc(1, sizeof(GWindow));
-    window->platformHandles.wl_display = waylandDisplay;
+    window->platformHandles.wl_display = waylandState.display;
     window->platformHandles.wl_surface = wl_compositor_create_surface(waylandState.compositor);
     window->platformHandles.xd_surface = xdg_wm_base_get_xdg_surface(waylandState.xd_wm_base, window->platformHandles.wl_surface);
     xdg_surface_add_listener(window->platformHandles.xd_surface, &xdg_surface_listener, &waylandState);
@@ -88,7 +87,7 @@ GWindow* GWaylandWindowManager_OpenWindow() {
     xdg_toplevel_add_listener(window->platformHandles.xd_toplevel , &toplevelListener, NULL);
 
     wl_surface_commit(window->platformHandles.wl_surface);
-    wl_display_roundtrip(waylandDisplay);
+    wl_display_roundtrip(waylandState.display);
 
     printf("WAYLAND WINDOW MANAGER DONE");
 
@@ -111,12 +110,16 @@ int GWaylandWindowManager_RunLoop() {
     while (true) {
         //printf("RUNNING\n");
         //GRenderManager_RenderWindow(rootWindow);
-        wl_display_roundtrip(waylandDisplay);
-        wl_display_dispatch(waylandDisplay);
+        wl_display_roundtrip(waylandState.display);
+        wl_display_dispatch(waylandState.display);
+
+        if (rootWindow != NULL) {
+            GRenderManager_RenderWindow(rootWindow);
+        }
 
     }
    
-    wl_display_disconnect(waylandDisplay);
+    wl_display_disconnect(waylandState.display);
 }
 
 
@@ -155,9 +158,7 @@ void GWaylandWindowManager_XdgSurfaceConfigureCallback(void *data, struct xdg_su
     //struct wl_buffer* buffer = draw_frame(state);
     //wl_surface_attach(waylandState.surface, buffer, 0, 0);
     //wl_surface_commit(xdg_surface);
-    if (rootWindow != NULL) {
-        GRenderManager_RenderWindow(rootWindow);
-    }
+    
     
     printf("CONFIGURE CALLBACK\n");
 }
@@ -166,7 +167,7 @@ void GWaylandWindowManager_TopLevelConfigureCallback(void* data, struct xdg_topl
     
     if (rootWindow != NULL) {
             rootWindow->frame.size.width = width;
-    rootWindow->frame.size.height = height;
+            rootWindow->frame.size.height = height;
     }
     
 

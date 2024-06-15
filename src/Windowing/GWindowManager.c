@@ -32,10 +32,17 @@ GWindow* GWindowManager_OpenWindow() {
 
     switch (windowingSystem) {
         case WINDOWING_SYSTEM_WAYLAND:
-            GWindow* window = GWaylandWindowManager_OpenWindow();
+            GWindow* waylandWindow = GWaylandWindowManager_OpenWindow();
 
-            if (GRenderManager_SetupWindow(window)) {
-                return window;
+            if (GRenderManager_SetupWindow(waylandWindow)) {
+                return waylandWindow;
+            }
+
+        case WINDOWING_SYSTEM_X11:
+            GWindow* x11Window = GX11WindowManager_OpenWindow();
+
+            if (GRenderManager_SetupWindow(x11Window)) {
+                return x11Window;
             }
 
             break;
@@ -52,6 +59,8 @@ int GWindowManager_RunLoop() {
     switch (windowingSystem) {
         case WINDOWING_SYSTEM_WAYLAND:
             return GWaylandWindowManager_RunLoop();
+        case WINDOWING_SYSTEM_X11:
+            return GX11WindowManager_RunLoop();
         default:
             return -1;
     }   

@@ -7,14 +7,13 @@
 #include "kde-server-decoration.h"
 
 typedef struct {
+    struct wl_display* display;
     struct wl_registry* registry;
     struct wl_compositor* compositor;
     struct wl_shm* shm;
     struct xdg_wm_base* xd_wm_base;
     struct org_kde_kwin_server_decoration_manager* kde_decorations;
 } GWaylandState;
-
-
 
 bool GWaylandWindowManager_TryInit();
 GWindow* GWaylandWindowManager_OpenWindow();

@@ -37,6 +37,18 @@ static const struct xdg_surface_listener xdg_surface_listener = {
     .configure = GWaylandWindowManager_XdgSurfaceConfigureCallback,
 };
 
+static const struct wl_pointer_listener wl_pointer_listener = {
+       .enter = GWaylandWindowManager_PointerEnterCallback,
+       .leave = GWaylandWindowManager_PointerExitCallback,
+       .motion = GWaylandWindowManager_PointerMotionCallback,
+       .button = GWaylandWindowManager_PointerButtonCallback,
+       .axis = GWaylandWindowManager_PointerAxisCallback,
+       .frame = GWaylandWindowManager_PointerFrameCallback,
+       .axis_source = GWaylandWindowManager_PointerAxisSourceCallback,
+       .axis_stop = GWaylandWindowManager_PointerAxisStopCallback,
+       .axis_discrete = GWaylandWindowManager_PointerAxisDiscreteCallback,
+};
+
 
 static void
 xdg_wm_base_ping(void *data, struct xdg_wm_base *xdg_wm_base, uint32_t serial)
@@ -48,6 +60,33 @@ static const struct xdg_wm_base_listener xdg_wm_base_listener = {
     .ping = xdg_wm_base_ping,
 };
 
+
+
+static void
+wl_seat_capabilities(void *data, struct wl_seat *wl_seat, uint32_t capabilities)
+{
+       bool have_pointer = capabilities & WL_SEAT_CAPABILITY_POINTER;
+
+       if (have_pointer && waylandState.pointer == NULL) {
+               waylandState.pointer = wl_seat_get_pointer(waylandState.seat);
+               wl_pointer_add_listener(waylandState.pointer,
+                               &wl_pointer_listener, &waylandState);
+       } else if (!have_pointer && waylandState.pointer != NULL) {
+               wl_pointer_release(waylandState.pointer);
+               waylandState.pointer = NULL;
+       }
+}
+
+static void
+wl_seat_name(void *data, struct wl_seat *wl_seat, const char *name)
+{
+       fprintf(stderr, "seat name: %s\n", name);
+}
+
+static const struct wl_seat_listener wl_seat_listener = {
+       .capabilities = wl_seat_capabilities,
+       .name = wl_seat_name,
+};
 
 bool GWaylandWindowManager_TryInit() {
 
@@ -84,7 +123,7 @@ GWindow* GWaylandWindowManager_OpenWindow() {
     
     xdg_toplevel_set_title(window->platformHandles.xd_toplevel, "Example client");
     org_kde_kwin_server_decoration_manager_create(waylandState.kde_decorations, window->platformHandles.wl_surface);
-    xdg_toplevel_add_listener(window->platformHandles.xd_toplevel , &toplevelListener, NULL);
+    xdg_toplevel_add_listener(window->platformHandles.xd_toplevel , &toplevelListener, &waylandState);
 
     wl_surface_commit(window->platformHandles.wl_surface);
     wl_display_roundtrip(waylandState.display);
@@ -142,9 +181,16 @@ void GWaylandWindowManager_GlobalRegistryHandle(void *data, struct wl_registry *
                 &xdg_wm_base_listener, state);
     }
 
+    if (strcmp(interface, wl_seat_interface.name) == 0) {
+        waylandState.seat = (struct wl_seat*)(wl_registry_bind(waylandState.registry, name, &wl_seat_interface, 7));
+        wl_seat_add_listener(waylandState.seat, &wl_seat_listener, state);
+    }
+    
     if (strcmp(interface, org_kde_kwin_server_decoration_manager_interface.name) == 0) {
         state->kde_decorations = (struct org_kde_kwin_server_decoration_manager*)(wl_registry_bind(state->registry, name, &org_kde_kwin_server_decoration_manager_interface, 1));
     }
+
+
 }
 
 void GWaylandWindowManager_GlobalRegistryRemoveHandle(void *data, struct wl_registry *registry, uint32_t name) {
@@ -175,4 +221,41 @@ void GWaylandWindowManager_TopLevelConfigureCallback(void* data, struct xdg_topl
 
 void GWaylandWindowManager_TopLevelCloseCallback(void* data, struct xdg_toplevel* toplevel) {
     printf("CLOSE REQUESTED!\n");
+}
+
+
+void GWaylandWindowManager_PointerEnterCallback(void *data, struct wl_pointer *wl_pointer, uint32_t serial, struct wl_surface *surface, wl_fixed_t surface_x, wl_fixed_t surface_y) {
+    printf("POINTER ENTER\n");
+}
+void GWaylandWindowManager_PointerExitCallback(void *data, struct wl_pointer *wl_pointer, uint32_t serial, struct wl_surface *surface) {
+    printf("POINTER EXIT\n");
+}
+
+void GWaylandWindowManager_PointerMotionCallback(void *data, struct wl_pointer *wl_pointer, uint32_t time, wl_fixed_t surface_x, wl_fixed_t surface_y) {
+    printf("POINTER MOTION %d %d\n", surface_x/256, surface_y/256);
+
+}
+
+void GWaylandWindowManager_PointerButtonCallback(void *data, struct wl_pointer *wl_pointer, uint32_t serial, uint32_t time, uint32_t button, uint32_t state) {
+    printf("POINTER BUTTON\n");
+}
+
+void GWaylandWindowManager_PointerAxisCallback(void *data, struct wl_pointer *wl_pointer, uint32_t time, uint32_t axis, wl_fixed_t value) {
+   // printf("POINTER AXIS\n");
+}
+
+void GWaylandWindowManager_PointerFrameCallback(void *data, struct wl_pointer *wl_pointer) {
+    //printf("POINTER FRAME\n");
+}
+
+void GWaylandWindowManager_PointerAxisSourceCallback(void *data, struct wl_pointer *wl_pointer, uint32_t axis_source) {
+    //printf("POINTER AXIS SOURCE\n");
+}
+
+void GWaylandWindowManager_PointerAxisStopCallback(void *data, struct wl_pointer *wl_pointer, uint32_t time, uint32_t axis) {
+   // printf("POINTER AXIS STOP\n");
+}
+
+void GWaylandWindowManager_PointerAxisDiscreteCallback(void *data, struct wl_pointer *wl_pointer, uint32_t axis, int32_t discrete) {
+    printf("POINTER AXIS DISCRETE\n");
 }

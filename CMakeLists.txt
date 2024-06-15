@@ -35,7 +35,7 @@ if(EMSCRIPTEN)
         src/Windowing/Platforms/Web/GWebWindowManager.c
 
         src/Graphics/GRenderManager.c
-        src/Graphics/Backends/WebGL/GWebGLRenderManager.c
+        src/Graphics/Backends/WebGL/GWebGlRenderManager.c
     )
 
     add_library(GSPCore STATIC ${GSPCORE_SRC})

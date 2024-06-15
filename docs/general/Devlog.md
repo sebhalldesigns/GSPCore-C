@@ -666,3 +666,14 @@ Right now going to do a purge of old code, try and get a simple baseline functio
 That is - app launch, window and rendermanager creation.
 
 GWindow is to be one of very few (possibly the only) items allocated dynamically. This is because I don't want to impose arbitrary restrictions on the number of windows that can be created. It will be tracked with a linked list, which will be used to determine if a window pointer is valid or not.
+
+Update a few hours later:
+
+Achieved a good level of win32/webgl support, both now have application callbacks and win32 has vulkan rendering working again which is great. Not going to spend any more time yet on WebGL as it's comparitively easy and already have source examples.
+
+Just added some wayland functionality so that pointer enter, exit, move and button presses are now all captured (although they are not sent anywhere).
+
+The view API is still a big question so I'm going to focus on rendering for now - this is a concrete, objective functionality that is also very important. The view API is much more of a convenience thing and doesn't even need to be part of GSPCore. Instead it could be implemented on the client side.
+
+  This is actually quite a big deal - the semantics of how to create a view API are very platform dependant and also vary significantly. It makes sense to focus on GSPCore as being a platform abstraction layer, events broker and rendering system.
+  

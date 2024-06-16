@@ -37,8 +37,10 @@ void* vulkanLibrary = NULL;
 
 VkInstance vkInstance = NULL;
 VkDebugUtilsMessengerEXT vkDebugMessenger = NULL;
-VkPhysicalDevice vkPhysicalDevice;
-
+VkPhysicalDevice vkPhysicalDevice = NULL;
+VkDevice vkDevice = NULL;
+VkBuffer vertexBuffer;
+VkDeviceMemory vertexBufferMemory;
 
 typedef struct {
     const char* name;
@@ -452,55 +454,65 @@ bool GVulkanRenderManager_SetupWindow(GWindow* window) {
 
     // MARK: CREATE LOGICAL DEVICE
 
-    float queuePriority = 1.0f;
+    if (vkDevice == NULL) {
+        float queuePriority = 1.0f;
 
-    VkDeviceQueueCreateInfo queueCreateInfo[2] = {0};
+        VkDeviceQueueCreateInfo queueCreateInfo[2] = {0};
 
-    queueCreateInfo[0].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-    queueCreateInfo[0].queueFamilyIndex = window->platformHandles.graphicsQueueFamily;
-    queueCreateInfo[0].queueCount = 1;
-    queueCreateInfo[0].pQueuePriorities = &queuePriority;
+        queueCreateInfo[0].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+        queueCreateInfo[0].queueFamilyIndex = window->platformHandles.graphicsQueueFamily;
+        queueCreateInfo[0].queueCount = 1;
+        queueCreateInfo[0].pQueuePriorities = &queuePriority;
 
-    queueCreateInfo[1].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-    queueCreateInfo[1].queueFamilyIndex = window->platformHandles.presentQueueFamily;
-    queueCreateInfo[1].queueCount = 1;
-    queueCreateInfo[1].pQueuePriorities = &queuePriority;
+        queueCreateInfo[1].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+        queueCreateInfo[1].queueFamilyIndex = window->platformHandles.presentQueueFamily;
+        queueCreateInfo[1].queueCount = 1;
+        queueCreateInfo[1].pQueuePriorities = &queuePriority;
 
 
-    VkDeviceCreateInfo deviceCreateInfo = {0};
-    deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-    deviceCreateInfo.pQueueCreateInfos = queueCreateInfo;
-    
-    if (window->platformHandles.graphicsQueueFamily == window->platformHandles.presentQueueFamily) {
-        deviceCreateInfo.queueCreateInfoCount = 1;
+        VkDeviceCreateInfo deviceCreateInfo = {0};
+        deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+        deviceCreateInfo.pQueueCreateInfos = queueCreateInfo;
+        
+        if (window->platformHandles.graphicsQueueFamily == window->platformHandles.presentQueueFamily) {
+            deviceCreateInfo.queueCreateInfoCount = 1;
+        } else {
+            deviceCreateInfo.queueCreateInfoCount = 2;
+        }
+
+        // enable GPU features here
+        VkPhysicalDeviceFeatures enabledFeatures = {0};
+        enabledFeatures.shaderClipDistance = VK_TRUE;
+        deviceCreateInfo.pEnabledFeatures = &enabledFeatures;
+
+        // enable swapchain for logical device
+        const char* deviceExtensions = VK_KHR_SWAPCHAIN_EXTENSION_NAME;
+        deviceCreateInfo.enabledExtensionCount = 1;
+        deviceCreateInfo.ppEnabledExtensionNames = &deviceExtensions;
+
+        if (ENABLE_VULKAN_DEBUG) {
+            deviceCreateInfo.enabledLayerCount = numValidationlayers;
+            deviceCreateInfo.ppEnabledLayerNames = validationLayerNames;
+        }
+
+        if (vkCreateDevice(vkPhysicalDevice, &deviceCreateInfo, NULL, &window->platformHandles.vkDevice) != VK_SUCCESS) {
+            GLog(WARNING, "Vulkan logical device creation failed. Using Legacy graphics.");
+            return false;
+        }
+        vkDevice = window->platformHandles.vkDevice;
+
+        GLog(INFO, "Created a Vulkan logical device");
     } else {
-        deviceCreateInfo.queueCreateInfoCount = 2;
-    }
-
-    // enable GPU features here
-    VkPhysicalDeviceFeatures enabledFeatures = {0};
-    enabledFeatures.shaderClipDistance = VK_TRUE;
-    deviceCreateInfo.pEnabledFeatures = &enabledFeatures;
-
-    // enable swapchain for logical device
-    const char* deviceExtensions = VK_KHR_SWAPCHAIN_EXTENSION_NAME;
-    deviceCreateInfo.enabledExtensionCount = 1;
-    deviceCreateInfo.ppEnabledExtensionNames = &deviceExtensions;
-
-    if (ENABLE_VULKAN_DEBUG) {
-        deviceCreateInfo.enabledLayerCount = numValidationlayers;
-        deviceCreateInfo.ppEnabledLayerNames = validationLayerNames;
-    }
-
-    if (vkCreateDevice(vkPhysicalDevice, &deviceCreateInfo, NULL, &window->platformHandles.vkDevice) != VK_SUCCESS) {
-        GLog(WARNING, "Vulkan logical device creation failed. Using Legacy graphics.");
+        GLog(WARNING, "Logical device already exists! Code needs to be written to handle this!");
         return false;
     }
+
+    
 
     vkGetDeviceQueue(window->platformHandles.vkDevice, window->platformHandles.graphicsQueueFamily, 0, &window->platformHandles.graphicsQueue);
     vkGetDeviceQueue(window->platformHandles.vkDevice, window->platformHandles.presentQueueFamily, 0, &window->platformHandles.presentQueue);
 
-    GLog(INFO, "Created a Vulkan logical device");
+    
 
     // MARK: CREATE SWAPCHAIN
 
@@ -747,12 +759,29 @@ bool GVulkanRenderManager_SetupWindow(GWindow* window) {
     fragShaderStageInfo.module = fragShaderModule;
     fragShaderStageInfo.pName = "main";
 
+
+
     VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
+
+    // MARK: VERTEX INPUT STATE
+
+    VkVertexInputAttributeDescription vertexAttributeDescriptions[1];
+    vertexAttributeDescriptions[0].binding = 0;
+    vertexAttributeDescriptions[0].location = 0;
+    vertexAttributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT; // i.e a vec2
+    vertexAttributeDescriptions[0].offset = 0;
+
+    VkVertexInputBindingDescription vertexBindingDescriptions[1];
+    vertexBindingDescriptions[0].binding = 0;
+    vertexBindingDescriptions[0].stride = 2*sizeof(float);
+    vertexBindingDescriptions[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo = {0};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    vertexInputInfo.vertexBindingDescriptionCount = 0;
-    vertexInputInfo.vertexAttributeDescriptionCount = 0;
+    vertexInputInfo.vertexBindingDescriptionCount = 1;
+    vertexInputInfo.vertexAttributeDescriptionCount = 1;
+    vertexInputInfo.pVertexBindingDescriptions = &vertexBindingDescriptions[0];
+    vertexInputInfo.pVertexAttributeDescriptions = &vertexAttributeDescriptions[0];
 
     VkPipelineInputAssemblyStateCreateInfo inputAssembly = {0};
     inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -837,6 +866,10 @@ bool GVulkanRenderManager_SetupWindow(GWindow* window) {
     vkDestroyShaderModule(window->platformHandles.vkDevice, fragShaderModule, NULL);
     vkDestroyShaderModule(window->platformHandles.vkDevice, vertShaderModule, NULL);
 
+    // MARK: CREATE VERTEX BUFFER
+
+    GVulkanRenderManager_CreateVertexBuffer(&vertexBuffer, &vertexBufferMemory);
+
     // MARK: CREATE FRAMEBUFFERS
 
     // ALLOC @window->platformHandles.vkFramebuffers
@@ -909,7 +942,7 @@ bool GVulkanRenderManager_SetupWindow(GWindow* window) {
         return false;
     }
 
-    printf("SETUP FOR WINDOW DONE\n");
+
     return true;
 }
 
@@ -1087,6 +1120,8 @@ void GVulkanRenderManager_RenderWindow(GWindow* window) {
 
     }
 
+    // MARK: DONE RECREATION
+
     vkResetFences(window->platformHandles.vkDevice, 1, &window->platformHandles.inFlightFence);
 
 
@@ -1134,6 +1169,18 @@ void GVulkanRenderManager_RenderWindow(GWindow* window) {
     scissor.extent =  window->platformHandles.vkSwapchainExtent;
     vkCmdSetScissor(window->platformHandles.vkCommandBuffer, 0, 1, &scissor);
 
+
+    VkBuffer vertexBuffers[] = {
+        vertexBuffer
+    };
+
+    VkDeviceSize offsets[] = {
+        0
+    };
+
+    vkCmdBindVertexBuffers(window->platformHandles.vkCommandBuffer, 0, 1, vertexBuffers, offsets);
+
+
     vkCmdDraw(window->platformHandles.vkCommandBuffer, 3, 1, 0, 0);
 
     vkCmdEndRenderPass(window->platformHandles.vkCommandBuffer);
@@ -1180,3 +1227,86 @@ void GVulkanRenderManager_RenderWindow(GWindow* window) {
 
 }
 
+void GVulkanRenderManager_CreateVertexBuffer(VkBuffer* buffer, VkDeviceMemory* bufferMemory) {
+
+    float vertices[] = {
+        0.0f, -0.25f,
+        0.5f, 0.9f,
+        -0.5f, 0.5f
+    };
+
+    VkBufferCreateInfo bufferInfo = {0};
+    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    bufferInfo.size = sizeof(vertices);
+    bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+    bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    if (vkCreateBuffer(vkDevice, &bufferInfo, NULL, buffer) != VK_SUCCESS) {
+        GLog(WARNING, "Failed to allocate Vulkan vertex buffer");
+        return;
+    }
+
+    VkMemoryRequirements memRequirements;
+    vkGetBufferMemoryRequirements(vkDevice, *buffer, &memRequirements);
+
+    VkMemoryAllocateInfo allocInfo = {};
+    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    allocInfo.allocationSize = memRequirements.size;
+    allocInfo.memoryTypeIndex = GVulkanRenderManager_FindMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+    if (vkAllocateMemory(vkDevice, &allocInfo, NULL, bufferMemory) != VK_SUCCESS) {
+        GLog(WARNING, "Failed to allocate Vulkan vertex buffer memory!");
+    }
+
+    vkBindBufferMemory(vkDevice, *buffer, *bufferMemory, 0);
+    
+    void* data;
+    vkMapMemory(vkDevice, *bufferMemory, 0, bufferInfo.size, 0, &data);
+    memcpy(data, vertices, (size_t) bufferInfo.size);
+    vkUnmapMemory(vkDevice, *bufferMemory);
+
+}
+
+void GVulkanRenderManager_CreateUniformBuffer(size_t size, VkBuffer* buffer, VkDeviceMemory* bufferMemory) {
+
+    VkBufferCreateInfo bufferInfo = {0};
+    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    bufferInfo.size = size;
+    bufferInfo.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+    bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    if (vkCreateBuffer(vkDevice, &bufferInfo, NULL, buffer) != VK_SUCCESS) {
+        GLog(WARNING, "Failed to allocate Vulkan buffer!");
+        return;
+    }
+
+    VkMemoryRequirements memRequirements;
+    vkGetBufferMemoryRequirements(vkDevice, *buffer, &memRequirements);
+
+    VkMemoryAllocateInfo allocInfo = {};
+    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    allocInfo.allocationSize = memRequirements.size;
+    allocInfo.memoryTypeIndex = GVulkanRenderManager_FindMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+    if (vkAllocateMemory(vkDevice, &allocInfo, NULL, bufferMemory) != VK_SUCCESS) {
+        GLog(WARNING, "Failed to allocate Vulkan buffer memory!");
+        return;
+    }   
+
+    vkBindBufferMemory(vkDevice, *buffer, *bufferMemory, 0);
+
+}
+
+uint32_t GVulkanRenderManager_FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
+    VkPhysicalDeviceMemoryProperties memProperties;
+    vkGetPhysicalDeviceMemoryProperties(vkPhysicalDevice, &memProperties);
+
+    for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
+        if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
+            return i;
+        }
+    }
+
+    GLog(WARNING, "Failed to find a suitable Vulkan memory type!");
+    return 0;
+}

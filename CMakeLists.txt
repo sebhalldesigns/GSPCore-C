@@ -164,18 +164,23 @@ elseif (UNIX)
     find_package(Vulkan REQUIRED)
 
     set(GSPCORE_SRC
-        src/Application/GApplication.c
+        src/GSPCore.c
         src/Debug/GLog.c
 
-        src/Windowing/GWindowManager.c
-        src/Windowing/Platforms/X11/GX11WindowManager.c
-        src/Windowing/Platforms/Wayland/GWaylandWindowManager.c
-        src/Windowing/Platforms/Wayland/xdg-shell-protocol.c
-        src/Windowing/Platforms/Wayland/kde-server-decoration.c
+        src/Application/GApplicationManager.c
+        
+        src/Window/GWindowManager.c
+        src/Window/Platforms/X11/GX11WindowManager.c
+        src/Window/Platforms/Wayland/GWaylandWindowManager.c
+        src/Window/Platforms/Wayland/xdg-shell-protocol.c
+        src/Window/Platforms/Wayland/kde-server-decoration.c
 
-        src/Graphics/GRenderManager.c
-        src/Graphics/Backends/Vulkan/GVulkanRenderManager.c
+        src/Render/GRenderManager.c
+        src/Render/Backends/Vulkan/GVulkanRenderManager.c
 
+        src/View/GViewManager.c
+        
+        src/Server/GSPServer.c
     )
 
     # Set the C compiler flags

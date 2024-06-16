@@ -13,14 +13,6 @@
 #include "../Controllers/GApplicationController.h"
 #include <stdbool.h>
 
-typedef enum {
-    ENVIRONMENT_UNIX,
-    ENVIRONMENT_MACOS,
-    ENVIRONMENT_WIN32,
-    ENVIRONMENT_IOS,
-    ENVIRONMENT_ANDROID,
-    ENVIRONMENT_WEB
-} GApplicationEnvironment;
 
 struct GApplication {
     const char* title;
@@ -30,23 +22,12 @@ struct GApplication {
 
     // options only relevant to desktop platforms, ignored on portable platforms
     bool startSilently;
+    bool exitOnRootWindowClose;
     int startWidth;
     int startHeight;
 
-    GApplicationController applicationController;
+    GWindow* rootWindow;
 };
-
-// MARK: METHODS
-
-GWindow* GApplication_GetMainWindow();
-void GApplication_SetMainWindow(GWindow* window);
-GApplicationEnvironment GApplication_GetEnvironment();
-
-
-int GApplication_Run(GApplication *app);
-
-
-
 
 
 #endif // GAPPLICATION_H

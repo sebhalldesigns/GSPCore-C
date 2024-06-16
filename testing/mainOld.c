@@ -2,7 +2,7 @@
 #include "GSPCore/GWindow.h"
 #include "GSPCore/GLog.h"
 
-#include "GSPCore/Graphics/GTextProvider.h"
+#include "GSPCore/Render/GTextProvider.h"
 
 #include <stdio.h>
 

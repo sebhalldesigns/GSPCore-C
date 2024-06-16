@@ -677,3 +677,25 @@ The view API is still a big question so I'm going to focus on rendering for now 
 
   This is actually quite a big deal - the semantics of how to create a view API are very platform dependant and also vary significantly. It makes sense to focus on GSPCore as being a platform abstraction layer, events broker and rendering system.
   
+...
+
+Now completely backtracking on this for a few reasons. Firstly, the semantics of the API ARE important. A big source of efficiency in GSPCore will be the dynamic/responsive state machine implementation. The way this is implemented will radically change the underlying structure.
+
+While the framework will normally be used as a DLL/shared library, I do want it to be able to function as a server. Designing for a client/server architecture will also force the API to be better defined, and more separated. Function calls and pointers are a bad time for security and can be messy from a language binding perspective.
+
+## 16/06/2024
+
+Spent some time on the server concept and it definitely CAN work, but it's just an uncecessary sidetrack for now I'm sure.
+Importantly though, there are some findings from this that are very useful.
+
+1. Make sure there's clear separation between normal functions (in which clients modify the system state) and callbacks (in which the system triggers an action from the client).
+2. The number of required callbacks should be zero.
+3. The system should maintain a record of which elements are valid, but still use pointers to act as object handles.
+
+The clarified architecture is as follows:
+
+Fundamental objects (Application, Window, View) are allocated dynamically, and implemented as opaque structs (client only ever recieves pointer).
+'Manager' interfaces are static objects that perform state changes on objects (e.g creation, getting and modifying of parameters).
+'Callback' interfaces are optional triggers for state-modifying events.
+
+For now, will focus on Manager interfaces and a compile-time constant app structure (i.e app is implemented before running main loop, not requiring a callback).

@@ -10,12 +10,17 @@
 #include "Types/GSPCoreGraphics.h"
 #include "Types/GSPCoreGeometry.h"
 
+
 #include "Application/GApplication.h"
-#include "Windowing/GWindow.h"
-#include "Windowing/GWindowManager.h"
+#include "Application/GApplicationManager.h"
+
+#include "Window/GWindow.h"
+#include "Window/GWindowManager.h"
 #include "Controllers/GApplicationController.h"
 
 #include "Debug/GLog.h"
 
+// top-level init function to be called first
+bool GSPCore_Init();
 
 #endif // GSPCORE_H

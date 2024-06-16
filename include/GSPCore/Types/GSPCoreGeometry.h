@@ -29,6 +29,13 @@ typedef struct {
     GFloat bottom;
 } GThickness;
 
+typedef struct {
+    GFloat topLeft;
+    GFloat topRight;
+    GFloat bottomRight;
+    GFloat bottomLeft;
+} GCornerRadii;
+
 typedef enum {
     ALIGNMENT_BEGINNING,
     ALIGNMENT_CENTER,

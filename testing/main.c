@@ -1,28 +1,25 @@
 #include "GSPCore/GSPCore.h"
-#include "GSPCore/Windowing/GWindowManager.h"
-#include "GSPCore/Windowing/GWindow.h"
+#include "GSPCore/Window/GWindowManager.h"
+#include "GSPCore/Window/GWindow.h"
+#include "GSPCore/Server/GSPServer.h"
 
 
 #include <stdio.h>
 
-void launched() {
-
-    printf("LAUNCHED!\n");
-
-    GWindow* window = GWindowManager_OpenWindow();
-
-    printf("GOT TO HERE\n");
-}
-
 int main() {
 
-    GApplication app = {
-        .title = "example app", 
-        .developer = "Seb Hall", 
-        .majorVersion = 0, 
-        .minorVersion = 0,
-        .applicationController.launchEvent = launched
-    };
+    if (!GSPCore_Init()) {
+        return -1;
+    }
 
-    return GApplication_Run(&app);
+    GApplication app;
+    app.title = "MyApp";
+    app.majorVersion = 0;
+    app.minorVersion = 1;
+    app.rootWindow = NULL;
+
+    GWindow* window = GWindowManager_OpenWindow();
+    app.rootWindow = window;
+
+    return GApplicationManager_Run(&app);
 }

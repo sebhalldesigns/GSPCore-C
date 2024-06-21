@@ -107,9 +107,24 @@ typedef struct {
 
 #elif GSPCORE_BUILD_MACOS
 
+    #import <Cocoa/Cocoa.h>
+    #import <Metal/Metal.h>
+    #import <MetalKit/MetalKit.h>
+
+    @interface CocoaWindow : NSWindow
+    @property GWindow* window;
+    @end
+
+    @interface CocoaMetalView: MTKView
+    @property GWindow mywindow;
+    @property id<MTLCommandQueue> commandQueue;
+    @end
+
     typedef struct {
-        void* window;
-        void* metalView;
+        CocoaWindow* window;
+        CocoaMetalView* metalView;
+        id<MTLDevice> mtlDevice;
+        id<MTLRenderPipelineState> mtlPipelineState;
     } GWindowPlatformHandles;
     
 #elif GSPCORE_BUILD_WEB

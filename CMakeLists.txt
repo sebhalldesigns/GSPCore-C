@@ -36,6 +36,8 @@ if(EMSCRIPTEN)
 
         src/Graphics/GRenderManager.c
         src/Graphics/Backends/WebGL/GWebGlRenderManager.c
+
+        src/Resource/GResourceManager.c
     )
 
     add_library(GSPCore STATIC ${GSPCORE_SRC})
@@ -136,6 +138,9 @@ elseif(APPLE)
 
         src/Render/GRenderManager.c
         src/Render/Backends/Metal/GMetalRenderManager.m
+
+        src/Resource/GResourceManager.c
+        src/Resource/Providers/Cocoa/GCocoaResourceManager.m
     )
 
     add_library(GSPCore ${GSPCORE_SRC})

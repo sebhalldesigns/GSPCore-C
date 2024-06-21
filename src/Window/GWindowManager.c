@@ -128,7 +128,6 @@ int GWindowManager_RunLoop(GApplication* app) {
 
     switch (windowingSystem) {
     #ifdef GSPCORE_BUILD_UNIX
-
         case WINDOWING_SYSTEM_WAYLAND:
             return GWaylandWindowManager_RunLoop(app);
         case WINDOWING_SYSTEM_X11:

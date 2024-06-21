@@ -32,7 +32,6 @@ bool GRenderManager_Init() {
          case ENVIRONMENT_WIN32:
             
             if (GVulkanRenderManager_Init()) {
-                printf("DONE RENDER MANAGER INIT\n");
                 backend = BACKEND_VULKAN;
                 return true;
             }
@@ -42,7 +41,6 @@ bool GRenderManager_Init() {
          case ENVIRONMENT_MACOS:
             
             if (GMetalRenderManager_Init()) {
-                printf("DONE RENDER MANAGER INIT\n");
                 backend = BACKEND_METAL;
                 return true;
             }
@@ -52,7 +50,6 @@ bool GRenderManager_Init() {
         case ENVIRONMENT_WEB:
             
             if (GWebGlRenderManager_Init()) {
-                printf("DONE RENDER MANAGER INIT\n");
                 backend = BACKEND_WEBGL;
                 return true;
             }

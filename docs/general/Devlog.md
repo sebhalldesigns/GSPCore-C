@@ -699,3 +699,9 @@ Fundamental objects (Application, Window, View) are allocated dynamically, and i
 'Callback' interfaces are optional triggers for state-modifying events.
 
 For now, will focus on Manager interfaces and a compile-time constant app structure (i.e app is implemented before running main loop, not requiring a callback).
+
+## 21/06/2024
+
+Working on macOS today. Getting existing features implemented with new structure.
+
+Also started creation of the GResourceManager set of classes.

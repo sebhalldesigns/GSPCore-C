@@ -1,7 +1,7 @@
 #include "GSPCore/GSPCore.h"
 #include "GSPCore/Window/GWindowManager.h"
 #include "GSPCore/Window/GWindow.h"
-#include "GSPCore/Server/GSPServer.h"
+#include "GSPCore/Resource/GResourceManager.h"
 
 #include <stdio.h>
 
@@ -13,6 +13,13 @@ int main() {
         return -1;
     }
 
+    GRawImage image = GResourceManager_LoadImage("../resources/images/image.png");
+    printf("image %lu %lu\n", image.width, image.height);
+
+    image.width = 10;
+    image.height = 10;
+
+    GResourceManager_SaveImage(image, "image2.png");
     GApplication app;
     app.title = "MyApp";
     app.majorVersion = 0;

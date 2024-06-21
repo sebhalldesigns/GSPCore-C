@@ -1,6 +1,9 @@
 #ifndef GSPCOREGRAPHICS_H
 #define GSPCOREGRAPHICS_H
 
+#include <stdint.h>
+#include <stddef.h>
+
 typedef struct {
     float red;
     float green;
@@ -8,7 +11,11 @@ typedef struct {
     float alpha;
 } GColor;
 
-
+typedef struct {
+    uint32_t* rawData;
+    size_t width;
+    size_t height;
+} GRawImage;
 
 // IGNORE THIS FOR NOW
 // WANT TO MAKE A CONDITIONAL STYLING SYSTEM

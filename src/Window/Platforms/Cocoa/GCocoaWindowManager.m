@@ -12,13 +12,10 @@
 static GCocoaState state;
 static GWindow* rootWindow = NULL;
 
-@interface CocoaWindow : NSWindow
-@property GWindow* window;
-@end
 
-@implementation CocoaWindow
 
-@end
+
+
 
 bool GCocoaWindowManager_TryInit() {
 
@@ -48,6 +45,9 @@ GWindow* GCocoaWindowManager_OpenWindow() {
         //NSString* titleString = [NSString stringWithUTF8String:info.title];
         [window->platformHandles.window setTitle:@"example window"];
 
+        window->platformHandles.metalView = [[CocoaMetalView alloc] initWithFrame:frame device:MTLCreateSystemDefaultDevice()];
+        [window->platformHandles.window setContentView:window->platformHandles.metalView];
+
         [window->platformHandles.window center];
         [window->platformHandles.window makeKeyAndOrderFront:nil];     
         
@@ -75,6 +75,45 @@ int GCocoaWindowManager_RunLoop(GApplication* app) {
 - (void)windowDidResize:(NSNotification *)notification {
 
    printf("resize\n");
+}
+
+@end
+
+@implementation CocoaWindow
+
+@end
+
+@implementation CocoaMetalView
+
+- (instancetype)initWithFrame:(NSRect)frameRect device:(id<MTLDevice>)device {
+    self = [super initWithFrame:frameRect device:device];
+
+    if (self) {
+        // Configure the Metal view
+        self.clearColor = MTLClearColorMake(0.5, 0.5, 0.5, 1.0); // Clear color is light gray
+        self.paused = true;
+        self.enableSetNeedsDisplay = true;
+        self.commandQueue = [self.device newCommandQueue];
+    }
+
+    printf("MADE\n");
+
+    return self;
+}
+
+- (void)drawRect:(NSRect)dirtyRect {
+    [super drawRect:dirtyRect];
+
+    id<MTLCommandBuffer> onscreenCommandBuffer = [self.commandQueue commandBuffer];
+
+    printf("DRAW\n");
+    // Perform rendering here
+    // You'll implement your Metal rendering code in this method
+
+    [onscreenCommandBuffer presentDrawable:self.currentDrawable];
+    [onscreenCommandBuffer commit];
+
+    [onscreenCommandBuffer waitUntilCompleted]; 
 }
 
 @end

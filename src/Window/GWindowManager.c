@@ -1,10 +1,13 @@
 #include <GSPCore/GSPCore.h>
+#include <GSPCore/Window/GWindowManager.h>
 
 #ifdef GSPCORE_BUILD_UNIX
 #include "GSPCore/Window/Platforms/Wayland/GWaylandWindowManager.h"
 #include "GSPCore/Window/Platforms/X11/GX11WindowManager.h"
 #elif GSPCORE_BUILD_WIN32
 #include "GSPCore/Window/Platforms/Win32/GWin32WindowManager.h"
+#elif GSPCORE_BUILD_MACOS
+#include "GSPCore/Window/Platforms/Cocoa/GCocoaWindowManager.h"
 #elif GSPCORE_BUILD_WEB
 #include "GSPCore/Window/Platforms/Web/GWebWindowManager.h"
 #endif
@@ -35,6 +38,14 @@ bool GWindowManager_Init() {
         case ENVIRONMENT_WIN32:
             if (GWin32WindowManager_TryInit()) {
                 windowingSystem = WINDOWING_SYSTEM_WIN32;
+                return true;
+            }
+
+            return false;
+    #elif GSPCORE_BUILD_MACOS
+        case ENVIRONMENT_MACOS:
+            if (GCocoaWindowManager_TryInit()) {
+                windowingSystem = WINDOWING_SYSTEM_COCOA;
                 return true;
             }
 
@@ -85,6 +96,16 @@ GWindow* GWindowManager_OpenWindow() {
             }
 
             break;
+    #elif GSPCORE_BUILD_MACOS
+        case WINDOWING_SYSTEM_COCOA: {
+            GWindow* cocoaWindow = GCocoaWindowManager_OpenWindow();
+
+            if (GRenderManager_SetupWindow(cocoaWindow)) {
+                return cocoaWindow;
+            }
+
+            break;
+        }
     #elif GSPCORE_BUILD_WEB
         case WINDOWING_SYSTEM_WEB:
             GWindow* webWindow = GWebWindowManager_OpenWindow();
@@ -115,6 +136,9 @@ int GWindowManager_RunLoop(GApplication* app) {
     #elif GSPCORE_BUILD_WIN32
         case WINDOWING_SYSTEM_WIN32:
             return GWin32WindowManager_RunLoop(app);
+    #elif GSPCORE_BUILD_MACOS
+        case WINDOWING_SYSTEM_COCOA:
+            return GCocoaWindowManager_RunLoop(app);
     #elif GSPCORE_BUILD_WEB
         case WINDOWING_SYSTEM_WEB:
             return GWebWindowManager_RunLoop(app);

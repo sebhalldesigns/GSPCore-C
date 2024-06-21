@@ -11,10 +11,12 @@ bool GSPCore_Init() {
 
     GLog(INFO, "Starting GSPCore v%d.%d", majorVersion, minorVersion);
 
+
+
     GApplicationManager_Init();
     GWindowManager_Init();
     GRenderManager_Init();
-    GViewManager_Init();
+    //GViewManager_Init();
 
     return true;
 

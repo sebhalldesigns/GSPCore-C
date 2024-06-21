@@ -3,10 +3,11 @@
 #include "GSPCore/Window/GWindow.h"
 #include "GSPCore/Server/GSPServer.h"
 
-
 #include <stdio.h>
 
 int main() {
+
+    printf("STARTING...\n");
 
     if (!GSPCore_Init()) {
         return -1;
@@ -20,6 +21,7 @@ int main() {
 
     GWindow* window = GWindowManager_OpenWindow();
     app.rootWindow = window;
+    printf("WINDOW IS %llu\n", window);
 
     return GApplicationManager_Run(&app);
 }

@@ -105,6 +105,13 @@ typedef struct {
         VkCommandBuffer vkCommandBuffer;
     } GWindowPlatformHandles;
 
+#elif GSPCORE_BUILD_MACOS
+
+    typedef struct {
+        void* window;
+        void* metalView;
+    } GWindowPlatformHandles;
+    
 #elif GSPCORE_BUILD_WEB
 
 #include <emscripten.h>

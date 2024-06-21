@@ -11,6 +11,8 @@
     const static GApplicationEnvironment environment = ENVIRONMENT_UNIX;
 #elif GSPCORE_BUILD_WIN32
     const static GApplicationEnvironment environment = ENVIRONMENT_WIN32;
+#elif GSPCORE_BUILD_MACOS
+    const static GApplicationEnvironment environment = ENVIRONMENT_MACOS;
 #elif GSPCORE_BUILD_WEB
     const static GApplicationEnvironment environment = ENVIRONMENT_WEB;
 #endif
@@ -28,8 +30,8 @@ int GApplicationManager_Run(GApplication* app) {
     while (app->rootWindow != NULL) {
 
         if (GWindowManager_RunLoop(app) < 0) {
-            GLog(FAIL, "A window manager error occured! Exiting...");
-            return -1;
+           GLog(FAIL, "A window manager error occured! Exiting...");
+           return -1;
         }
     }
 

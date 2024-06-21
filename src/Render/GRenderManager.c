@@ -5,6 +5,8 @@
 #include <GSPCore/Render/Backends/Vulkan/GVulkanRenderManager.h>
 #elif GSPCORE_BUILD_WIN32
 #include <GSPCore/Render/Backends/Vulkan/GVulkanRenderManager.h>
+#elif GSPCORE_BUILD_MACOS
+#include <GSPCore/Render/Backends/Metal/GMetalRenderManager.h>
 #elif GSPCORE_BUILD_WEB
 #include <GSPCore/Render/Backends/WebGL/GWebGlRenderManager.h>
 
@@ -18,20 +20,30 @@ bool GRenderManager_Init() {
 
     switch (environment) {
     #ifdef GSPCORE_BUILD_UNIX
-
         case ENVIRONMENT_UNIX:
             
             if (GVulkanRenderManager_Init()) {
                 backend = BACKEND_VULKAN;
                 return true;
             }
-    #elif GSPCORE_BUILD_WIN32
 
+            return false;
+    #elif GSPCORE_BUILD_WIN32
          case ENVIRONMENT_WIN32:
             
             if (GVulkanRenderManager_Init()) {
                 printf("DONE RENDER MANAGER INIT\n");
                 backend = BACKEND_VULKAN;
+                return true;
+            }
+
+            return false;
+    #elif GSPCORE_BUILD_MACOS
+         case ENVIRONMENT_MACOS:
+            
+            if (GMetalRenderManager_Init()) {
+                printf("DONE RENDER MANAGER INIT\n");
+                backend = BACKEND_METAL;
                 return true;
             }
 
@@ -64,6 +76,9 @@ bool GRenderManager_SetupWindow(GWindow* window) {
     #elif GSPCORE_BUILD_WIN32
         case BACKEND_VULKAN:
             return GVulkanRenderManager_SetupWindow(window);
+    #elif GSPCORE_BUILD_MACOS
+        case BACKEND_METAL:
+            return GMetalRenderManager_SetupWindow(window);
     #elif GSPCORE_BUILD_WEB
         case BACKEND_WEBGL:
             return GWebGlRenderManager_SetupWindow(window);
@@ -81,6 +96,9 @@ void GRenderManager_RenderWindow(GWindow* window) {
     #elif GSPCORE_BUILD_WIN32
         case BACKEND_VULKAN:
             return GVulkanRenderManager_RenderWindow(window);
+    #elif GSPCORE_BUILD_MACOS
+        case BACKEND_METAL:
+            return GMetalRenderManager_RenderWindow(window);
     #elif GSPCORE_BUILD_WEB
         case BACKEND_WEBGL:
             return GWebGlRenderManager_RenderWindow(window);

@@ -126,11 +126,16 @@ elseif(APPLE)
     find_library(METALKIT_FRAMEWORK MetalKit)
 
     set(GSPCORE_SRC 
-        src/Basic/GApplication/macos/GApplication.m
-        src/Basic/GWindow/macos/GWindow.m
-        src/Controllers/GApplicationController/macos/GApplicationController.m
-        src/Controllers/GWindowController/macos/GWindowController.m
-        src/Graphics/GRenderer/macos/GRenderer.m
+        src/GSPCore.c
+        src/Debug/GLog.c
+
+        src/Application/GApplicationManager.c
+
+        src/Window/GWindowManager.c
+        src/Window/Platforms/Cocoa/GCocoaWindowManager.m
+
+        src/Render/GRenderManager.c
+        src/Render/Backends/Metal/GMetalRenderManager.m
     )
 
     add_library(GSPCore ${GSPCORE_SRC})
@@ -142,7 +147,7 @@ elseif(APPLE)
 
 
     set(GSP_TEST_SRC
-        testing/helloGspInterface2.c
+        testing/main.c
     )
 
     add_executable(GSP MACOSX_BUNDLE ${GSP_TEST_SRC})

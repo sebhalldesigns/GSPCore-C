@@ -14,6 +14,7 @@ typedef struct {
 bool GWin32WindowManager_TryInit();
 GWindow* GWin32WindowManager_OpenWindow();
 int GWin32WindowManager_RunLoop(GApplication* app);
+
 wchar_t* GWin32WindowManager_GetClassName();
 
 LRESULT CALLBACK GWin32WindowManager_WindowProcedure(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);

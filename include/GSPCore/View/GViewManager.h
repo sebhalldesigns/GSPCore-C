@@ -10,6 +10,4 @@ bool GViewManager_Init();
 GView* GViewManager_InitView();
 
 
-
-
 #endif // GVIEWMANAGER_H

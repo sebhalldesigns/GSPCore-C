@@ -9,9 +9,12 @@
 #include <GSPCore/Types/GSPCoreOpaqueTypes.h>
 #include <stdbool.h>
 
+
 bool GMetalRenderManager_Init();
 bool GMetalRenderManager_SetupWindow(GWindow* window);
 void GMetalRenderManager_RenderWindow(GWindow* window);
+
+char* GMetalRenderManager_LoadShader(char* path);
 
 #endif // GMETALRENDERMANAGER_H
 

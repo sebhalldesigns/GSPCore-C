@@ -115,8 +115,10 @@ typedef struct {
     @property GWindow* window;
     @end
 
-    @interface CocoaMetalView: MTKView
-    @property GWindow mywindow;
+    @interface CocoaMetalView: MTKView {
+        GWindow* window;
+    }
+    
     @property id<MTLCommandQueue> commandQueue;
     @end
 
@@ -125,6 +127,9 @@ typedef struct {
         CocoaMetalView* metalView;
         id<MTLDevice> mtlDevice;
         id<MTLRenderPipelineState> mtlPipelineState;
+        id<MTLBuffer> mtlVertexBuffer;
+        id<MTLTexture> mtlTexture;
+        GRawImage image;
     } GWindowPlatformHandles;
     
 #elif GSPCORE_BUILD_WEB

@@ -3,6 +3,8 @@
 #include <GSPCore/GSPCore.h>
 
 bool GViewManager_Init() {
+
+    GLog(INFO, "Started GViewManager");
     return true;
 }
 

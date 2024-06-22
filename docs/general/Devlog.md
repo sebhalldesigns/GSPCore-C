@@ -705,3 +705,9 @@ For now, will focus on Manager interfaces and a compile-time constant app struct
 Working on macOS today. Getting existing features implemented with new structure.
 
 Also started creation of the GResourceManager set of classes.
+
+## 22/06/2024
+
+Worked on GResourceManager and GRenderManager for macOS. Now have text rendering and image file loading working as intended.
+Next steps are to change the GResourceManager and GRawImage to create a GPU texture directly instead of holding the image data in CPU memory.
+Then need to implement orthographic view frame rendering in Metal, and start more considerations for the view graph.

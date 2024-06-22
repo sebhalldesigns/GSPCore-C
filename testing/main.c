@@ -2,6 +2,8 @@
 #include "GSPCore/Window/GWindowManager.h"
 #include "GSPCore/Window/GWindow.h"
 #include "GSPCore/Resource/GResourceManager.h"
+#include "GSPCore/View/GViewManager.h"
+
 
 #include <stdio.h>
 
@@ -35,6 +37,10 @@ int main() {
     GWindow* window = GWindowManager_OpenWindow();
     app.rootWindow = window;
     printf("WINDOW IS %llu\n", window);
+
+
+    GView* viewA = GViewManager_InitView();
+    window->rootView = viewA;
 
     return GApplicationManager_Run(&app);
 }

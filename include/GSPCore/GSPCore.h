@@ -18,6 +18,8 @@
 #include "Window/GWindowManager.h"
 #include "Controllers/GApplicationController.h"
 
+#include "Resource/GResourceManager.h"
+
 #include "Debug/GLog.h"
 
 // top-level init function to be called first

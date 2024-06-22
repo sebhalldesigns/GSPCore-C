@@ -20,6 +20,9 @@
 
 
 bool GApplicationManager_Init() {
+
+    GLog(INFO, "Started GApplicationManager");
+
     return true;
 }
 

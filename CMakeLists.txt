@@ -141,6 +141,8 @@ elseif(APPLE)
 
         src/Resource/GResourceManager.c
         src/Resource/Providers/Cocoa/GCocoaResourceManager.m
+
+        src/View/GViewManager.c
     )
 
     add_library(GSPCore ${GSPCORE_SRC})

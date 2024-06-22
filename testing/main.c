@@ -16,8 +16,6 @@ int main() {
     GRawImage image = GResourceManager_LoadImage("../resources/images/image.png");
     printf("image %lu %lu\n", image.width, image.height);
 
-    image.width = 10;
-    image.height = 10;
 
     GResourceManager_SaveImage(image, "image2.png");
     GApplication app;
@@ -25,6 +23,14 @@ int main() {
     app.majorVersion = 0;
     app.minorVersion = 1;
     app.rootWindow = NULL;
+
+    GSize size = GResourceManager_MeasureText("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur ut iaculis ex. Morbi eu posuere odio. Sed aliquet hendrerit augue, ac fringilla elit consectetur eget. Phasellus nec molestie sem, a vehicula neque. Maecenas pretium fringilla massa vel tincidunt. Phasellus id urna diam. Duis sollicitudin lacinia mauris, vitae facilisis sapien porta vel. Proin elementum augue at auctor congue. Nulla dapibus hendrerit eros vitae porta. Aliquam sit amet nisi ex. In cursus finibus orci, quis dapibus ex varius vitae. Aliquam erat volutpat. Nullam in maximus nunc. Curabitur at varius eros. ", "JetBrains Mono", 20);
+
+    GRawImage textImage = GResourceManager_LoadText("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur ut iaculis ex. Morbi eu posuere odio. Sed aliquet hendrerit augue, ac fringilla elit consectetur eget. Phasellus nec molestie sem, a vehicula neque. Maecenas pretium fringilla massa vel tincidunt. Phasellus id urna diam. Duis sollicitudin lacinia mauris, vitae facilisis sapien porta vel. Proin elementum augue at auctor congue. Nulla dapibus hendrerit eros vitae porta. Aliquam sit amet nisi ex. In cursus finibus orci, quis dapibus ex varius vitae. Aliquam erat volutpat. Nullam in maximus nunc. Curabitur at varius eros. ", "JetBrains Mono", 20, (GColor){1.0, 0.0, 0.0, 1.0}, 200);
+    GResourceManager_SaveImage(textImage, "text.png");
+
+    printf("Text size is %f %f\n", size.width, size.height);
+    printf("textImage size is %lu %lu\n", textImage.width, textImage.height);
 
     GWindow* window = GWindowManager_OpenWindow();
     app.rootWindow = window;

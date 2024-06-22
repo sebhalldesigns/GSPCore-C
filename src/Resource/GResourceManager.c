@@ -59,24 +59,24 @@ void GResourceManager_SaveImage(GRawImage image, char* path) {
     }
 }
 
-GSize GResourceManager_MeasureText(const char* text) {
+GSize GResourceManager_MeasureText(const char* text, const char* typeface, float size) {
     switch (provider) {
     #ifdef GSPCORE_BUILD_UNIX
     #elif GSPCORE_BUILD_MACOS
         case PROVIDER_COCOA:
-                return GCocoaResourceManager_MeasureText(text);
+                return GCocoaResourceManager_MeasureText(text, typeface, size);
     #endif
         default:
             return (GSize){0.0, 0.0};
     }
 }
 
-GRawImage GResourceManager_LoadText(const char* text) {
+GRawImage GResourceManager_LoadText(const char* text, const char* typeface, float size, GColor color, float maxWidth) {
     switch (provider) {
     #ifdef GSPCORE_BUILD_UNIX
     #elif GSPCORE_BUILD_MACOS
         case PROVIDER_COCOA:
-                return GCocoaResourceManager_LoadText(text);
+                return GCocoaResourceManager_LoadText(text, typeface, size, color, maxWidth);
     #endif
         default:
             return (GRawImage){NULL, 0, 0};

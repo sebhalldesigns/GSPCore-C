@@ -19,7 +19,7 @@ typedef enum {
 bool GResourceManager_Init();
 GRawImage GResourceManager_LoadImage(const char* path);
 void GResourceManager_SaveImage(GRawImage image, char* path);
-GSize GResourceManager_MeasureText(const char* text);
-GRawImage GResourceManager_LoadText(const char* text);
+GSize GResourceManager_MeasureText(const char* text, const char* typeface, float size);
+GRawImage GResourceManager_LoadText(const char* text, const char* typeface, float size, GColor color, float maxWidth);
 
 #endif // GRESOURCEMANAGER_H

@@ -711,3 +711,25 @@ Also started creation of the GResourceManager set of classes.
 Worked on GResourceManager and GRenderManager for macOS. Now have text rendering and image file loading working as intended.
 Next steps are to change the GResourceManager and GRawImage to create a GPU texture directly instead of holding the image data in CPU memory.
 Then need to implement orthographic view frame rendering in Metal, and start more considerations for the view graph.
+
+At some point should restructure slightly so that there is no dynamic memory allocation required. Keep all struct fields visible to client code and hide platformHandles in an _platform struct.
+Instead of linked lists for view and window trees, just use C arrays. This way, the entire UI can be defined statically in a C file, and will work fine with iOS, and will ensure memory safety.
+Embeded flags in _platform can be used to identify a failed setup.
+
+Now thinking a bit more about the view model, which is a very important aspect to GSPCore. This is where the efficiency gains can be made, and the stateful design defined:
+- Rendering is undertaken by the RenderManager when it is requested by the WindowManager. The RenderManager traverses the window's view tree and renders each view's visual elements to the screen.
+  - Every visual element must be stored in a GPU texture.
+  - The RenderManager requires a layout parameter for each visual element - anchor (to one of the 9 anchor locations), fit (match larger dimension and have space in smaller dimension), fill (match smaller dimension and cut off space in larger dimension), tile (tile x and y with a pixel match for the texture).
+    - Anchor center is the default layout mode.
+
+- All updates of visual elements and views are co-ordinated by the ViewManager. This includes:
+  - Automatic rendering of visual elements, which include:
+    - Vector geometry (GPU rendered)
+    - Text (rendered on demand via ResourceManager)
+    - Image files (loaded on demand via ResourceManager)
+    - 3D models (GPU rendered)
+  - Automatic layout handling
+  - Propogation of modifier properties.
+
+
+CSS is a decent inspiration for how to implement some of these interfaces. It can do a lot without any active JS code, and allows for lots of different behaviours to be statically defined.

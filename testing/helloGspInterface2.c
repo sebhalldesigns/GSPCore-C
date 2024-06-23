@@ -26,7 +26,6 @@ void MouseExit(GView view) {
         //GWindow_Render(window);
 
 }
-
 void WindowResized(GWindow window, GSize size) {
     printf("WINDOW RESIZED: %f %f\n", size.width, size.height);
 }

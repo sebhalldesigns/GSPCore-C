@@ -733,3 +733,13 @@ Now thinking a bit more about the view model, which is a very important aspect t
 
 
 CSS is a decent inspiration for how to implement some of these interfaces. It can do a lot without any active JS code, and allows for lots of different behaviours to be statically defined.
+
+## 23/06/2024
+
+Implementing a view property system that can behave similarly to CSS, and hopefully works reasonably well for static C definition, dynamic other language definition and text file definition.
+
+Using CSS as an inspiration for which properties to add but this raises some questions:
+- Want to make property classes a thing like CSS as it would make OOPing the interfaces easier, save on memory with shared properties and generally faster development. How should this work?
+- Think it's a good idea to create a view 'state' that holds the current value of each property for every view, but this seems like a lot of data to carry round with every view.
+
+Wondering now whether to embrace a DOM-like system that could blend UI and Vector graphics together. Am keen on making the stateful, no-code design as powerful as possible.

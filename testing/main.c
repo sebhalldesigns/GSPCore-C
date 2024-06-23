@@ -4,12 +4,17 @@
 #include "GSPCore/Resource/GResourceManager.h"
 #include "GSPCore/View/GViewManager.h"
 
+#include "GSPCore/Markup/GMarkupManager.h"
 
 #include <stdio.h>
 
 int main() {
 
     printf("STARTING...\n");
+
+
+    GMarkupManager_Load("../resources/gsml/example.gsml");
+    return -1;
 
     if (!GSPCore_Init()) {
         return -1;

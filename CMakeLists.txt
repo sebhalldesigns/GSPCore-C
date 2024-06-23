@@ -143,6 +143,7 @@ elseif(APPLE)
         src/Resource/Providers/Cocoa/GCocoaResourceManager.m
 
         src/View/GViewManager.c
+
     )
 
     add_library(GSPCore ${GSPCORE_SRC})
@@ -192,7 +193,11 @@ elseif (UNIX)
 
         src/View/GViewManager.c
         
+        src/Resource/GResourceManager.c
+            
         src/Server/GSPServer.c
+
+        src/Markup/GMarkupManager.c
     )
 
     # Set the C compiler flags

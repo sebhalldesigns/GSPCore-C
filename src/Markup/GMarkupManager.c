@@ -12,8 +12,11 @@ GMarkupParseState parseState = PARSE_STATE_READY;
 GMarkupNode* rootNode = NULL;
 GMarkupNode* activeNode = NULL; // deepest node that is incomplete
 
+GMarkupNodeProperty* activeProperty = NULL; // linked list of properties while IN TAG
 
 char classBuffer[128] = {0};
+char keyBuffer[128] = {0};
+char valueBuffer[128] = {0};
 
 int CodepointWidth(uint32_t codepoint);
 int ParseCharacter(uint32_t codepoint);
@@ -21,6 +24,8 @@ void PrintCodepoint(uint32_t codepoint);
 void AppendCodepoint(char* destination, uint32_t codepoint);
 
 void PrintStructure();
+
+bool IsValidElementNameCharacter(uint32_t codepoint);
 
 void AddNode(GMarkupNode* node);
 
@@ -39,6 +44,8 @@ void GMarkupManager_Load(const char* file) {
     while ((read = getline(&line, &len, fileHandle)) != -1) {
 
         size_t idx = 0;
+
+        printf("LENGTH IS %d\n", read);
 
         while (idx < read) {
             // Determine UTF-8 character length
@@ -131,16 +138,19 @@ int ParseCharacter(uint32_t codepoint) {
         printf("invalid UTF8\n");
     }*/
 
-    
+    printf("STATE %d\n", parseState);
+
     switch (parseState) {
         case PARSE_STATE_READY:
             if (codepoint == '<') {
                 //printf("OPENING TAG\n");
                 classBuffer[0] = '\0';
                 parseState = PARSE_STATE_OPENING_TAG;
+            } else if (activeNode != NULL && (CodepointWidth(codepoint) > 1 || isgraph(codepoint))) {
+                AppendCodepoint(activeNode->textContent, codepoint);
             } else if (!isspace(codepoint)) {
                 GLog(WARNING, "Unexpected character in READY:");
-                printf("\t");
+                printf("\t %d:", codepoint);
                 PrintCodepoint(codepoint);
                 printf("\n");
                 return -1;
@@ -162,10 +172,11 @@ int ParseCharacter(uint32_t codepoint) {
             }
             break;
         case PARSE_STATE_CLASS:
-            if (CodepointWidth(codepoint) > 1 || isalpha(codepoint) || isdigit(codepoint)) {
+            if (IsValidElementNameCharacter(codepoint)) {
                 AppendCodepoint(classBuffer, codepoint);
             } else if (isspace(codepoint)) {
                 //printf("END CLASS\n");
+                keyBuffer[0] = '\0';
                 parseState = PARSE_STATE_IN_TAG;
                 //printf("CLASS WAS %s\n", classBuffer);
             } else if (codepoint == '/') {
@@ -184,6 +195,8 @@ int ParseCharacter(uint32_t codepoint) {
 
                 strcpy(node->class, classBuffer);
                 node->isComplete = false;
+                node->property = activeProperty;
+                activeProperty = NULL;
 
                 AddNode(node);
                 parseState = PARSE_STATE_READY;
@@ -207,6 +220,8 @@ int ParseCharacter(uint32_t codepoint) {
 
                 strcpy(node->class, classBuffer);
                 node->isComplete = true;
+                node->property = activeProperty;
+                activeProperty = NULL;
 
                 AddNode(node);
                 parseState = PARSE_STATE_READY;
@@ -232,7 +247,7 @@ int ParseCharacter(uint32_t codepoint) {
             }
             break;
         case PARSE_STATE_CLOSE_CLASS: 
-            if (CodepointWidth(codepoint) > 1 || isalpha(codepoint) || isdigit(codepoint)) {
+            if (IsValidElementNameCharacter(codepoint)) {
                 AppendCodepoint(classBuffer, codepoint);
             } else if (codepoint == '>') {
                 if (activeNode != NULL && strcmp(activeNode->class, classBuffer) == 0) {
@@ -250,6 +265,103 @@ int ParseCharacter(uint32_t codepoint) {
                 printf("\n");
                 return -1;
             }
+            break;
+        case PARSE_STATE_IN_TAG:
+            if (CodepointWidth(codepoint) > 1 || isalpha(codepoint) || isdigit(codepoint)) {
+                AppendCodepoint(keyBuffer, codepoint);
+                parseState = PARSE_STATE_KEY;
+            } else if (codepoint == '/') {
+                parseState = PARSE_STATE_END_CLOSE;
+            } else if (codepoint == '>') {
+                printf("IN TAG END\n");
+                GMarkupNode* node = calloc(1, sizeof(GMarkupNode));
+                if (node == NULL) {
+                    printf("node allocation failed\n");
+                    return -1;
+                }
+
+                strcpy(node->class, classBuffer);
+                node->isComplete = false;
+                node->property = activeProperty;
+                activeProperty = NULL;
+
+                AddNode(node);
+                parseState = PARSE_STATE_READY;
+            } else if (!isspace(codepoint)) {
+                GLog(WARNING, "Unexpected character in IN TAG:");
+                printf("\t");
+                PrintCodepoint(codepoint);
+                printf("\n");
+                return -1;
+            }
+            break;
+        case PARSE_STATE_KEY:
+            if (IsValidElementNameCharacter(codepoint)) {
+                AppendCodepoint(keyBuffer, codepoint);
+            } else if (codepoint == '=') {
+                parseState = PARSE_STATE_EQUALS;
+            } else {
+                GLog(WARNING, "Unexpected character in KEY:");
+                printf("\t");
+                PrintCodepoint(codepoint);
+                printf("\n");
+                return -1;
+            }
+            break;
+        case PARSE_STATE_EQUALS:
+            if (codepoint == '\"' || codepoint == '\'') {
+                valueBuffer[0] = '\0';
+                parseState = PARSE_STATE_VALUE;
+            } else {
+                GLog(WARNING, "Unexpected character in EQUALS:");
+                printf("\t");
+                PrintCodepoint(codepoint);
+                printf("\n");
+                return -1;
+            }
+            break;
+        case PARSE_STATE_VALUE:
+            printf("PARSE VALUE\n");
+            if (CodepointWidth(codepoint) > 0 && codepoint != '\"' && codepoint != '\'') {
+                AppendCodepoint(valueBuffer, codepoint);
+                printf("CODEPOINT WAS NOT \" IT WAS ");
+                PrintCodepoint(codepoint);
+                printf(". %d vs %d\n", codepoint, '\"');
+            } else if (codepoint == '\"' || codepoint == '\'') {
+                GMarkupNodeProperty* property = calloc(1, sizeof(GMarkupNodeProperty));
+
+                if (property == NULL) {
+                    printf("Property allocation failed");
+                    return -1; 
+                }
+
+                strcpy(property->key, keyBuffer);
+                strcpy(property->value, valueBuffer);
+                
+                if (activeProperty == NULL) {
+                    activeProperty = property;
+                } else {
+                    // add this property to the end of the linked list
+                    GMarkupNodeProperty* lastProperty = activeProperty;
+                    while (lastProperty->nextProperty != NULL) {
+                        lastProperty = lastProperty->nextProperty;
+                    }
+                    lastProperty->nextProperty = property;
+                }
+
+                keyBuffer[0] = '\0';
+                valueBuffer[0] = '\0';
+
+                parseState = PARSE_STATE_IN_TAG;
+                printf("value complete\n");
+            } else {
+                GLog(WARNING, "Unexpected character in VALUE:");
+                printf("\t");
+                PrintCodepoint(codepoint);
+                printf("\n");
+                return -1;
+            }
+            break;
     }
 
     /*
@@ -348,7 +460,7 @@ void AddNode(GMarkupNode* node) {
             activeNode = NULL;
         }
     } else if (activeNode == NULL) {
-        GMarkupNode* lastTopLevel = rootNode;
+        GMarkupNode* lastTopLevel = rootNode; 
 
         printf("ADDING NODE %s WITH ROOT %s\n", node->class, rootNode->class);
 
@@ -411,7 +523,21 @@ void PrintStructure() {
             printf("\t");
         }
         
-        printf("%s\n", node->class);
+        printf("%s ", node->class);
+
+        GMarkupNodeProperty* property = node->property;
+
+        while (property != NULL) {
+            printf("\t%s=\"%s\"", property->key, property->value);
+            property = property->nextProperty;
+        }
+
+        if (strlen(node->textContent) > 0) {
+            printf("\t CONTENT=\"%s\"", node->textContent);
+        }
+        
+
+        printf("\n");
 
         if (node->child != NULL) {
             level++;
@@ -433,4 +559,8 @@ void PrintStructure() {
 
     }
 
+}
+
+bool IsValidElementNameCharacter(uint32_t codepoint) {
+    return CodepointWidth(codepoint) > 1 || isalpha(codepoint) || isdigit(codepoint)  || codepoint == '-' || codepoint == ':' || codepoint == '_' || codepoint == '.';
 }

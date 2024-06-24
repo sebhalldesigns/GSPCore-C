@@ -743,3 +743,11 @@ Using CSS as an inspiration for which properties to add but this raises some que
 - Think it's a good idea to create a view 'state' that holds the current value of each property for every view, but this seems like a lot of data to carry round with every view.
 
 Wondering now whether to embrace a DOM-like system that could blend UI and Vector graphics together. Am keen on making the stateful, no-code design as powerful as possible.
+
+## 24/06/2024
+
+Planning to use SVG as the basis for view rendering description for a few reasons:
+
+- Could open door to writing view interfaces in SVG, importing SVG logos or exporting views to svg.
+- It's a well-defined, proved out system.
+- Lots of examples and rendering guidance.

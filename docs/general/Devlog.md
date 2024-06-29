@@ -751,3 +751,19 @@ Planning to use SVG as the basis for view rendering description for a few reason
 - Could open door to writing view interfaces in SVG, importing SVG logos or exporting views to svg.
 - It's a well-defined, proved out system.
 - Lots of examples and rendering guidance.
+
+## 29/06/2024
+
+Quite a big decision just made - all view-level rendering should be handled by the native platform API. This was a decision made for a number of reasons:
+- **Speed** - it should be much faster to get view rendering working well with this approach. I want to get UniversalUI to a useable level this year, so justified shortcuts are very welcome.
+- **Efficiency** - while calls to an external library are possibly quite slow, and faster rendering with a custom approach is *possible*, these external libraries have been validated a lot, and worked on by many people. They shouldn't be crazy slow.
+- **Binary Size** - this keeps the binary install size small, a key objective.
+- **Code Simplicity** - offloading all view-level rendering to a single backend makes the code structure much more simple. A view render then becomes an isolated and definable process.
+- **Future Expansion** - this approach does not prohibit a custom rendering system in the future, and possibly makes it easier, by forcing the graphics API to be platform-independant and well defined.
+
+Backends to work on (in order):
+1. Cairo - primarily for use on Linux (and other Unix systems such as BSD)
+2. Direct2D (and DirectWrite) - for use on Windows 7+; likely needs to be written as a C++ static library with a C interface
+3. CoreGraphics - for use on macOS and iOS
+4. HTML5 Canvas - for use on Web and possibly Android
+

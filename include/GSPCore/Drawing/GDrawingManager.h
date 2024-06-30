@@ -1,10 +1,8 @@
 #ifndef GDRAWINGMANAGER_H
 #define GDRAWINGMANAGER_H
 
-#include <GSPCore/Types/GSPCoreOpaqueTypes.h>
+#include <GSPCore/Drawing/GDrawing.h>
 #include <stdbool.h>
-
-#include "GDrawing.h"
 
 // GSPCore - GDrawingManager.h
 // This is an abstraction layer for rendering vector graphics.
@@ -18,8 +16,8 @@ typedef enum {
 } GDrawingManagerBackend;
 
 bool GDrawingManager_Init();
-bool GDrawingManager_SetupView(GView* view);
-void GDrawingManager_DrawView(GView* view);
+bool GDrawingManager_SetupDrawing(GDrawing* drawing);
+void GDrawingManager_RenderDrawing(GDrawing* drawing);
 
 
 #endif // GDRAWINGMANAGER_H

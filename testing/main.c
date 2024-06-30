@@ -2,11 +2,17 @@
 #include "GSPCore/Window/GWindowManager.h"
 #include "GSPCore/Window/GWindow.h"
 #include "GSPCore/Resource/GResourceManager.h"
+#include "GSPCore/View/GView.h"
 #include "GSPCore/View/GViewManager.h"
+#include "GSPCore/Drawing/GDrawingManager.h"
+
 
 #include "GSPCore/Markup/GMarkupManager.h"
 
 #include <stdio.h>
+
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stbi_image_write.h"
 
 int main() {
 
@@ -19,6 +25,17 @@ int main() {
     if (!GSPCore_Init()) {
         return -1;
     }
+
+    GDrawing drawing;
+    drawing.size.width = 100;
+    drawing.size.height = 100;
+
+    GDrawingManager_SetupDrawing(&drawing);
+    GDrawingManager_RenderDrawing(&drawing);
+
+    stbi_write_png("./image.png", 100, 100, 4, drawing.rawData, 100*4);
+
+    return 0;
 
     GRawImage image = GResourceManager_LoadImage("../resources/images/image.png");
     printf("image %lu %lu\n", image.width, image.height);

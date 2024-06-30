@@ -60,12 +60,17 @@ typedef struct {
 } GDrawCommand;
 
 struct GDrawing {
+    GSize size;
+
     size_t commandCapacity;
     size_t commandCount;
     GDrawCommand* commandList;
     
-    GSize allocatedSize;
-    uint32_t* rawData;
+
+
+    size_t allocatedWidth;
+    size_t allocatedHeight;
+    uint8_t* rawData;
 };
 
 #endif // GDRAWING_H

@@ -19,13 +19,13 @@ bool GCairoDrawingManager_Init() {
     return true;
 }
 
-bool GCairoDrawingManager_SetupView(GView* view) {
+bool GCairoDrawingManager_SetupDrawing(GDrawing* drawing) {
     
 
 
     return true;
 }
 
-void GCairoDrawingManager_DrawView(GView* view) {
+void GCairoDrawingManager_RenderDrawing(GDrawing* drawing) {
 
 }

@@ -767,3 +767,6 @@ Backends to work on (in order):
 3. CoreGraphics - for use on macOS and iOS
 4. HTML5 Canvas - for use on Web and possibly Android
 
+## 30/06/2024
+
+Started work on both Cairo and Direct2D implementations.

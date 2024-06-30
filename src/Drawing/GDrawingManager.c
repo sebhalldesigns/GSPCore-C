@@ -50,16 +50,16 @@ bool GDrawingManager_Init() {
 
 }
 
-bool GDrawingManager_SetupView(GView* view) {
+bool GDrawingManager_SetupDrawing(GDrawing* drawing) {
 
     switch (drawingManagerBackend) {
 
         #ifdef GSPCORE_BUILD_UNIX
         case DRAWING_BACKEND_CAIRO:
-            return GCairoDrawingManager_SetupView(view);
+            return GCairoDrawingManager_SetupDrawing(drawing);
         #elif GSPCORE_BUILD_WIN32
-         case DRAWING_BACKEND_CAIRO:
-            return GDirect2DDrawingManager_SetupView(view);
+         case DRAWING_BACKEND_DIRECT2D:
+            return GDirect2DDrawingManager_SetupDrawing(drawing);
         #endif
 
 
@@ -68,6 +68,6 @@ bool GDrawingManager_SetupView(GView* view) {
     }
 }
 
-void GDrawingManager_DrawView(GView* view) {
+void GDrawingManager_RenderDrawing(GDrawing* drawing) {
 
 }

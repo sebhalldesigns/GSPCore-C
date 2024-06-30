@@ -225,18 +225,29 @@ elseif(WIN32)
 
     message("Building GSPCore for Microsoft Windows")
 
-    find_package(Vulkan REQUIRED)
     set(CMAKE_GENERATOR_PLATFORM x64)
 
+    find_package(Vulkan REQUIRED)
+
     set(GSPCORE_SRC
-        src/Application/GApplication.c
+        src/GSPCore.c
         src/Debug/GLog.c
 
-        src/Windowing/GWindowManager.c
-        src/Windowing/Platforms/Win32/GWin32WindowManager.c
+        src/Application/GApplicationManager.c
 
-        src/Graphics/GRenderManager.c
-        src/Graphics/Backends/Vulkan/GVulkanRenderManager.c
+        src/Window/GWindowManager.c
+        src/Window/Platforms/Win32/GWin32WindowManager.c
+
+        src/Render/GRenderManager.c
+        src/Render/Backends/Vulkan/GVulkanRenderManager.c
+
+        src/Drawing/GDrawingManager.c
+        src/Drawing/Backends/Direct2D/GDirect2DDrawingManager.cpp
+
+        src/View/GViewManager.c
+        
+        src/Resource/GResourceManager.c
+
     )
 
     add_library(GSPCore STATIC ${GSPCORE_SRC})
@@ -244,7 +255,7 @@ elseif(WIN32)
 
     target_include_directories(GSPCore PUBLIC  $ENV{VK_SDK_PATH}/include ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR})
 
-    target_link_libraries(GSPCore PRIVATE gdi32 ${Vulkan_LIBRARIES})
+    target_link_libraries(GSPCore PRIVATE gdi32 d2d1 dwrite windowscodecs ${Vulkan_LIBRARIES})
     
     # Add executable target
     add_executable(Test testing/main.c)

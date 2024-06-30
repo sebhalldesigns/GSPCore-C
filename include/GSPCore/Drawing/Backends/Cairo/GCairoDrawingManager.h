@@ -1,6 +1,7 @@
 #ifndef GCAIRODDRAWINGMANAGER_H
 #define GCAIRODDRAWINGMANAGER_H
 
+#include <GSPCore/Types/GSPCoreOpaqueTypes.h>
 #include <stdbool.h>
 
 bool GCairoDrawingManager_Init();

@@ -5,7 +5,7 @@
 #ifdef GSPCORE_BUILD_UNIX
 #include <GSPCore/Drawing/Backends/Cairo/GCairoDrawingManager.h>
 #elif GSPCORE_BUILD_WIN32
-
+#include <GSPCore/Drawing/Backends/Direct2D/GDirect2DDrawingManager.h>
 #elif GSPCORE_BUILD_MACOS
 
 #elif GSPCORE_BUILD_WEB
@@ -29,7 +29,10 @@ bool GDrawingManager_Init() {
             return false;
     #elif GSPCORE_BUILD_WIN32
         case ENVIRONMENT_WIN32:
-
+            if (GDirect2DDrawingManager_Init()) {
+                drawingManagerBackend = DRAWING_BACKEND_DIRECT2D;
+                return true;
+            }
 
             return false;
     #elif GSPCORE_BUILD_MACOS
@@ -54,6 +57,9 @@ bool GDrawingManager_SetupView(GView* view) {
         #ifdef GSPCORE_BUILD_UNIX
         case DRAWING_BACKEND_CAIRO:
             return GCairoDrawingManager_SetupView(view);
+        #elif GSPCORE_BUILD_WIN32
+         case DRAWING_BACKEND_CAIRO:
+            return GDirect2DDrawingManager_SetupView(view);
         #endif
 
 

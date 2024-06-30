@@ -5,6 +5,8 @@
 #include <GSPCore/Types/GSPCoreGeometry.h>
 #include <GSPCore/Types/GSPCoreGraphics.h>
 
+#include <GSPCore/Drawing/GDrawingManager.h>
+
 #include <stddef.h>
 
 // MARK: CONTAINER STRUCTS
@@ -55,6 +57,8 @@ struct GView {
 
     size_t numSubviews;
     GView* rootSubview;
+
+    GDrawing drawing;
 
     GViewLayout layout;
     GViewStackOrientation stackOrientation;

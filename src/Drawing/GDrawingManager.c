@@ -1,0 +1,67 @@
+#include <GSPCore/GSPCore.h>
+#include <GSPCore/Drawing/GDrawingManager.h>
+
+
+#ifdef GSPCORE_BUILD_UNIX
+#include <GSPCore/Drawing/Backends/Cairo/GCairoDrawingManager.h>
+#elif GSPCORE_BUILD_WIN32
+
+#elif GSPCORE_BUILD_MACOS
+
+#elif GSPCORE_BUILD_WEB
+
+#endif
+
+static GDrawingManagerBackend drawingManagerBackend = DRAWING_BACKEND_NONE;
+
+bool GDrawingManager_Init() {
+    GApplicationEnvironment environment = GApplicationManager_GetEnvironment();
+
+    switch (environment) {
+
+    #ifdef GSPCORE_BUILD_UNIX
+        case ENVIRONMENT_UNIX:
+            if (GCairoDrawingManager_Init()) {
+                drawingManagerBackend = DRAWING_BACKEND_CAIRO;
+                return true;
+            }
+
+            return false;
+    #elif GSPCORE_BUILD_WIN32
+        case ENVIRONMENT_WIN32:
+
+
+            return false;
+    #elif GSPCORE_BUILD_MACOS
+        case ENVIRONMENT_MACOS:
+
+            return false;
+    #elif GSPCORE_BUILD_WEB
+        case ENVIRONMENT_WEB:
+
+            return false;
+    #endif
+        default:
+            return false;
+    }
+
+}
+
+bool GDrawingManager_SetupView(GView* view) {
+
+    switch (drawingManagerBackend) {
+
+        #ifdef GSPCORE_BUILD_UNIX
+        case DRAWING_BACKEND_CAIRO:
+            return GCairoDrawingManager_SetupView(view);
+        #endif
+
+
+        default:
+            return false;
+    }
+}
+
+void GDrawingManager_DrawView(GView* view) {
+
+}

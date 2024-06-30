@@ -191,6 +191,9 @@ elseif (UNIX)
         src/Render/GRenderManager.c
         src/Render/Backends/Vulkan/GVulkanRenderManager.c
 
+        src/Drawing/GDrawingManager.c
+        src/Drawing/Backends/Cairo/GCairoDrawingManager.c
+
         src/View/GViewManager.c
         
         src/Resource/GResourceManager.c

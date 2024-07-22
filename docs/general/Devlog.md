@@ -770,3 +770,18 @@ Backends to work on (in order):
 ## 30/06/2024
 
 Started work on both Cairo and Direct2D implementations.
+
+## 14/07/2024
+
+So it's been a couple weeks since I last worked on GSPCore, and this has made it a bit clearer and easier to see the real priorities of the project.
+
+Here's what should be important:
+
+- C API for simplicity and compatibility
+- Lightweight & simple codebase
+- Efficient and responsive rendering & events
+
+And as a technical summary:
+
+- Discard Vulkan for now. The marginal performance improvements are insignificant for the project's needs.
+- Focus on an OpenGL compositor, using 3.3.

@@ -1,6 +1,7 @@
 #include <gsp_window/gsp_window.h>
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <gsp_debug/gsp_debug.h>
 
@@ -8,7 +9,6 @@
     
     #include "gsp_window_x11.h"
     #include "gsp_window_wayland.h"
-
 
 #endif
 

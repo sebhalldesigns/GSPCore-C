@@ -1,7 +1,7 @@
-#ifndef GSP_TYPES_H
-#define GSP_TYPES_H
+#ifndef GSP_DRAWING_H
+#define GSP_DRAWING_H
 
-//  gsp_types.h - GSPCore gsp_types library
+//  gsp_drawing.h - GSPCore gsp_drawing library
 //  Created by Seb Hall on 23/07/2024
 //
 //  OpenGSP is a collection of lightweight, cross-platform libraries that provide 
@@ -31,11 +31,14 @@
 //      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //      SOFTWARE.
 
+#include <gsp_types/gsp_types.h>
 
-#include "gsp_geometry_types.h"
-#include "gsp_window_types.h"
-#include "gsp_image_types.h"
-#include "gsp_string_types.h"
+#include <stdbool.h>
 
+gdrawing_t gsp_drawing_create_drawing();
 
-#endif // GSP_TYPES_H
+bool gsp_drawing_is_drawing_valid(gdrawing_t drawing);
+
+gbitmap_t gsp_drawing_render_bitmap(gdrawing_t drawing);
+
+#endif // GSP_DRAWING_H

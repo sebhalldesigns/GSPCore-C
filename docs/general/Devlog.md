@@ -785,3 +785,8 @@ And as a technical summary:
 
 - Discard Vulkan for now. The marginal performance improvements are insignificant for the project's needs.
 - Focus on an OpenGL compositor, using 3.3.
+
+## 23/07/2024
+
+Still very busy as near to end of placement and mainly focusing on TBRe, but thinking in the background about GSPCore.
+Development is likely to be improved by fracturing the codebase.

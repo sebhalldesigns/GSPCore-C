@@ -36,6 +36,32 @@
 #include <stdbool.h>
 
 
+
+typedef enum {
+    WINDOW_EVENT_CREATE,
+    WINDOW_EVENT_DESTROY,
+    WINDOW_EVENT_CLOSE_REQUEST,
+    WINDOW_EVENT_HIDE,
+    WINDOW_EVENT_SHOW,
+    WINDOW_EVENT_RESIZE,
+    WINDOW_EVENT_MOVE,
+    WINDOW_EVENT_POINTER_MOVE,
+    WINDOW_EVENT_POINTER_ENTER,
+    WINDOW_EVENT_POINTER_EXIT,
+    WINDOW_EVENT_KEY_DOWN,
+    WINDOW_EVENT_KEY_UP,
+    WINDOW_EVENT_BUTTON_DOWN,
+    WINDOW_EVENT_BUTTON_UP,
+} gwindow_event_type_t;
+
+typedef struct {
+    gwindow_event_type_t event_type;
+    uint8_t sub_type;
+    uint64_t data;
+} gwindow_event_t;
+
+typedef (*gwindow_event_callback_t)(gwindow_t window, gwindow_event_t event);
+
 void gsp_window_poll_events();
 
 bool gsp_window_is_window_valid(gwindow_t window);
@@ -43,6 +69,8 @@ bool gsp_window_is_window_valid(gwindow_t window);
 gwindow_t gsp_window_create_window();
 
 void gsp_window_set_title(gwindow_t window, gstring_t title);
+
+void gsp_window_set_event_callback(gwindow_t window, gwindow_event_callback_t event_callback);
 
 
 #endif // GSP_WINDOW_H

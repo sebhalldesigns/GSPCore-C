@@ -1,4 +1,5 @@
 #include <gsp_window/gsp_window.h>
+#include "gsp_window_internal.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,6 +29,7 @@ static gsp_window_backend_t backend = BACKEND_NONE;
 typedef struct linked_window {
     gwindow_t window;
     struct linked_window* next;
+    gwindow_event_callback_t callback;
 } linked_window_t;
 
 static linked_window_t* first_window = NULL;
@@ -171,7 +173,6 @@ void gsp_window_set_title(gwindow_t window, gstring_t title) {
         return;
     }
 
-
     switch (backend) {
 
         #ifdef GSPCORE_BUILD_UNIX 
@@ -189,6 +190,56 @@ void gsp_window_set_title(gwindow_t window, gstring_t title) {
         
     }
 
-    
+}
 
+void gsp_window_set_event_callback(gwindow_t window, gwindow_event_callback_t event_callback) {
+
+    if (NULL == first_window) {
+        // no valid windows open
+        return false;
+    }
+
+    // iterate over windows linked list
+
+    linked_window_t* last_window = first_window;
+
+    while (last_window != NULL) {
+        
+        if (window == last_window->window) {
+            // the window was found, so escape loop and return
+            last_window->callback = event_callback;
+            gsp_debug_log(INFO, "Succesfully bound event callback for window");
+            return;
+        }
+
+        last_window = last_window->next;
+    }
+
+}
+
+void gsp_window_system_event_callback(gwindow_t window, gwindow_event_t event) {
+
+    if (NULL == first_window) {
+        // no valid windows open
+        return false;
+    }
+
+    // iterate over windows linked list
+
+    linked_window_t* last_window = first_window;
+
+    while (last_window != NULL) {
+        
+        if (window == last_window->window) {
+            // the window was found, so escape loop and return
+            if (last_window->callback != NULL) {
+                (last_window->callback)(window, event);
+            }
+            
+            return;
+        }
+
+        last_window = last_window->next;
+    }
+    
 }

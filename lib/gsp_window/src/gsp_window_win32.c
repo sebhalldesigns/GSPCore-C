@@ -1,4 +1,6 @@
 #include "gsp_window_win32.h"
+#include "gsp_window_internal.h"
+
 
 #include <gsp_debug/gsp_debug.h>
 
@@ -63,7 +65,28 @@ void gsp_window_win32_set_title(gwindow_t window, gstring_t title) {
 }
 
 LRESULT CALLBACK gsp_window_win32_wndproc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-    printf("EVENT\n");
+
+    gwindow_event_t event;
+
+    switch (msg) {
+        case WM_SIZE:
+            float width = (float)LOWORD(lParam);
+            float height = (float)HIWORD(lParam);
+
+            uint64_t width_u64 = (uint64_t) width;
+            uint64_t height_u64 = (uint64_t) height;
+            height_u64 = height_u64 << 32;
+
+            event.event_type = WINDOW_EVENT_RESIZE;
+            event.data = width_u64 | height_u64;
+            gsp_window_system_event_callback((gwindow_t) hwnd, event);
+            break;
+        case WM_CLOSE:
+            event.event_type = WINDOW_EVENT_CLOSE_REQUEST;
+            gsp_window_system_event_callback((gwindow_t) hwnd, event);
+            return 0;
+    }
+
     return DefWindowProc(hwnd, msg, wParam, lParam);
 }
 

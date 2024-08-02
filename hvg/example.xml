@@ -1,0 +1,13 @@
+<window title="example window" width="800" height="600">
+    <view>
+        <drawing>
+            <rectangle fill="#ff000000" margin="10" radius="10"/>
+        </drawing>
+
+        <view>
+            <drawing>
+                <rectangle fill="#00ff0000" margin="0" radius="5"/>
+            </drawing>
+        </view>
+    </view>
+</window>

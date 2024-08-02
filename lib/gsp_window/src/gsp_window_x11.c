@@ -25,7 +25,6 @@ gwindow_t gsp_window_x11_create_window() {
     Window x11_window = XCreateSimpleWindow(state.display, state.root, 0, 0, 100, 100, 0, 0, 0);
     XMapWindow(state.display, x11_window);
 
-
     return (gwindow_t) x11_window;
 }
 

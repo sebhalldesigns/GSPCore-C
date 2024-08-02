@@ -10,12 +10,17 @@
     #include "gsp_window_x11.h"
     #include "gsp_window_wayland.h"
 
+#elif GSPCORE_BUILD_WIN32
+
+    #include "gsp_window_win32.h"
+
 #endif
 
 typedef enum {
     BACKEND_NONE,
     BACKEND_X11,
-    BACKEND_WAYLAND
+    BACKEND_WAYLAND,
+    BACKEND_WIN32
 } gsp_window_backend_t;
 
 static gsp_window_backend_t backend = BACKEND_NONE;
@@ -36,6 +41,10 @@ void gsp_window_poll_events() {
                 break;
             case BACKEND_X11:
                 gsp_window_x11_poll_events();
+                break;
+        #elif GSPCORE_BUILD_WIN32
+            case BACKEND_WIN32:
+                gsp_window_win32_poll_events();
                 break;
         #endif
         
@@ -87,6 +96,13 @@ gwindow_t gsp_window_create_window() {
                     backend = BACKEND_X11;
                 }
             }
+        #elif GSPCORE_BUILD_WIN32
+
+            window = gsp_window_win32_create_window();
+            
+            if ((gwindow_t) 0 != window) {
+                backend = BACKEND_WIN32;
+            }
 
         #endif
         
@@ -100,6 +116,10 @@ gwindow_t gsp_window_create_window() {
                     break;
                 case BACKEND_X11:
                     window = gsp_window_x11_create_window();
+                    break;
+            #elif GSPCORE_BUILD_WIN32
+                case BACKEND_WIN32:
+                    window = gsp_window_win32_create_window();
                     break;
             #endif
             
@@ -161,6 +181,10 @@ void gsp_window_set_title(gwindow_t window, gstring_t title) {
             case BACKEND_X11:
                 gsp_window_x11_set_title(window, title);
                 break;
+        #elif GSPCORE_BUILD_WIN32
+            case BACKEND_WIN32:
+                gsp_window_win32_set_title(window, title);
+                break; 
         #endif
         
     }

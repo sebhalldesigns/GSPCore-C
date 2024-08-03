@@ -13,7 +13,7 @@ pub struct gwindow_event_t {
 pub type gwindow_t = uintptr_t;
 pub type gwindow_event_callback_t = extern "C" fn(gwindow_t, gwindow_event_t);
 
-#[link(name = "GSPCore", kind = "static")]
+#[link(name = "GSPCore", kind = "dylib")]
 extern {
     pub fn gsp_window_poll_events();
     pub fn gsp_window_is_window_valid(window: gwindow_t) -> bool;

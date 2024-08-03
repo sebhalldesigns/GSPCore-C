@@ -140,6 +140,7 @@ gwindow_t gsp_window_create_window() {
 
         new_window->window = window;
         new_window->next = NULL;
+        new_window->callback = NULL;
 
 
         // insert into linked list

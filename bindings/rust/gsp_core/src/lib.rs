@@ -1,5 +1,5 @@
-//pub mod gsp_window;
-
+pub mod gsp_window;
+/*
 #![allow(non_camel_case_types)]
 
 extern crate libc;
@@ -79,4 +79,4 @@ pub fn gspcore_poll() {
 pub fn create_window() -> gwindow_t {
     // Load the library
     return GSPCore::create_window();
-}
+}*/

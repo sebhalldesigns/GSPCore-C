@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 void event_callback(gwindow_t window, gwindow_event_t event) {
-    if (event.event_type == WINDOW_EVENT_RESIZE) {
+    if (event.event_id == WINDOW_EVENT_RESIZE) {
         printf("%llu to %f %f\n", window, (float)(event.data & 0xFFFFFFFF) , (float)((event.data >> 32) & 0xFFFFFFFF));
     }
 }

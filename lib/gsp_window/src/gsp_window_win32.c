@@ -77,12 +77,12 @@ LRESULT CALLBACK gsp_window_win32_wndproc(HWND hwnd, UINT msg, WPARAM wParam, LP
             uint64_t height_u64 = (uint64_t) height;
             height_u64 = height_u64 << 32;
 
-            event.event_type = WINDOW_EVENT_RESIZE;
+            event.event_id = WINDOW_EVENT_RESIZE;
             event.data = width_u64 | height_u64;
             gsp_window_system_event_callback((gwindow_t) hwnd, event);
             break;
         case WM_CLOSE:
-            event.event_type = WINDOW_EVENT_CLOSE_REQUEST;
+            event.event_id = WINDOW_EVENT_CLOSE_REQUEST;
             gsp_window_system_event_callback((gwindow_t) hwnd, event);
             return 0;
     }

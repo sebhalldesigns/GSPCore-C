@@ -36,27 +36,38 @@
 #include <stdbool.h>
 
 
+// basic window events
+const static uint8_t WINDOW_EVENT_CREATE = 0x01;
+const static uint8_t WINDOW_EVENT_DESTROY = 0x02;
+const static uint8_t WINDOW_EVENT_MOVE = 0x03;
+const static uint8_t WINDOW_EVENT_RESIZE = 0x04;
+const static uint8_t WINDOW_EVENT_ACTIVATE = 0x05;
+const static uint8_t WINDOW_EVENT_DEACTIVATE = 0x06;
+const static uint8_t WINDOW_EVENT_CLOSE_REQUEST = 0x07;
+const static uint8_t WINDOW_EVENT_HIDE = 0x08;
+const static uint8_t WINDOW_EVENT_SHOW = 0x09;
 
-typedef enum {
-    WINDOW_EVENT_CREATE,
-    WINDOW_EVENT_DESTROY,
-    WINDOW_EVENT_CLOSE_REQUEST,
-    WINDOW_EVENT_HIDE,
-    WINDOW_EVENT_SHOW,
-    WINDOW_EVENT_RESIZE,
-    WINDOW_EVENT_MOVE,
-    WINDOW_EVENT_POINTER_MOVE,
-    WINDOW_EVENT_POINTER_ENTER,
-    WINDOW_EVENT_POINTER_EXIT,
-    WINDOW_EVENT_KEY_DOWN,
-    WINDOW_EVENT_KEY_UP,
-    WINDOW_EVENT_BUTTON_DOWN,
-    WINDOW_EVENT_BUTTON_UP,
-} gwindow_event_type_t;
+// pointer and button events
+const static uint8_t WINDOW_EVENT_POINTER_MOVE = 0x20;
+const static uint8_t WINDOW_EVENT_POINTER_ENTER = 0x21;
+const static uint8_t WINDOW_EVENT_POINTER_EXIT = 0x22;
+const static uint8_t WINDOW_EVENT_BUTTON_DOWN = 0x23; // sub button #
+const static uint8_t WINDOW_EVENT_BUTTON_UP = 0x24; // sub button #
+const static uint8_t WINDOW_EVENT_SCROLL = 0x25; // sub axis
+
+// keyboard events
+const static uint8_t WINDOW_EVENT_KEY_DOWN = 0x30; // raw scancode
+const static uint8_t WINDOW_EVENT_KEY_UP = 0x31; // raw 
+const static uint8_t WINDOW_EVENT_CHAR = 0x32; // UTF-8 character, sub number of bytes
+const static uint8_t WINDOW_EVENT_TYPE_MOD = 0x33; // typing modifiers such as delete, arrow keys etc
+
+// system events
+const static uint8_t WINDOW_EVENT_SYSTEM_COLOR_CHANGE = 0x40; 
+const static uint8_t WINDOW_EVENT_SYSTEM_SCALING_CHANGE = 0x41;
 
 typedef struct {
-    gwindow_event_type_t event_type;
-    uint8_t sub_type;
+    uint8_t event_id;
+    uint8_t sub_id;
     uint64_t data;
 } gwindow_event_t;
 

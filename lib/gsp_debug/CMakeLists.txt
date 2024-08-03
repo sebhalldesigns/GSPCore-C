@@ -6,7 +6,7 @@ include_directories(include)
 
 file(GLOB SOURCES "src/*.c")
 
-add_library(gsp_debug
+add_library(gsp_debug OBJECT
  ${SOURCES}
 )
 

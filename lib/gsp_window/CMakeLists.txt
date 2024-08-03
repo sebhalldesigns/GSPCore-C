@@ -33,7 +33,7 @@ elseif (UNIX)
 elseif(WIN32)
     message("Setting up gsp_window on Windows")
 
-    add_library(gsp_window
+    add_library(gsp_window OBJECT
         src/gsp_window.c
         src/gsp_window_win32.c
     )

@@ -35,6 +35,15 @@
 
 #include <stdbool.h>
 
+#ifdef _WIN32
+    #ifdef GSPCORE_BUILD_WIN32
+        #define GSPCORE_API __declspec(dllexport)
+    #else
+        #define GSPCORE_API __declspec(dllimport)
+    #endif
+#else
+    #define GSPCORE_API
+#endif
 
 // basic window events
 const static uint8_t WINDOW_EVENT_CREATE = 0x01;
@@ -73,15 +82,15 @@ typedef struct {
 
 typedef (*gwindow_event_callback_t)(gwindow_t window, gwindow_event_t event);
 
-void gsp_window_poll_events();
+GSPCORE_API void gsp_window_poll_events();
 
-bool gsp_window_is_window_valid(gwindow_t window);
+GSPCORE_API bool gsp_window_is_window_valid(gwindow_t window);
 
-gwindow_t gsp_window_create_window();
+GSPCORE_API gwindow_t gsp_window_create_window();
 
-void gsp_window_set_title(gwindow_t window, gstring_t title);
+GSPCORE_API void gsp_window_set_title(gwindow_t window, gstring_t title);
 
-void gsp_window_set_event_callback(gwindow_t window, gwindow_event_callback_t event_callback);
+GSPCORE_API void gsp_window_set_event_callback(gwindow_t window, gwindow_event_callback_t event_callback);
 
 
 #endif // GSP_WINDOW_H

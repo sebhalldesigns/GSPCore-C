@@ -2,14 +2,16 @@
 #define GSP_WINDOW_WIN32_H
 
 #include <Windows.h>
+#include <GL/gl.h>
+#include "wglext.h"
 
 #include <gsp_window/gsp_window.h>
+
 
 typedef struct {
     HINSTANCE instance;
     MSG msg;
 } gwindow_win32_state_t;
-
 
 gwindow_t gsp_window_win32_create_window();
 

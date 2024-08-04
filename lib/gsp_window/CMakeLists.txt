@@ -33,6 +33,8 @@ elseif (UNIX)
 elseif(WIN32)
     message("Setting up gsp_window on Windows")
 
+    find_package(OpenGL REQUIRED)
+
     add_library(gsp_window OBJECT
         src/gsp_window.c
         src/gsp_window_win32.c
@@ -45,6 +47,10 @@ elseif(WIN32)
     )
 
     target_link_libraries(gsp_window
+        gdi32
+        ${OPENGL_gl_LIBRARY}
+        opengl32
+        glu32
         gsp_debug
     )
 

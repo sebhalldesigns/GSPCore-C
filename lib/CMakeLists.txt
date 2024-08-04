@@ -37,6 +37,7 @@ elseif(WIN32)
         ${OPENGL_gl_LIBRARY}
         opengl32
         glu32
+        d2d1
     )
 
 

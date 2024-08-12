@@ -9,6 +9,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 static gwindow_win32_state_t state;
 const static wchar_t CLASS_NAME[] = L"gsp_window";
@@ -25,6 +26,16 @@ static linked_win32_window_t* first_win32_window = NULL;
 // implemented at end of file
 LRESULT CALLBACK gsp_window_win32_wndproc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+// wgl typedefs
+
+typedef BOOL (WINAPI * PFNWGLSWAPINTERVALEXTPROC) (int interval);
+
+uint64_t last = 0;
+
+// set the current context to avoid calls to wglMakeCurrent
+HGLRC current_context = 0;
+
+
 gwindow_t gsp_window_win32_create_window() {
 
     if (state.instance == NULL) {
@@ -33,12 +44,17 @@ gwindow_t gsp_window_win32_create_window() {
 
         state.instance = GetModuleHandle(NULL);
         
-        WNDCLASS wc = { 0 };
+        WNDCLASSEX wc = { 0 };
+        	wc.cbSize = sizeof(WNDCLASSEX);
             wc.lpfnWndProc   = gsp_window_win32_wndproc;
             wc.hInstance     = state.instance;
             wc.lpszClassName = CLASS_NAME;
+            wc.hCursor = LoadCursor(0, IDC_ARROW);
+            //wc.hbrBackground = NULL;
+            wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC | CS_DBLCLKS;
 
-            if (RegisterClass(&wc) == NULL) {
+
+            if (RegisterClassEx(&wc) == NULL) {
                 DWORD errorCode = GetLastError();
 
                 gsp_debug_log(ERROR, "Failed to register a Win32 class, error code: %lu", errorCode);
@@ -50,7 +66,8 @@ gwindow_t gsp_window_win32_create_window() {
 
     }
 
-    HWND win32_window = CreateWindow(
+    HWND win32_window = CreateWindowEx(
+        0,
         CLASS_NAME,
         L"Sample Window",
         WS_OVERLAPPEDWINDOW,
@@ -61,13 +78,15 @@ gwindow_t gsp_window_win32_create_window() {
         NULL
     );
 
+    SetClassLongPtr(win32_window, GCLP_HBRBACKGROUND, NULL);
+
     HDC hdc = GetDC(win32_window);
 
     // Set up a temporary context to get function pointers
     PIXELFORMATDESCRIPTOR pfd = {
         sizeof(PIXELFORMATDESCRIPTOR),
         1,
-        PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
+        PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | /*PFD_DOUBLEBUFFER*/ PFD_TYPE_RGBA,
         PFD_TYPE_RGBA,
         32,    // Color depth
         0, 0, 0, 0, 0, 0,
@@ -82,6 +101,7 @@ gwindow_t gsp_window_win32_create_window() {
         0,
         0, 0, 0
     };
+    
 
     int pixelFormat = ChoosePixelFormat(hdc, &pfd);
     if (pixelFormat == 0) {
@@ -130,9 +150,21 @@ gwindow_t gsp_window_win32_create_window() {
 
     wglDeleteContext(tempContext);
 
+
+    PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT = NULL;
+    wglSwapIntervalEXT = (PFNWGLSWAPINTERVALEXTPROC)wglGetProcAddress("wglSwapIntervalEXT");
+
+    if (wglSwapIntervalEXT != NULL) {
+        wglSwapIntervalEXT(-2); // Enable VSync
+        gsp_debug_log(INFO, "Enabled Vsync");
+    } else {
+        gsp_debug_log(WARNING, "Vsync not supported");
+
+    }
+
+
     // Release the device context
     ReleaseDC(win32_window, hdc);
-
 
 
     ShowWindow(win32_window, SW_SHOW);
@@ -217,34 +249,93 @@ LRESULT CALLBACK gsp_window_win32_wndproc(HWND hwnd, UINT msg, WPARAM wParam, LP
     }
 
     gwindow_event_t event;
+    HDC hdc;
 
     switch (msg) {
         case WM_SIZE:
-            float width = (float)LOWORD(lParam);
-            float height = (float)HIWORD(lParam);
 
-            uint64_t width_u64 = (uint64_t) width;
-            uint64_t height_u64 = (uint64_t) height;
-            height_u64 = height_u64 << 32;
+            if (wParam != SIZE_MINIMIZED)
+            {
 
-            event.event_id = WINDOW_EVENT_RESIZE;
-            event.data = width_u64 | height_u64;
-            gsp_window_system_event_callback((gwindow_t) hwnd, event);
+                float width = (float)LOWORD(lParam);
+                float height = (float)HIWORD(lParam);
 
-            HDC hdc = GetDC(hwnd);
+                uint64_t width_u64 = (uint64_t) width;
+                uint64_t height_u64 = (uint64_t) height;
+                height_u64 = height_u64 << 32;
 
-            wglMakeCurrent(hdc, this_window->gl_context);
+                event.event_id = WINDOW_EVENT_RESIZE;
+                event.data = width_u64 | height_u64;
+                //gsp_window_system_event_callback((gwindow_t) hwnd, event);
+                /*hdc = GetDC(hwnd);
+
+                wglMakeCurrent(hdc, this_window->gl_context);
+
+                glViewport(0, 0, (int)width, (int)height);*/
+                //glViewport(0, 0, LOWORD(lParam), HIWORD(lParam));
+                
+                /*
+                hdc = GetDC(hwnd);
+                wglMakeCurrent(hdc, this_window->gl_context);
+
+                //PAINTSTRUCT ps; 
+                //hdc = BeginPaint(hwnd, &ps);
+
+                
+
+                // Set the clear color (RGBA)
+                glClearColor(0.0f, 0.0f, 1.0f, 1.0f); // Blue color
+
+                // Clear the color buffer
+                glClear(GL_COLOR_BUFFER_BIT);
+
+                // Swap buffers to display the color
+                SwapBuffers(hdc);
+                //EndPaint(hwnd, &ps);    
+                            ValidateRect(hwnd, NULL);
+                    */
+                    InvalidateRect(hwnd, NULL, true);
+
+            }
+            return 0;
+        case WM_ERASEBKGND:
+            return 1;
+
+        case WM_PAINT:
+
+
+            uint64_t now = GetTickCount();
+
+            //printf("%lu\n", now - last);
+            last = now;
             
-            // Set the clear color (RGBA)
-            glClearColor(0.0f, 0.0f, 1.0f, 1.0f); // Blue color
+            PAINTSTRUCT ps;
+            hdc = BeginPaint(hwnd,&ps);
 
-            // Clear the color buffer
-            glClear(GL_COLOR_BUFFER_BIT);
+            if (current_context != this_window->gl_context) {
+                wglMakeCurrent(hdc,this_window->gl_context);
+                current_context = this_window->gl_context;
+            }
 
-            // Swap buffers to display the color
-            SwapBuffers(hdc);
+      
 
-            break;
+             // Set the clear color (RGBA)
+                glClearColor(0.0f, 0.0f, 1.0f, 1.0f); // Blue color
+
+                // Clear the color buffer
+                glClear(GL_COLOR_BUFFER_BIT);
+
+            DWORD a = GetTickCount();
+
+            //SwapBuffers(hdc);
+
+                  DWORD b = GetTickCount();
+            printf("%lu MS\n", b - a);
+
+            //wglMakeCurrent(hdc,0);*/
+            EndPaint(hwnd,&ps);
+            ValidateRect(hwnd, NULL);
+            return 0;
         case WM_CLOSE:
             event.event_id = WINDOW_EVENT_CLOSE_REQUEST;
             gsp_window_system_event_callback((gwindow_t) hwnd, event);

@@ -790,3 +790,13 @@ And as a technical summary:
 
 Still very busy as near to end of placement and mainly focusing on TBRe, but thinking in the background about GSPCore.
 Development is likely to be improved by fracturing the codebase.
+
+## 12/08/2024
+
+Now set up on new laptop. Been testing resize performance and not having much success - likely an AMD integrated graphics driver 'feature' as seems somewhat better on the Nvidia GPU. Not making much progress on this so will move on.
+
+Next: get prototype view compositor working. This should be very responsive and push the 'minimise state changes' concept of GSPCore. Targeting smooth 240Hz is a great way to improve efficiency and this is as follows:
+
+  - render views sparingly, only when specifically requested.
+  - make extensive use of adaptive sizing techniques such as auto centering and 9-slice rendering.
+  - this will allow for smooth scrolling and resizing, while allowing for the slower platform-specific rendering APIs (Direct2D, Cairo etc).

@@ -800,3 +800,11 @@ Next: get prototype view compositor working. This should be very responsive and 
   - render views sparingly, only when specifically requested.
   - make extensive use of adaptive sizing techniques such as auto centering and 9-slice rendering.
   - this will allow for smooth scrolling and resizing, while allowing for the slower platform-specific rendering APIs (Direct2D, Cairo etc).
+
+
+## 14/08/2024
+
+Working on implementing the plan as previously described.
+
+So far today, have created **gsp_compositor** and **gsp_renderer** modules.
+

@@ -2,14 +2,14 @@ cmake_minimum_required(VERSION 3.10)
 
 project(gsp_window)
 
-find_package(X11 REQUIRED)  
-
 include_directories(include)
 
 if(EMSCRIPTEN)
 
 elseif (UNIX)
     message("Setting up gsp_window on UNIX")
+
+    find_package(X11 REQUIRED)  
 
     add_library(gsp_window
         src/gsp_window.c

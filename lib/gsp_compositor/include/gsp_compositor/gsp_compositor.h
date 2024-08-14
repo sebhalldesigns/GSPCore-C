@@ -84,7 +84,7 @@ GSPCORE_API void gsp_compositor_set_dock_request(gsurface_t surface, uint8_t req
 
 GSPCORE_API void gsp_compositor_set_grid_request(gsurface_t surface, size_t row, size_t column);
 
-
+ 
 
 
 

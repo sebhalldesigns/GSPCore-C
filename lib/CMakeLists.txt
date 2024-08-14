@@ -22,6 +22,7 @@ elseif(WIN32)
     add_subdirectory(gsp_types)
     add_subdirectory(gsp_debug)
     add_subdirectory(gsp_window)
+    add_subdirectory(gsp_list)
     #add_subdirectory(gsp_drawing)
     #add_subdirectory(gsp_views)
     #add_subdirectory(gsp_parsers)
@@ -30,6 +31,7 @@ elseif(WIN32)
         $<TARGET_OBJECTS:gsp_types>
         $<TARGET_OBJECTS:gsp_debug>
         $<TARGET_OBJECTS:gsp_window>
+        $<TARGET_OBJECTS:gsp_list>
     )
 
     target_link_libraries(GSPCore PUBLIC

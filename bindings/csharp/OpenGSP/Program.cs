@@ -9,12 +9,13 @@ public static class Program {
     public static void Main(string[] args) {
         Console.WriteLine("Hello Csharp!");
 
-        UIntPtr window = gsp_window.gsp_window_create_window();
-        gsp_window.gsp_window_set_title(window, "C# window 👍🏽!");
+        var list1 = gsp_list.gsp_list_create_list();
+        var list2 = gsp_list.gsp_list_create_list();
+        var list3 = gsp_list.gsp_list_create_list();
 
-        while (true) {
-            gsp_window.gsp_window_poll_events();
-        }
+        gsp_list.gsp_list_destroy_list(list3);
+        gsp_list.gsp_list_destroy_list(list2);
+        gsp_list.gsp_list_destroy_list(list1);
     }
 
 

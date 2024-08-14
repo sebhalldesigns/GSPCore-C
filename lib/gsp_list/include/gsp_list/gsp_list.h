@@ -1,7 +1,7 @@
-#ifndef GSP_RENDERER_H
-#define GSP_RENDERER_H
+#ifndef GSP_LIST_H
+#define GSP_LIST_H
 
-//  gsp_renderer.h - GSPCore gsp_renderer library
+//  gsp_list.h - GSPCore gsp_list library
 //  Created by Seb Hall on 14/08/2024
 //
 //  OpenGSP is a collection of lightweight, cross-platform libraries that provide 
@@ -43,7 +43,19 @@
     #define GSPCORE_API
 #endif
 
+GSPCORE_API glist_t gsp_list_create_list();
+GSPCORE_API void gsp_list_destroy_list(glist_t list);
 
+GSPCORE_API gnode_t gsp_list_create_node();
+GSPCORE_API void gsp_list_destroy_node(gnode_t node);
 
+GSPCORE_API bool gsp_list_does_list_exist(glist_t list);
+GSPCORE_API bool gsp_list_does_node_exist(glist_t list, gnode_t node);
 
-#endif // GSP_RENDERER_H
+GSPCORE_API void gsp_list_add_node(glist_t list, gnode_t node);
+GSPCORE_API void gsp_list_remove_node(glist_t list, gnode_t node);
+
+GSPCORE_API uintptr_t gsp_list_get_node_data(glist_t list, gnode_t node);
+GSPCORE_API void gsp_list_set_node_data(glist_t list, gnode_t node, uintptr_t data);
+
+#endif // GSP_LIST_H

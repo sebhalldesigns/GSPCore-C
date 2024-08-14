@@ -8,7 +8,7 @@ using gstring_t = string;
 
 public static class gsp_window {
 
-    [DllImport("GSPCore.dll", EntryPoint = "gsp_window_poll_events", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport("GSPCore.dll", CallingConvention = CallingConvention.Cdecl)]
     public static extern void gsp_window_poll_events();
 
     [DllImport("GSPCore.dll", CallingConvention = CallingConvention.Cdecl)]

@@ -31,11 +31,14 @@
 //      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //      SOFTWARE.
 
+#include <stdint.h>
+#include <stdbool.h>
 
 #include "gsp_geometry_types.h"
 #include "gsp_window_types.h"
 #include "gsp_image_types.h"
 #include "gsp_string_types.h"
-
+#include "gsp_compositor_types.h"
+#include "gsp_graphics_types.h"
 
 #endif // GSP_TYPES_H

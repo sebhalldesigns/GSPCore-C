@@ -86,7 +86,7 @@ gwindow_t gsp_window_win32_create_window() {
     PIXELFORMATDESCRIPTOR pfd = {
         sizeof(PIXELFORMATDESCRIPTOR),
         1,
-        PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | /*PFD_DOUBLEBUFFER*/ PFD_TYPE_RGBA,
+        PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER | PFD_TYPE_RGBA,
         PFD_TYPE_RGBA,
         32,    // Color depth
         0, 0, 0, 0, 0, 0,
@@ -327,7 +327,7 @@ LRESULT CALLBACK gsp_window_win32_wndproc(HWND hwnd, UINT msg, WPARAM wParam, LP
 
             DWORD a = GetTickCount();
 
-            //SwapBuffers(hdc);
+            SwapBuffers(hdc);
 
                   DWORD b = GetTickCount();
             printf("%lu MS\n", b - a);

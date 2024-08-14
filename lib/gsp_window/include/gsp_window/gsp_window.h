@@ -33,7 +33,7 @@
 
 #include <gsp_types/gsp_types.h>
 
-#include <stdbool.h>
+
 
 #ifdef _WIN32
     #ifdef GSPCORE_BUILD_WIN32

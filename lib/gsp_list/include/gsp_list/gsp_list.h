@@ -43,17 +43,19 @@
     #define GSPCORE_API
 #endif
 
+
+// note - any node is a member of exactly one list. When a list is destroyed, so are all nodes.
+
 GSPCORE_API glist_t gsp_list_create_list();
 GSPCORE_API void gsp_list_destroy_list(glist_t list);
 
-GSPCORE_API gnode_t gsp_list_create_node();
-GSPCORE_API void gsp_list_destroy_node(gnode_t node);
+GSPCORE_API gnode_t gsp_list_create_node(glist_t list);
+GSPCORE_API void gsp_list_destroy_node(glist_t list, gnode_t node);
 
 GSPCORE_API bool gsp_list_does_list_exist(glist_t list);
 GSPCORE_API bool gsp_list_does_node_exist(glist_t list, gnode_t node);
 
-GSPCORE_API void gsp_list_add_node(glist_t list, gnode_t node);
-GSPCORE_API void gsp_list_remove_node(glist_t list, gnode_t node);
+GSPCORE_API size_t gsp_list_get_node_count(glist_t list);
 
 GSPCORE_API uintptr_t gsp_list_get_node_data(glist_t list, gnode_t node);
 GSPCORE_API void gsp_list_set_node_data(glist_t list, gnode_t node, uintptr_t data);

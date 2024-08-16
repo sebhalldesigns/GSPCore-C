@@ -15,7 +15,7 @@ static gwindow_win32_state_t state;
 const static wchar_t CLASS_NAME[] = L"gsp_window";
 
 typedef struct linked_win32_window_t {
-    gwindow_t window;
+    gnative_window_t window;
     struct linked_win32_window_t* next;
     HDC device_context;
     HGLRC gl_context;
@@ -36,7 +36,7 @@ uint64_t last = 0;
 HGLRC current_context = 0;
 
 
-gwindow_t gsp_window_win32_create_window() {
+gnative_window_t gsp_window_win32_create_window() {
 
     if (state.instance == NULL) {
 
@@ -59,7 +59,7 @@ gwindow_t gsp_window_win32_create_window() {
 
                 gsp_debug_log(ERROR, "Failed to register a Win32 class, error code: %lu", errorCode);
 
-                return (gwindow_t) 0;
+                return (gnative_window_t) 0;
             }
 
             gsp_debug_log(INFO, "Started GWin32WindowManager ok");
@@ -173,7 +173,7 @@ gwindow_t gsp_window_win32_create_window() {
         
     if (NULL == new_window) {
         // linked window allocation failed, return an invalid window
-        return (gwindow_t) 0;
+        return (gnative_window_t) 0;
     }
 
     new_window->window = win32_window;
@@ -202,7 +202,7 @@ gwindow_t gsp_window_win32_create_window() {
 
     }
 
-    return (gwindow_t) win32_window;
+    return (gnative_window_t) win32_window;
 }
 
 void gsp_window_win32_poll_events() {
@@ -212,7 +212,7 @@ void gsp_window_win32_poll_events() {
     }
 }
 
-void gsp_window_win32_set_title(gwindow_t window, gstring_t title) {
+void gsp_window_win32_set_title(gnative_window_t window, gstring_t title) {
     SetWindowText((HWND)window, title);
 }
 
@@ -266,7 +266,7 @@ LRESULT CALLBACK gsp_window_win32_wndproc(HWND hwnd, UINT msg, WPARAM wParam, LP
 
                 event.event_id = WINDOW_EVENT_RESIZE;
                 event.data = width_u64 | height_u64;
-                //gsp_window_system_event_callback((gwindow_t) hwnd, event);
+                gsp_window_system_event_callback((gnative_window_t) hwnd, event);
                 /*hdc = GetDC(hwnd);
 
                 wglMakeCurrent(hdc, this_window->gl_context);
@@ -338,7 +338,7 @@ LRESULT CALLBACK gsp_window_win32_wndproc(HWND hwnd, UINT msg, WPARAM wParam, LP
             return 0;
         case WM_CLOSE:
             event.event_id = WINDOW_EVENT_CLOSE_REQUEST;
-            gsp_window_system_event_callback((gwindow_t) hwnd, event);
+            gsp_window_system_event_callback((gnative_window_t) hwnd, event);
             return 0;
     }
 

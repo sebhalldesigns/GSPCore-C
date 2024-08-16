@@ -5,6 +5,7 @@
 #include <X11/Xutil.h>
 
 #include <gsp_window/gsp_window.h>
+#include "gsp_window_internal.h"
 
 typedef struct {
     Display* display;
@@ -15,11 +16,11 @@ typedef struct {
 } gwindow_x11_state_t;
 
 
-gwindow_t gsp_window_x11_create_window();
+gnative_window_t gsp_window_x11_create_window();
 
 void gsp_window_x11_poll_events();
 
-void gsp_window_x11_set_title(gwindow_t window, gstring_t title);
+void gsp_window_x11_set_title(gnative_window_t window, gstring_t title);
 
 
 #endif // GSP_WINDOW_X11_H

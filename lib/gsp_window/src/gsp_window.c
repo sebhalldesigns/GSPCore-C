@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <gsp_list/gsp_list.h>
 #include <gsp_debug/gsp_debug.h>
 
 #ifdef GSPCORE_BUILD_UNIX   
@@ -24,15 +25,14 @@ typedef enum {
     BACKEND_WIN32
 } gsp_window_backend_t;
 
+typedef struct {
+    gnative_window_t native_window;
+    gwindow_event_callback_t callback;
+} gwindow_impl_t;
+
 static gsp_window_backend_t backend = BACKEND_NONE;
 
-typedef struct linked_window {
-    gwindow_t window;
-    struct linked_window* next;
-    gwindow_event_callback_t callback;
-} linked_window_t;
-
-static linked_window_t* first_window = NULL;
+static glist_t windows = NULL;
 
 void gsp_window_poll_events() {
     switch (backend) {
@@ -55,32 +55,17 @@ void gsp_window_poll_events() {
 
 bool gsp_window_is_window_valid(gwindow_t window) {
 
-    if (NULL == first_window) {
-        // no valid windows open
-        return false;
-    }
+    return gsp_list_does_node_exist(windows, (gnode_t)window);
 
-    // iterate over windows linked list
-
-    linked_window_t* last_window = first_window;
-
-    while (last_window != NULL) {
-        
-        if (window == last_window->window) {
-            // the window was found, so escape loop and return true
-            return true;
-        }
-
-        last_window = last_window->next;
-    }
-    
-    // only get to here if have gone through the whole linked list and not found the window
-    return false;
 }
 
 gwindow_t gsp_window_create_window() {
 
-    gwindow_t window;
+    if (NULL == windows) {
+        windows = gsp_list_create_list();
+    }
+
+    gnative_window_t native_window;
 
     if (BACKEND_NONE == backend) {
 
@@ -88,89 +73,73 @@ gwindow_t gsp_window_create_window() {
 
         #ifdef GSPCORE_BUILD_UNIX
 
-            window = gsp_window_wayland_create_window();
+            native_window = gsp_window_wayland_create_window();
 
-            if ((gwindow_t) 0 != window) {
+            if ((gnative_window_t) 0 != native_window) {
                 backend = BACKEND_WAYLAND;
             } else {
-                window = gsp_window_x11_create_window();
-                if ((gwindow_t) 0 != window) {
+                native_window = gsp_window_x11_create_window();
+                if ((gnative_window_t) 0 != native_window) {
                     backend = BACKEND_X11;
                 }
             }
         #elif GSPCORE_BUILD_WIN32
 
-            window = gsp_window_win32_create_window();
+            native_window = gsp_window_win32_create_window();
             
-            if ((gwindow_t) 0 != window) {
+            if ((gnative_window_t) 0 != native_window) {
                 backend = BACKEND_WIN32;
             }
 
         #endif
         
-
     } else {
         switch (backend) {
 
             #ifdef GSPCORE_BUILD_UNIX 
                 case BACKEND_WAYLAND:
-                    window = gsp_window_wayland_create_window();
+                    native_window = gsp_window_wayland_create_window();
                     break;
                 case BACKEND_X11:
-                    window = gsp_window_x11_create_window();
+                    native_window = gsp_window_x11_create_window();
                     break;
             #elif GSPCORE_BUILD_WIN32
                 case BACKEND_WIN32:
-                    window = gsp_window_win32_create_window();
+                    native_window = gsp_window_win32_create_window();
                     break;
             #endif
             
         }
     }
  
-    if (window != (gwindow_t) 0) {
-        gsp_debug_log(INFO, "Window created successfully");
-
-        linked_window_t* new_window = (linked_window_t*) malloc(sizeof(linked_window_t));
+    if ((gnative_window_t)0 != native_window) {
         
-        if (NULL == new_window) {
-            // linked window allocation failed, return an invalid window
-            return (gwindow_t) 0;
-        }
+        gwindow_impl_t* window_impl = malloc(sizeof(gwindow_impl_t));
 
-        new_window->window = window;
-        new_window->next = NULL;
-        new_window->callback = NULL;
+        if (window_impl != NULL) {
 
+            window_impl->native_window = native_window;
+            window_impl->callback = NULL;
 
-        // insert into linked list
-        if (NULL == first_window) {
+            gnode_t window = gsp_list_create_node(windows);
+            gsp_list_set_node_data(windows, window, (uintptr_t)window_impl);
 
-            // set as the first window
-            first_window = new_window;
+            gsp_debug_log(INFO, "Created gwindow_t %lu", window);
 
-        } else {
-            
-            // add to the end of the linked list
-
-            linked_window_t* last_window = first_window;
-
-            while (last_window->next != NULL) {
-                last_window = last_window->next;
-            }
-
-            last_window->next  = new_window;
-
+            return (gwindow_t)window;
         }
     }
 
-    return window;
+    gsp_debug_log(FAIL, "Failed to create gwindow_t");
+
+    return NULL;
 }
 
 void gsp_window_set_title(gwindow_t window, gstring_t title) {
 
-    // escape function if invalid window
-    if (!gsp_window_is_window_valid(window)) {
+    gwindow_impl_t* window_impl = (gwindow_impl_t*)gsp_list_get_node_data(windows, (gnode_t)window);
+
+    if (NULL == window_impl) {
         return;
     }
 
@@ -178,14 +147,14 @@ void gsp_window_set_title(gwindow_t window, gstring_t title) {
 
         #ifdef GSPCORE_BUILD_UNIX 
             case BACKEND_WAYLAND:
-                gsp_window_wayland_set_title(window, title);
+                gsp_window_wayland_set_title(window_impl->native_window, title);
                 break;
             case BACKEND_X11:
-                gsp_window_x11_set_title(window, title);
+                gsp_window_x11_set_title(window_impl->native_window, title);
                 break;
         #elif GSPCORE_BUILD_WIN32
             case BACKEND_WIN32:
-                gsp_window_win32_set_title(window, title);
+                gsp_window_win32_set_title(window_impl->native_window, title);
                 break; 
         #endif
         
@@ -195,52 +164,40 @@ void gsp_window_set_title(gwindow_t window, gstring_t title) {
 
 void gsp_window_set_event_callback(gwindow_t window, gwindow_event_callback_t event_callback) {
 
-    if (NULL == first_window) {
-        // no valid windows open
-        return false;
+    gwindow_impl_t* window_impl = (gwindow_impl_t*)gsp_list_get_node_data(windows, (gnode_t)window);
+
+    if (NULL == window_impl) {
+        return;
     }
 
-    // iterate over windows linked list
+    window_impl->callback = event_callback;
 
-    linked_window_t* last_window = first_window;
+    gwindow_event_t event = {0};
 
-    while (last_window != NULL) {
-        
-        if (window == last_window->window) {
-            // the window was found, so escape loop and return
-            last_window->callback = event_callback;
-            gsp_debug_log(INFO, "Succesfully bound event callback for window");
-            return;
-        }
+    (event_callback)(0, event);
 
-        last_window = last_window->next;
-    }
+    gsp_debug_log(INFO, "Succesfully bound event callback %lu for gwindow_t %lu", event_callback, window);
 
 }
 
-void gsp_window_system_event_callback(gwindow_t window, gwindow_event_t event) {
+void gsp_window_system_event_callback(gnative_window_t native_window, gwindow_event_t event) {
 
-    if (NULL == first_window) {
-        // no valid windows open
-        return false;
-    }
+    printf("SYSTEM CALLBACK\n");
+    size_t window_count = gsp_list_get_node_count(windows);
 
-    // iterate over windows linked list
-
-    linked_window_t* last_window = first_window;
-
-    while (last_window != NULL) {
+    for (size_t i = 0; i < window_count; i++) {
+        gwindow_impl_t* window_impl = (gwindow_impl_t*)gsp_list_get_data_at_index(windows, i);
         
-        if (window == last_window->window) {
+        if (NULL != window_impl && native_window == window_impl->native_window) {
             // the window was found, so escape loop and return
-            if (last_window->callback != NULL) {
-                (last_window->callback)(window, event);
+            if (window_impl->callback != NULL) {
+                printf("CALLING... %lu\n", window_impl->callback);
+                (window_impl->callback)(0, event);
+                //(window_impl->callback)((gwindow_t)gsp_list_get_node_at_index(windows, i), event);
             }
-            
+
             return;
         }
-
-        last_window = last_window->next;
     }
     
 }

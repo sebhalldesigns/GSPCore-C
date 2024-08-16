@@ -80,7 +80,7 @@ typedef struct {
     uint64_t data;
 } gwindow_event_t;
 
-typedef (*gwindow_event_callback_t)(gwindow_t window, gwindow_event_t event);
+typedef void (*gwindow_event_callback_t)(gwindow_t window, gwindow_event_t event);
 
 GSPCORE_API void gsp_window_poll_events();
 

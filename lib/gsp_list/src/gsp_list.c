@@ -72,11 +72,15 @@ void gsp_list_destroy_list(glist_t list) {
             last_list->next = last_list->next->next;
             free(list);
             gsp_debug_log(INFO, "Freed glist_t at %lu", (uintptr_t)list);
+            return;
         } else {
             last_list = last_list->next;
         }
 
     }
+
+    gsp_debug_log(WARNING, "glist_t %lu not found", list);
+
 }
 
 gnode_t gsp_list_create_node(glist_t list) {
@@ -143,11 +147,15 @@ void gsp_list_destroy_node(glist_t list, gnode_t node) {
             last_node->next = last_node->next->next;
             free(node);
             gsp_debug_log(INFO, "Freed gnode_t at %lu", (uintptr_t)node);
+            return;
         } else {
             last_node = last_node->next;
         }
 
     }
+
+    gsp_debug_log(WARNING, "gnode_t %lu not found", node);
+
 }
 
 bool gsp_list_does_list_exist(glist_t list) {
@@ -218,6 +226,59 @@ size_t gsp_list_get_node_count(glist_t list) {
 
     return count;
 }
+
+gnode_t gsp_list_get_node_at_index(glist_t list, size_t index) {
+
+    if (!gsp_list_does_list_exist(list)) {
+        gsp_debug_log(FAIL, "Can't count invalid glist_t %lu", list);
+        return 0;
+    }   
+
+    size_t count = 0;
+
+    gnode_impl_t* last_node = ((glist_impl_t*)list)->nodes;
+
+    while (last_node != NULL) {
+
+        if (index == count) {
+            return (gnode_t)last_node;
+        }
+        
+        count++;
+
+    }
+
+    gsp_debug_log(WARNING, "Invalid index %lu for glist_t %lu", index, list);
+
+    return NULL;
+}
+
+uintptr_t gsp_list_get_data_at_index(glist_t list, size_t index) {
+
+    if (!gsp_list_does_list_exist(list)) {
+        gsp_debug_log(FAIL, "Can't count invalid glist_t %lu", list);
+        return 0;
+    }   
+
+    size_t count = 0;
+
+    gnode_impl_t* last_node = ((glist_impl_t*)list)->nodes;
+
+    while (last_node != NULL) {
+
+        if (index == count) {
+            return last_node->data;
+        }
+        
+        count++;
+
+    }
+
+    gsp_debug_log(WARNING, "Invalid index %lu for glist_t %lu", index, list);
+
+    return NULL;
+}
+
 
 uintptr_t gsp_list_get_node_data(glist_t list, gnode_t node) {
 

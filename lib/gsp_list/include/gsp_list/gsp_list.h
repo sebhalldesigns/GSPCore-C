@@ -56,8 +56,12 @@ GSPCORE_API bool gsp_list_does_list_exist(glist_t list);
 GSPCORE_API bool gsp_list_does_node_exist(glist_t list, gnode_t node);
 
 GSPCORE_API size_t gsp_list_get_node_count(glist_t list);
+GSPCORE_API gnode_t gsp_list_get_node_at_index(glist_t list, size_t index);
+GSPCORE_API uintptr_t gsp_list_get_data_at_index(glist_t list, size_t index);
 
 GSPCORE_API uintptr_t gsp_list_get_node_data(glist_t list, gnode_t node);
 GSPCORE_API void gsp_list_set_node_data(glist_t list, gnode_t node, uintptr_t data);
+
+
 
 #endif // GSP_LIST_H

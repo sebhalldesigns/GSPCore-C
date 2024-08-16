@@ -2,6 +2,7 @@
 #define GSP_WINDOW_WAYLAND_H
 
 #include <gsp_window/gsp_window.h>
+#include "gsp_window_internal.h"
 
 #include <stdbool.h>
 
@@ -50,11 +51,11 @@ typedef struct {
     struct pointer_event pointer_event;
 } gwindow_wayland_state_t;
 
-gwindow_t gsp_window_wayland_create_window();
+gnative_window_t gsp_window_wayland_create_window();
 
 void gsp_window_wayland_poll_events();
 
-void gsp_window_wayland_set_title(gwindow_t window, gstring_t title);
+void gsp_window_wayland_set_title(gnative_window_t window, gstring_t title);
 
 
 #endif // GSP_WINDOW_WAYLAND_H

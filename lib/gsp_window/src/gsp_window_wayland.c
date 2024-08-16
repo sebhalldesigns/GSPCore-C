@@ -84,7 +84,7 @@ static const struct wl_seat_listener wl_seat_listener = {
 */
 
 
-gwindow_t gsp_window_wayland_create_window() {
+gnative_window_t gsp_window_wayland_create_window() {
 
     if (state.display == NULL) {
 
@@ -94,18 +94,18 @@ gwindow_t gsp_window_wayland_create_window() {
 
         if (state.display == NULL) {
             gsp_debug_log(WARNING, "Failed to connect to Wayland server!");
-            return (gwindow_t) 0;
+            return (gnative_window_t) 0;
         }
 
     }
 
-    return (gwindow_t) 0;
+    return (gnative_window_t) 0;
 }
 
 void gsp_window_wayland_poll_events() {
 
 }
 
-void gsp_window_wayland_set_title(gwindow_t window, gstring_t title) {
+void gsp_window_wayland_set_title(gnative_window_t window, gstring_t title) {
 
 }

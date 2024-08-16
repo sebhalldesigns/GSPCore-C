@@ -6,7 +6,7 @@
 
 static gwindow_x11_state_t state;
 
-gwindow_t gsp_window_x11_create_window() {
+gnative_window_t gsp_window_x11_create_window() {
 
     if (state.display == NULL) {
 
@@ -17,7 +17,7 @@ gwindow_t gsp_window_x11_create_window() {
 
         if (state.display == NULL || state.root == 0) {
             gsp_debug_log(FAIL, "Failed to connect to X11 server!");
-            return (gwindow_t) 0;
+            return (gnative_window_t) 0;
         }
 
     }
@@ -25,7 +25,7 @@ gwindow_t gsp_window_x11_create_window() {
     Window x11_window = XCreateSimpleWindow(state.display, state.root, 0, 0, 100, 100, 0, 0, 0);
     XMapWindow(state.display, x11_window);
 
-    return (gwindow_t) x11_window;
+    return (gnative_window_t) x11_window;
 }
 
 void gsp_window_x11_poll_events() {
@@ -38,7 +38,7 @@ void gsp_window_x11_poll_events() {
     XNextEvent(state.display, &state.event);
 }
 
-void gsp_window_x11_set_title(gwindow_t window, gstring_t title) {
+void gsp_window_x11_set_title(gnative_window_t window, gstring_t title) {
 
     XStoreName(state.display, (Window)window, title);
 

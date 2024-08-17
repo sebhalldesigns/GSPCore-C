@@ -11,16 +11,9 @@
 const char* surface_vs = "                      \
 #version 330 core\n                             \
 layout (location = 0) in vec3 aPos;             \
-layout (location = 1) in vec3 aColor;           \
-layout (location = 2) in vec2 aTexCoord;        \
-                                                \
-out vec3 ourColor;                              \
-out vec2 TexCoord;                              \
                                                 \
 void main() {                                   \
 	gl_Position = vec4(aPos, 1.0);              \
-	ourColor = aColor;                          \
-	TexCoord = vec2(aTexCoord.x, aTexCoord.y);  \
 }                                               \
 ";
 
@@ -28,25 +21,22 @@ const char* surface_fs = "                      \
 #version 330 core\n                             \
 out vec4 FragColor;                             \
                                                 \
-in vec3 ourColor;                               \
-in vec2 TexCoord;                               \
-                                                \
-// texture sampler                              \
-uniform sampler2D texture1;                     \
-                                                \
 void main()                                     \
 {                                               \
-	FragColor = texture(texture1, TexCoord);    \
+	FragColor = vec4(1.0, 0.0, 0.0, 1.0);    \
 }                                               \
 ";
 
-static grenderer_context_t current_context = NULL;
+
 
 typedef struct {
     grenderer_context_t context;
-    uint32_t surface_program;
+    uint64_t surface_program;
+    uint64_t vao;
 } grender_state_t;
 
+static grenderer_context_t current_context = NULL;
+static grender_state_t* current_state = NULL;
 static glist_t states = NULL;
 
 void gsp_renderer_set_context(grenderer_context_t context) {
@@ -83,6 +73,7 @@ void gsp_renderer_set_context(grenderer_context_t context) {
         gsp_list_set_node_data(states, state_node, state);   
 
         //activate new context
+        current_state = state;
 
         state->context = context;
 
@@ -122,11 +113,48 @@ void gsp_renderer_set_context(grenderer_context_t context) {
             return;
         }
 
+        state->surface_program = surface_program;
+
         glDeleteShader(surface_vertex);
         glDeleteShader(surface_fragment);
 
         gsp_debug_log(INFO, "Successfully compiled and linked shaders");
 
+        GLint maxTextureUnits, maxCombinedTextureUnits, maxArrayTextureLayers;
+        glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
+        glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &maxCombinedTextureUnits);
+        glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &maxArrayTextureLayers);
+
+        printf("Max texture units: %d\n", maxTextureUnits);
+        printf("Max combined texture units: %d\n", maxCombinedTextureUnits);
+        printf("Max array texture layers: %d\n", maxArrayTextureLayers);
+
+        float vertices[] = {
+            -0.5f, -0.5f, 0.0f, // left  
+            0.5f, -0.5f, 0.0f, // right 
+            0.0f,  0.5f, 0.0f  // top   
+        }; 
+
+        unsigned int VBO, VAO;
+        glGenVertexArrays(1, &VAO);
+        glGenBuffers(1, &VBO);
+        // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
+        glBindVertexArray(VAO);
+
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+
+        // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
+        glBindBuffer(GL_ARRAY_BUFFER, 0); 
+
+        // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
+        // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
+        glBindVertexArray(0); 
+
+        state->vao = VAO;
 
     }
 }
@@ -137,6 +165,18 @@ void gsp_renderer_cleanup_context(grenderer_context_t context) {
 }
 
 void gsp_renderer_clear(gcolor_t color) {
+    
+    if (NULL == current_state) {
+        gsp_debug_log(WARNING, "No render context bound!");
+        return;    
+    }
+
     glClearColor(color.red, color.green, color.blue, color.alpha);
     glClear(GL_COLOR_BUFFER_BIT);
+
+    printf("use program %u %u\n", current_state->surface_program, current_state->vao);
+    glUseProgram(current_state->surface_program); 
+    glBindVertexArray(current_state->vao);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+
 }

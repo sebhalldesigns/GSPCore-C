@@ -256,8 +256,7 @@ LRESULT CALLBACK gsp_window_win32_wndproc(HWND hwnd, UINT msg, WPARAM wParam, LP
     switch (msg) {
         case WM_SIZE:
 
-            if (wParam != SIZE_MINIMIZED)
-            {
+            if (wParam != SIZE_MINIMIZED) {
 
                 float width = (float)LOWORD(lParam);
                 float height = (float)HIWORD(lParam);
@@ -269,34 +268,16 @@ LRESULT CALLBACK gsp_window_win32_wndproc(HWND hwnd, UINT msg, WPARAM wParam, LP
                 event.event_id = WINDOW_EVENT_RESIZE;
                 event.data = width_u64 | height_u64;
                 gsp_window_system_event_callback((gnative_window_t) hwnd, event);
-                /*hdc = GetDC(hwnd);
-
-                wglMakeCurrent(hdc, this_window->gl_context);
-
-                glViewport(0, 0, (int)width, (int)height);*/
-                //glViewport(0, 0, LOWORD(lParam), HIWORD(lParam));
-                
-                /*
                 hdc = GetDC(hwnd);
-                wglMakeCurrent(hdc, this_window->gl_context);
 
-                //PAINTSTRUCT ps; 
-                //hdc = BeginPaint(hwnd, &ps);
+                if (current_context != this_window->gl_context) {
+                    wglMakeCurrent(hdc,this_window->gl_context);
+                    current_context = this_window->gl_context;
+                }
 
-                
-
-                // Set the clear color (RGBA)
-                glClearColor(0.0f, 0.0f, 1.0f, 1.0f); // Blue color
-
-                // Clear the color buffer
-                glClear(GL_COLOR_BUFFER_BIT);
-
-                // Swap buffers to display the color
-                SwapBuffers(hdc);
-                //EndPaint(hwnd, &ps);    
-                            ValidateRect(hwnd, NULL);
-                    */
-                    InvalidateRect(hwnd, NULL, true);
+                glViewport(0, 0, (int)width, (int)height);
+      
+                InvalidateRect(hwnd, NULL, true);
 
             }
             return 0;
@@ -305,41 +286,20 @@ LRESULT CALLBACK gsp_window_win32_wndproc(HWND hwnd, UINT msg, WPARAM wParam, LP
 
         case WM_PAINT:
 
-
-            uint64_t now = GetTickCount();
-
-            //printf("%lu\n", now - last);
-            last = now;
-            
             PAINTSTRUCT ps;
             hdc = BeginPaint(hwnd,&ps);
 
             gsp_renderer_set_context((grenderer_context_t)this_window->gl_context);
-
 
             if (current_context != this_window->gl_context) {
                 wglMakeCurrent(hdc,this_window->gl_context);
                 current_context = this_window->gl_context;
             }
 
-      
-
-            // Set the clear color (RGBA)
-            glClearColor(0.0f, 0.0f, 1.0f, 1.0f); // Blue color
-
-            gsp_renderer_clear((gcolor_t){0.0f, 0.0f, 1.0f, 1.0f});
-
-            // Clear the color buffer
-            glClear(GL_COLOR_BUFFER_BIT);
-
-            DWORD a = GetTickCount();
+            gsp_renderer_clear((gcolor_t){1.0f, 0.0f, 1.0f, 1.0f});
 
             SwapBuffers(hdc);
 
-                  DWORD b = GetTickCount();
-            printf("%lu MS\n", b - a);
-
-            //wglMakeCurrent(hdc,0);*/
             EndPaint(hwnd,&ps);
             ValidateRect(hwnd, NULL);
             return 0;

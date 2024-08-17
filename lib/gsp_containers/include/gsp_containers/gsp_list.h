@@ -1,8 +1,8 @@
-#ifndef GSP_TYPES_H
-#define GSP_TYPES_H
+#ifndef GSP_LIST_H
+#define GSP_LIST_H
 
-//  gsp_types.h - GSPCore gsp_types library
-//  Created by Seb Hall on 23/07/2024
+//  gsp_list.h - GSPCore gsp_containers library
+//  Created by Seb Hall on 14/08/2024
 //
 //  OpenGSP is a collection of lightweight, cross-platform libraries that provide 
 //  functionality related to graphics, user interfaces and data processing.
@@ -31,17 +31,39 @@
 //      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //      SOFTWARE.
 
-#include <stdint.h>
-#include <stdbool.h>
+#include <gsp_types/gsp_types.h>
 
-#include "gsp_geometry_types.h"
-#include "gsp_window_types.h"
-#include "gsp_view_types.h"
-#include "gsp_image_types.h"
-#include "gsp_string_types.h"
-#include "gsp_compositor_types.h"
-#include "gsp_graphics_types.h"
-#include "gsp_container_types.h"
-#include "gsp_renderer_types.h"
+#ifdef _WIN32
+    #ifdef GSPCORE_BUILD_WIN32
+        #define GSPCORE_API __declspec(dllexport)
+    #else
+        #define GSPCORE_API __declspec(dllimport)
+    #endif
+#else
+    #define GSPCORE_API
+#endif
 
-#endif // GSP_TYPES_H
+
+// note - any node is a member of exactly one list. When a list is destroyed, so are all nodes.
+
+GSPCORE_API glist_t gsp_list_create_list();
+GSPCORE_API void gsp_list_destroy_list(glist_t list);
+
+GSPCORE_API glist_node_t gsp_list_create_node(glist_t list);
+GSPCORE_API void gsp_list_destroy_node(glist_t list, glist_node_t node);
+
+GSPCORE_API bool gsp_list_does_list_exist(glist_t list);
+GSPCORE_API bool gsp_list_does_node_exist(glist_t list, glist_node_t node);
+
+GSPCORE_API size_t gsp_list_get_node_count(glist_t list);
+GSPCORE_API glist_node_t gsp_list_get_node_at_index(glist_t list, size_t index);
+GSPCORE_API size_t gsp_list_get_node_index(glist_t list, glist_node_t node);
+
+GSPCORE_API uintptr_t gsp_list_get_data_at_index(glist_t list, size_t index);
+
+GSPCORE_API uintptr_t gsp_list_get_node_data(glist_t list, glist_node_t node);
+GSPCORE_API void gsp_list_set_node_data(glist_t list, glist_node_t node, uintptr_t data);
+
+
+
+#endif // GSP_LIST_H

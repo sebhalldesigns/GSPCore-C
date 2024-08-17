@@ -1,7 +1,7 @@
 #include <gsp_renderer/gsp_renderer.h>
 
 #include <gsp_debug/gsp_debug.h>
-#include <gsp_list/gsp_list.h>
+#include <gsp_containers/gsp_list.h>
 
 #include "glad.h"
 
@@ -115,7 +115,7 @@ void gsp_renderer_set_context(gwindow_t window, grenderer_context_t context) {
 
     if (NULL != state) {
         
-        gnode_t state_node = gsp_list_create_node(states);
+        glist_node_t state_node = gsp_list_create_node(states);
 
         gsp_list_set_node_data(states, state_node, state);   
 

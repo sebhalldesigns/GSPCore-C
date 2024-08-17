@@ -1,7 +1,7 @@
-#ifndef GSP_LIST_H
-#define GSP_LIST_H
+#ifndef GSP_TREE_H
+#define GSP_TREE_H
 
-//  gsp_list.h - GSPCore gsp_list library
+//  gsp_tree.h - GSPCore gsp_containers library
 //  Created by Seb Hall on 14/08/2024
 //
 //  OpenGSP is a collection of lightweight, cross-platform libraries that provide 
@@ -44,24 +44,11 @@
 #endif
 
 
-// note - any node is a member of exactly one list. When a list is destroyed, so are all nodes.
+GSPCORE_API gtree_node_t gsp_tree_create_root_node();
+GSPCORE_API gtree_node_t gsp_tree_create_child_node(gtree_node_t parent);
 
-GSPCORE_API glist_t gsp_list_create_list();
-GSPCORE_API void gsp_list_destroy_list(glist_t list);
-
-GSPCORE_API gnode_t gsp_list_create_node(glist_t list);
-GSPCORE_API void gsp_list_destroy_node(glist_t list, gnode_t node);
-
-GSPCORE_API bool gsp_list_does_list_exist(glist_t list);
-GSPCORE_API bool gsp_list_does_node_exist(glist_t list, gnode_t node);
-
-GSPCORE_API size_t gsp_list_get_node_count(glist_t list);
-GSPCORE_API gnode_t gsp_list_get_node_at_index(glist_t list, size_t index);
-GSPCORE_API uintptr_t gsp_list_get_data_at_index(glist_t list, size_t index);
-
-GSPCORE_API uintptr_t gsp_list_get_node_data(glist_t list, gnode_t node);
-GSPCORE_API void gsp_list_set_node_data(glist_t list, gnode_t node, uintptr_t data);
+GSPCORE_API void gsp_tree_destroy_node(gtree_node_t node);
+GSPCORE_API bool gsp_tree_check_node_exists(gtree_node_t node);
 
 
-
-#endif // GSP_LIST_H
+#endif // GSP_TREE_H

@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <gsp_list/gsp_list.h>
+#include <gsp_containers/gsp_list.h>
 #include <gsp_debug/gsp_debug.h>
 #include <gsp_renderer/gsp_renderer.h>
 
@@ -56,7 +56,7 @@ void gsp_window_poll_events() {
 
 bool gsp_window_is_window_valid(gwindow_t window) {
 
-    return gsp_list_does_node_exist(windows, (gnode_t)window);
+    return gsp_list_does_node_exist(windows, (glist_node_t)window);
 
 }
 
@@ -122,7 +122,7 @@ gwindow_t gsp_window_create_window() {
             window_impl->native_window = native_window;
             window_impl->callback = NULL;
 
-            gnode_t window = gsp_list_create_node(windows);
+            glist_node_t window = gsp_list_create_node(windows);
             gsp_list_set_node_data(windows, window, (uintptr_t)window_impl);
 
             gsp_debug_log(INFO, "Created gwindow_t %lu", window);
@@ -138,7 +138,7 @@ gwindow_t gsp_window_create_window() {
 
 void gsp_window_set_title(gwindow_t window, gstring_t title) {
 
-    gwindow_impl_t* window_impl = (gwindow_impl_t*)gsp_list_get_node_data(windows, (gnode_t)window);
+    gwindow_impl_t* window_impl = (gwindow_impl_t*)gsp_list_get_node_data(windows, (glist_node_t)window);
 
     if (NULL == window_impl) {
         return;
@@ -165,7 +165,7 @@ void gsp_window_set_title(gwindow_t window, gstring_t title) {
 
 void gsp_window_set_event_callback(gwindow_t window, gwindow_event_callback_t event_callback) {
 
-    gwindow_impl_t* window_impl = (gwindow_impl_t*)gsp_list_get_node_data(windows, (gnode_t)window);
+    gwindow_impl_t* window_impl = (gwindow_impl_t*)gsp_list_get_node_data(windows, (glist_node_t)window);
 
     if (NULL == window_impl) {
         return;

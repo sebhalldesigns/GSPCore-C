@@ -1,4 +1,4 @@
-#include <gsp_list/gsp_list.h>
+#include <gsp_containers/gsp_list.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -83,17 +83,17 @@ void gsp_list_destroy_list(glist_t list) {
 
 }
 
-gnode_t gsp_list_create_node(glist_t list) {
+glist_node_t gsp_list_create_node(glist_t list) {
 
     if (!gsp_list_does_list_exist(list)) {
-        gsp_debug_log(FAIL, "Can't create new gnode_t for invalid glist_t %lu", list);
+        gsp_debug_log(FAIL, "Can't create new glist_node_t for invalid glist_t %lu", list);
         return NULL;
     }
 
     gnode_impl_t* new_node = (gnode_impl_t*)malloc(sizeof(gnode_impl_t));
 
     if (new_node == NULL) {
-        gsp_debug_log(FAIL, "Failed to allocate gnode_t");
+        gsp_debug_log(FAIL, "Failed to allocate glist_node_t");
         return NULL;
     }
 
@@ -115,17 +115,17 @@ gnode_t gsp_list_create_node(glist_t list) {
         last_node->next  = new_node;
     }
 
-    gsp_debug_log(INFO, "Allocated gnode_t at %lu", (uintptr_t)new_node);
+    gsp_debug_log(INFO, "Allocated glist_node_t at %lu", (uintptr_t)new_node);
 
-    return (gnode_t)new_node;
+    return (glist_node_t)new_node;
 
     return NULL;
 }
 
-void gsp_list_destroy_node(glist_t list, gnode_t node) {
+void gsp_list_destroy_node(glist_t list, glist_node_t node) {
 
     if (!gsp_list_does_list_exist(list)) {
-        gsp_debug_log(FAIL, "Can't destroy gnode_t %lu for invalid glist_t %lu", node, list);
+        gsp_debug_log(FAIL, "Can't destroy glist_node_t %lu for invalid glist_t %lu", node, list);
         return NULL;
     }
 
@@ -135,7 +135,7 @@ void gsp_list_destroy_node(glist_t list, gnode_t node) {
     } else if (node == ((glist_impl_t*)list)->nodes) {
         ((glist_impl_t*)list)->nodes = ((glist_impl_t*)list)->nodes->next;
         free(node);
-        gsp_debug_log(INFO, "Freed gnode_t at %lu", (uintptr_t)node);
+        gsp_debug_log(INFO, "Freed glist_node_t at %lu", (uintptr_t)node);
         return;
     }
 
@@ -143,10 +143,10 @@ void gsp_list_destroy_node(glist_t list, gnode_t node) {
 
     while (NULL != last_node->next) {
 
-        if (node == (gnode_t)last_node->next) {
+        if (node == (glist_node_t)last_node->next) {
             last_node->next = last_node->next->next;
             free(node);
-            gsp_debug_log(INFO, "Freed gnode_t at %lu", (uintptr_t)node);
+            gsp_debug_log(INFO, "Freed glist_node_t at %lu", (uintptr_t)node);
             return;
         } else {
             last_node = last_node->next;
@@ -154,7 +154,7 @@ void gsp_list_destroy_node(glist_t list, gnode_t node) {
 
     }
 
-    gsp_debug_log(WARNING, "gnode_t %lu not found", node);
+    gsp_debug_log(WARNING, "glist_node_t %lu not found", node);
 
 }
 
@@ -180,7 +180,7 @@ bool gsp_list_does_list_exist(glist_t list) {
     return false;
 }
 
-bool gsp_list_does_node_exist(glist_t list, gnode_t node) {
+bool gsp_list_does_node_exist(glist_t list, glist_node_t node) {
 
     if (!gsp_list_does_list_exist(list)) {
         gsp_debug_log(FAIL, "glist_t %lu doesn't exist", list);
@@ -227,7 +227,32 @@ size_t gsp_list_get_node_count(glist_t list) {
     return count;
 }
 
-gnode_t gsp_list_get_node_at_index(glist_t list, size_t index) {
+size_t gsp_list_get_node_index(glist_t list, glist_node_t node) {
+    
+    if (!gsp_list_does_list_exist(list)) {
+        gsp_debug_log(FAIL, "Can't index invalid glist_t %lu", list);
+        return SIZE_MAX;
+    }   
+
+    size_t count = 0;
+
+    gnode_impl_t* last_node = ((glist_impl_t*)list)->nodes;
+
+    while (last_node != NULL) {
+        
+        if (node == last_node) {
+            return count;
+        }
+        
+        count++;
+
+        last_node = last_node->next;
+    }
+
+    return SIZE_MAX;
+}
+
+glist_node_t gsp_list_get_node_at_index(glist_t list, size_t index) {
 
     if (!gsp_list_does_list_exist(list)) {
         gsp_debug_log(FAIL, "Can't count invalid glist_t %lu", list);
@@ -241,7 +266,7 @@ gnode_t gsp_list_get_node_at_index(glist_t list, size_t index) {
     while (last_node != NULL) {
 
         if (index == count) {
-            return (gnode_t)last_node;
+            return (glist_node_t)last_node;
         }
         
         count++;
@@ -280,20 +305,20 @@ uintptr_t gsp_list_get_data_at_index(glist_t list, size_t index) {
 }
 
 
-uintptr_t gsp_list_get_node_data(glist_t list, gnode_t node) {
+uintptr_t gsp_list_get_node_data(glist_t list, glist_node_t node) {
 
     if (!gsp_list_does_node_exist(list, node)) {
-        gsp_debug_log(FAIL, "gnode_t %lu doesn't exist in glist_t %lu", node, list);
+        gsp_debug_log(FAIL, "glist_node_t %lu doesn't exist in glist_t %lu", node, list);
         return NULL;
     }
 
     return ((gnode_impl_t*)node)->data;
 }
 
-void gsp_list_set_node_data(glist_t list, gnode_t node, uintptr_t data) {
+void gsp_list_set_node_data(glist_t list, glist_node_t node, uintptr_t data) {
 
     if (!gsp_list_does_node_exist(list, node)) {
-        gsp_debug_log(FAIL, "gnode_t %lu doesn't exist in glist_t %lu", node, list);
+        gsp_debug_log(FAIL, "glist_node_t %lu doesn't exist in glist_t %lu", node, list);
         return;
     }
 

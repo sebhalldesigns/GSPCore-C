@@ -20,7 +20,7 @@ elseif (UNIX)
     target_include_directories(gsp_window 
         PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../gsp_types/include
         PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../gsp_debug/include
-        PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../gsp_list/include
+        PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../gsp_containers/include
         PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../gsp_renderer/include
         PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
     )
@@ -29,7 +29,7 @@ elseif (UNIX)
         ${X11_LIBRARIES}
         X11
         gsp_debug
-        gsp_list
+        gsp_containers
         gsp_renderer
         wayland-client
     )
@@ -47,7 +47,7 @@ elseif(WIN32)
     target_include_directories(gsp_window 
         PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../gsp_types/include
         PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../gsp_debug/include
-        PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../gsp_list/include
+        PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../gsp_containers/include
         PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../gsp_renderer/include
         PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
     )
@@ -58,7 +58,7 @@ elseif(WIN32)
         opengl32
         glu32
         gsp_debug
-        gsp_list
+        gsp_containers
         gsp_renderer
     )
 

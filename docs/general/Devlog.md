@@ -808,3 +808,20 @@ Working on implementing the plan as previously described.
 
 So far today, have created **gsp_compositor** and **gsp_renderer** modules.
 
+## 16/08/2024
+
+Some good progress. Started work on multiple binding libraries for the project:
+- GSP.NET for C#
+- gsp-py for Python
+- gsp-rs for Rust
+
+All three use a similar approach in which they define a 'Native' set of functions which directly map to the C functions. The plan is to wrap these into nicer OOP-style functions in the future.
+
+A new gsp_list library seems to work well, creating a linked list data structure which takes a pointer-sized data payload. All operations are checked against the linked list structure, so it's a safe way to do foreign language interop.
+
+What's next?
+
+Likely work on the compositor/OpenGL side of things, as the windowing concept is working reasonably well so far, but is also very basic.
+Some lack of clarity on the distinction between the renderer (calls OpenGL functions directly, manages contexts and GL objects) and compositor (manages view layout and calls renderer directly). Also how this works with 3D stuff?
+
+Likely need some kind of gsp_app library to manage app lifecycle and things like installation, help, localization, accessibility etc.

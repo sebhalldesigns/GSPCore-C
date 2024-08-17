@@ -6,6 +6,7 @@
 
 #include <gsp_list/gsp_list.h>
 #include <gsp_debug/gsp_debug.h>
+#include <gsp_renderer/gsp_renderer.h>
 
 #ifdef GSPCORE_BUILD_UNIX   
     

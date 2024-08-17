@@ -44,6 +44,13 @@
 #endif
 
 
+GSPCORE_API void gsp_renderer_set_context(grenderer_context_t context);
+
+// destroy all objects created with context
+GSPCORE_API void gsp_renderer_cleanup_context(grenderer_context_t context);
+
+GSPCORE_API void gsp_renderer_clear(gcolor_t color);
+
 
 
 #endif // GSP_RENDERER_H

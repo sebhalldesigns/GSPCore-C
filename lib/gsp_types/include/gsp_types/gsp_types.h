@@ -41,5 +41,6 @@
 #include "gsp_compositor_types.h"
 #include "gsp_graphics_types.h"
 #include "gsp_list_types.h"
+#include "gsp_renderer_types.h"
 
 #endif // GSP_TYPES_H

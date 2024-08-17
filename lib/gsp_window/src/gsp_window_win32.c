@@ -3,6 +3,7 @@
 
 
 #include <gsp_debug/gsp_debug.h>
+#include <gsp_renderer/gsp_renderer.h>
 
 #include <GL/gl.h>
 #include "wglext.h"
@@ -162,6 +163,7 @@ gnative_window_t gsp_window_win32_create_window() {
 
     }
 
+    gsp_renderer_set_context((grenderer_context_t)hglrc);
 
     // Release the device context
     ReleaseDC(win32_window, hdc);
@@ -312,6 +314,9 @@ LRESULT CALLBACK gsp_window_win32_wndproc(HWND hwnd, UINT msg, WPARAM wParam, LP
             PAINTSTRUCT ps;
             hdc = BeginPaint(hwnd,&ps);
 
+            gsp_renderer_set_context((grenderer_context_t)this_window->gl_context);
+
+
             if (current_context != this_window->gl_context) {
                 wglMakeCurrent(hdc,this_window->gl_context);
                 current_context = this_window->gl_context;
@@ -319,11 +324,13 @@ LRESULT CALLBACK gsp_window_win32_wndproc(HWND hwnd, UINT msg, WPARAM wParam, LP
 
       
 
-             // Set the clear color (RGBA)
-                glClearColor(0.0f, 0.0f, 1.0f, 1.0f); // Blue color
+            // Set the clear color (RGBA)
+            glClearColor(0.0f, 0.0f, 1.0f, 1.0f); // Blue color
 
-                // Clear the color buffer
-                glClear(GL_COLOR_BUFFER_BIT);
+            gsp_renderer_clear((gcolor_t){0.0f, 0.0f, 1.0f, 1.0f});
+
+            // Clear the color buffer
+            glClear(GL_COLOR_BUFFER_BIT);
 
             DWORD a = GetTickCount();
 

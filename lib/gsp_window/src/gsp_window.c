@@ -183,7 +183,6 @@ void gsp_window_set_event_callback(gwindow_t window, gwindow_event_callback_t ev
 
 void gsp_window_system_event_callback(gnative_window_t native_window, gwindow_event_t event) {
 
-    printf("SYSTEM CALLBACK\n");
     size_t window_count = gsp_list_get_node_count(windows);
 
     for (size_t i = 0; i < window_count; i++) {
@@ -201,4 +200,19 @@ void gsp_window_system_event_callback(gnative_window_t native_window, gwindow_ev
         }
     }
     
+}
+
+gwindow_t gsp_window_system_resolve_native(gnative_window_t native_window) {
+    size_t window_count = gsp_list_get_node_count(windows);
+
+    for (size_t i = 0; i < window_count; i++) {
+        gwindow_impl_t* window_impl = (gwindow_impl_t*)gsp_list_get_data_at_index(windows, i);
+        
+        if (NULL != window_impl && native_window == window_impl->native_window) {
+            
+            return (gwindow_t)gsp_list_get_node_at_index(windows, i);
+        }
+    }
+
+    return (gwindow_t)NULL;
 }

@@ -8,38 +8,85 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-const char* surface_vs = "                      \
-#version 330 core\n                             \
-layout (location = 0) in vec3 aPos;             \
-                                                \
-void main() {                                   \
-	gl_Position = vec4(aPos, 1.0);              \
-}                                               \
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
+const char* surface_vs = "                          \
+#version 330 core                                   \n\
+                                                    \n\
+layout (location = 0) in vec2 position;             \n\
+layout (location = 1) in vec2 tex_coord;            \n\
+                                                    \n\
+layout (location = 2) in vec4 instance_transform;   \n\
+layout (location = 3) in uint instance_texture;     \n\
+                                                    \n\
+out vec2 texture_coord;                             \n\
+flat out uint texture_id;                           \n\
+                                                    \n\
+uniform vec2 viewport_size;                         \n\
+                                                    \n\
+void main() {                                       \n\
+    vec2 pos_2d = position * instance_transform.zw  \n\
+    + instance_transform.xy;                        \n\
+    vec2 pos_ndc = (pos_2d / viewport_size)         \n\
+        * 2.0 - 1.0;                                \n\
+    pos_ndc.y = -pos_ndc.y;                         \n\
+	gl_Position = vec4(pos_ndc, 0.0, 1.0);          \n\
+                                                    \n\
+    texture_coord = tex_coord;                      \n\
+    texture_id = instance_texture;                  \n\
+}                                                   \n\
 ";
 
-const char* surface_fs = "                      \
-#version 330 core\n                             \
-out vec4 FragColor;                             \
-                                                \
-void main()                                     \
-{                                               \
-	FragColor = vec4(1.0, 0.0, 0.0, 1.0);    \
-}                                               \
+const char* surface_fs = "                          \
+#version 330 core                                   \n\
+                                                    \n\
+in vec2 texture_coord;                              \n\
+flat in uint texture_id;                            \n\
+                                                    \n\
+out vec4 FragColor;                                 \n\
+                                                    \n\
+uniform sampler2D textures[16];                     \n\
+                                                    \n\
+void main() {                                       \n\
+	 if (texture_id == 0u) { \n\
+        FragColor = texture(textures[0], texture_coord);\n\
+    } else if (texture_id == 1u) {\n\
+        FragColor = texture(textures[1], texture_coord);\n\
+    } else {\n\
+        FragColor = vec4(1.0, 0.0, 0.0, 1.0); // Draw red for error\n\
+    }\n\
+}                                                   \n\
 ";
 
+const float surface_vertices[] = {
+    // Positions   // TexCoords
+    0.0f, 0.0f,    0.0f, 0.0f,  // Bottom-left
+    1.0f, 0.0f,    1.0f, 0.0f,  // Bottom-right
+    1.0f, 1.0f,    1.0f, 1.0f,  // Top-right
+    0.0f, 1.0f,    0.0f, 1.0f   // Top-left
+};
+
+unsigned int surface_indices[] = {
+    0, 1, 2,  // First triangle
+    0, 2, 3   // Second triangle
+};
 
 
 typedef struct {
     grenderer_context_t context;
     uint64_t surface_program;
     uint64_t vao;
+    uint64_t textures[16];
+    uint64_t viewport_size_uniform;
+    gsize_t viewport_size;
 } grender_state_t;
 
 static grenderer_context_t current_context = NULL;
 static grender_state_t* current_state = NULL;
 static glist_t states = NULL;
 
-void gsp_renderer_set_context(grenderer_context_t context) {
+void gsp_renderer_set_context(gwindow_t window, grenderer_context_t context) {
 
     if (NULL == states) {
         if (!gladLoadGL()) {
@@ -88,6 +135,7 @@ void gsp_renderer_set_context(grenderer_context_t context) {
         if (!compile_success) {
             glGetShaderInfoLog(surface_vertex, 1024, NULL, log_buffer);
             gsp_debug_log(FAIL, "Failed to compile vertex shader:\n%s", log_buffer);
+            return;
         }
 
         uint32_t surface_fragment = glCreateShader(GL_FRAGMENT_SHADER);
@@ -129,39 +177,132 @@ void gsp_renderer_set_context(grenderer_context_t context) {
         printf("Max combined texture units: %d\n", maxCombinedTextureUnits);
         printf("Max array texture layers: %d\n", maxArrayTextureLayers);
 
-        float vertices[] = {
-            -0.5f, -0.5f, 0.0f, // left  
-            0.5f, -0.5f, 0.0f, // right 
-            0.0f,  0.5f, 0.0f  // top   
-        }; 
-
-        unsigned int VBO, VAO;
+        // Setup VAO, VBO, and EBO
+        GLuint VAO, VBO, EBO;
         glGenVertexArrays(1, &VAO);
         glGenBuffers(1, &VBO);
-        // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
+        glGenBuffers(1, &EBO);
+
         glBindVertexArray(VAO);
-
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(0);
-
-        // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
-        glBindBuffer(GL_ARRAY_BUFFER, 0); 
-
-        // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
-        // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
-        glBindVertexArray(0); 
 
         state->vao = VAO;
 
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(surface_vertices), surface_vertices, GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(surface_indices), surface_indices, GL_STATIC_DRAW);
+
+        // Vertex position
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+        
+        // Texture coordinates
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+        glEnableVertexAttribArray(1);
+
+
+        float instanceData[] = {
+            // Instance 1
+            10.0f, 10.0f, 500.0f, 500.0f,
+            520.0f, 10.0f, 500.0f, 500.0f,
+        };
+
+        uint32_t textureIDs[] = { 0u, 1u }; // Assuming texture 0 and texture 1 are used
+
+        int numInstances = 2; 
+
+        glBindVertexArray(VAO);
+
+        // Instance transform attribute (x, y, w, h)
+        GLuint instanceVBO;
+        glGenBuffers(1, &instanceVBO);
+        glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+        glBufferData(GL_ARRAY_BUFFER, numInstances * 4 * sizeof(float), instanceData, GL_STATIC_DRAW);
+
+        glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(2);
+        glVertexAttribDivisor(2, 1); // Set the divisor for instanced rendering
+
+        // Instance texture ID attribute
+        GLuint textureVBO;
+        glGenBuffers(1, &textureVBO);
+        glBindBuffer(GL_ARRAY_BUFFER, textureVBO);
+        glBufferData(GL_ARRAY_BUFFER, numInstances * sizeof(uint32_t), textureIDs, GL_STATIC_DRAW);
+
+        glVertexAttribIPointer(3, 1, GL_UNSIGNED_INT, GL_FALSE, sizeof(uint32_t), (void*)0);
+        glEnableVertexAttribArray(3);
+        glVertexAttribDivisor(3, 1); // Set the divisor for instanced rendering
+
+        for (int i = 0; i < 16; i++) {
+            glGenTextures(1, &state->textures[i]);
+        }
+    
+
+        int width, height, channels;
+        //stbi_set_flip_vertically_on_load(true);
+        unsigned char *img = stbi_load("sky.png", &width, &height, &channels, 0);
+
+        if(img == NULL) {
+            printf("Error in loading the image\n");
+            return;
+        }
+
+        printf("Loaded image with a width of %dpx, a height of %dpx and %d channels\n", width, height, channels); 
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, state->textures[0]);   
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, img);
+
+        // Add these lines
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        unsigned char *img2 = stbi_load("red.png", &width, &height, &channels, 0);
+
+        if(img2 == NULL) {
+            printf("Error in loading the image\n");
+            return;
+        }
+
+        printf("Loaded image with a width of %dpx, a height of %dpx and %d channels\n", width, height, channels); 
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, state->textures[1]);   
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, img2);
+
+        // Add these lines
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+
+        glUseProgram(state->surface_program);
+        // Set up texture uniforms
+        for (int i = 0; i < 16; i++) {
+            char uniformName[20];
+            snprintf(uniformName, sizeof(uniformName), "textures[%d]", i);
+            glUniform1i(glGetUniformLocation(state->surface_program, uniformName), i);
+        }
+
+        state->viewport_size_uniform = glGetUniformLocation(state->surface_program, "viewport_size");
     }
 }
 
 // destroy all objects created with context
 void gsp_renderer_cleanup_context(grenderer_context_t context) {
     printf("cleanup context\n");
+}
+
+void gsp_renderer_set_viewport(gwindow_t window, grenderer_context_t context, gsize_t size) {
+    if (NULL == current_state) {
+        gsp_debug_log(WARNING, "No render context bound!");
+        return;    
+    }
+
+    glViewport(0, 0, (int)size.width, (int)size.height);
+    current_state->viewport_size = size;
 }
 
 void gsp_renderer_clear(gcolor_t color) {
@@ -175,8 +316,35 @@ void gsp_renderer_clear(gcolor_t color) {
     glClear(GL_COLOR_BUFFER_BIT);
 
     printf("use program %u %u\n", current_state->surface_program, current_state->vao);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, current_state->textures[0]);
+
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, current_state->textures[1]);
+
+
     glUseProgram(current_state->surface_program); 
+    glUniform2f(current_state->viewport_size_uniform, current_state->viewport_size.width, current_state->viewport_size.height);
+
     glBindVertexArray(current_state->vao);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, 2); // 2 instances
 
 }
+
+grenderer_surface_t gsp_renderer_create_surface(gwindow_t window) {
+    return NULL;
+}
+
+void gsp_renderer_set_surface_frame(gwindow_t window, grenderer_surface_t surface, grect_t frame) {
+
+}
+
+void gsp_renderer_set_surface_background(gwindow_t window, grenderer_surface_t surface, gcolor_t background_color) {
+
+}
+
+void gsp_renderer_upload_surface_texture(gwindow_t window, grenderer_surface_t surface, uint32_t width, uint32_t height, uint8_t* data) {
+
+}
+

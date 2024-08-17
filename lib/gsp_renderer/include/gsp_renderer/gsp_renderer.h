@@ -43,14 +43,20 @@
     #define GSPCORE_API
 #endif
 
+// CALLED BY SYSTEM
+GSPCORE_API void gsp_renderer_set_context(gwindow_t window, grenderer_context_t context);
 
-GSPCORE_API void gsp_renderer_set_context(grenderer_context_t context);
-
+// CALLED BY SYSTEM
 // destroy all objects created with context
-GSPCORE_API void gsp_renderer_cleanup_context(grenderer_context_t context);
-
+GSPCORE_API void gsp_renderer_cleanup_context(gwindow_t window, grenderer_context_t context);
+GSPCORE_API void gsp_renderer_set_viewport(gwindow_t window, grenderer_context_t context, gsize_t size);
 GSPCORE_API void gsp_renderer_clear(gcolor_t color);
 
+GSPCORE_API grenderer_surface_t gsp_renderer_create_surface(gwindow_t window);
+GSPCORE_API void gsp_renderer_set_surface_frame(gwindow_t window, grenderer_surface_t surface, grect_t frame);
+GSPCORE_API void gsp_renderer_set_surface_background(gwindow_t window, grenderer_surface_t surface, gcolor_t background_color);
+
+GSPCORE_API void gsp_renderer_upload_surface_texture(gwindow_t window, grenderer_surface_t surface, uint32_t width, uint32_t height, uint8_t* data);
 
 
 #endif // GSP_RENDERER_H

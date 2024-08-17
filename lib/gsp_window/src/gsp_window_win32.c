@@ -20,6 +20,7 @@ typedef struct linked_win32_window_t {
     struct linked_win32_window_t* next;
     HDC device_context;
     HGLRC gl_context;
+    gwindow_t gwindow;
 } linked_win32_window_t;
 
 static linked_win32_window_t* first_win32_window = NULL;
@@ -163,8 +164,6 @@ gnative_window_t gsp_window_win32_create_window() {
 
     }
 
-    gsp_renderer_set_context((grenderer_context_t)hglrc);
-
     // Release the device context
     ReleaseDC(win32_window, hdc);
 
@@ -250,6 +249,10 @@ LRESULT CALLBACK gsp_window_win32_wndproc(HWND hwnd, UINT msg, WPARAM wParam, LP
         return DefWindowProc(hwnd, msg, wParam, lParam);
     }
 
+    if (this_window->gwindow == NULL) {
+        this_window->gwindow = gsp_window_system_resolve_native(hwnd);
+    }
+
     gwindow_event_t event;
     HDC hdc;
 
@@ -260,6 +263,7 @@ LRESULT CALLBACK gsp_window_win32_wndproc(HWND hwnd, UINT msg, WPARAM wParam, LP
 
                 float width = (float)LOWORD(lParam);
                 float height = (float)HIWORD(lParam);
+                gsize_t new_size = (gsize_t){width, height};
 
                 uint64_t width_u64 = (uint64_t) width;
                 uint64_t height_u64 = (uint64_t) height;
@@ -275,7 +279,7 @@ LRESULT CALLBACK gsp_window_win32_wndproc(HWND hwnd, UINT msg, WPARAM wParam, LP
                     current_context = this_window->gl_context;
                 }
 
-                glViewport(0, 0, (int)width, (int)height);
+                gsp_renderer_set_viewport(this_window->gwindow, (grenderer_context_t)this_window->gl_context,new_size);
       
                 InvalidateRect(hwnd, NULL, true);
 
@@ -289,14 +293,14 @@ LRESULT CALLBACK gsp_window_win32_wndproc(HWND hwnd, UINT msg, WPARAM wParam, LP
             PAINTSTRUCT ps;
             hdc = BeginPaint(hwnd,&ps);
 
-            gsp_renderer_set_context((grenderer_context_t)this_window->gl_context);
+            gsp_renderer_set_context(this_window->gwindow, (grenderer_context_t)this_window->gl_context);
 
             if (current_context != this_window->gl_context) {
                 wglMakeCurrent(hdc,this_window->gl_context);
                 current_context = this_window->gl_context;
             }
 
-            gsp_renderer_clear((gcolor_t){1.0f, 0.0f, 1.0f, 1.0f});
+            gsp_renderer_clear((gcolor_t){0.0f, 0.0f, 0.0f, 1.0f});
 
             SwapBuffers(hdc);
 

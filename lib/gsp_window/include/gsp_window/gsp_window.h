@@ -92,5 +92,4 @@ GSPCORE_API void gsp_window_set_title(gwindow_t window, gstring_t title);
 
 GSPCORE_API void gsp_window_set_event_callback(gwindow_t window, gwindow_event_callback_t event_callback);
 
-
 #endif // GSP_WINDOW_H

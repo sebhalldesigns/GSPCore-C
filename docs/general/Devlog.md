@@ -825,3 +825,15 @@ Likely work on the compositor/OpenGL side of things, as the windowing concept is
 Some lack of clarity on the distinction between the renderer (calls OpenGL functions directly, manages contexts and GL objects) and compositor (manages view layout and calls renderer directly). Also how this works with 3D stuff?
 
 Likely need some kind of gsp_app library to manage app lifecycle and things like installation, help, localization, accessibility etc.
+
+## 18/08/2024
+
+More good progress. Earlier got an example working with Direct2D rendered text on an OpenGL rendered window, controlled by Python.
+
+Did some refactoring and now have an example of a basic view-oriented render. A few options of what to do next:
+
+- refactor more and improve flow of window/view/renderer separation (a mess right now)
+- work on drawing API a bit more (I think not for now, as this should be a careful blend of Direct2D, Cairo and CoreGraphics)
+- work on external API a bit more to make it more OOP (a bit of a diversion I think)
+- start work on 3D stuff (also a bit of a diversion)
+

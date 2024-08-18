@@ -22,6 +22,7 @@ elseif (UNIX)
         PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../gsp_debug/include
         PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../gsp_containers/include
         PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../gsp_renderer/include
+        PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../gsp_view/include
         PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
     )
 
@@ -49,6 +50,7 @@ elseif(WIN32)
         PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../gsp_debug/include
         PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../gsp_containers/include
         PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../gsp_renderer/include
+        PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../gsp_view/include
         PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
     )
 

@@ -188,6 +188,7 @@ void gsp_tree_destroy_node(gtree_node_t node) {
     // Free the stack memory
     free(stack);
 }
+
 bool gsp_tree_check_node_exists(gtree_node_t node) {
     if (root_root == NULL || node == NULL) {
         return false;

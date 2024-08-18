@@ -75,6 +75,7 @@ unsigned int surface_indices[] = {
 
 
 typedef struct {
+    gwindow_t window;
     grenderer_context_t context;
     uint64_t surface_program;
     uint64_t vao;
@@ -124,6 +125,7 @@ void gsp_renderer_set_context(gwindow_t window, grenderer_context_t context) {
         current_state = state;
 
         state->context = context;
+        state->window = window;
 
         int compile_success;
         char log_buffer[1024];
@@ -235,6 +237,7 @@ void gsp_renderer_set_context(gwindow_t window, grenderer_context_t context) {
         glEnableVertexAttribArray(3);
         glVertexAttribDivisor(3, 1); // Set the divisor for instanced rendering
 
+        /*
         for (int i = 0; i < 16; i++) {
             glGenTextures(1, &state->textures[i]);
         }
@@ -283,7 +286,7 @@ void gsp_renderer_set_context(gwindow_t window, grenderer_context_t context) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
+        */
 
         glUseProgram(state->surface_program);
         // Set up texture uniforms
@@ -297,6 +300,131 @@ void gsp_renderer_set_context(gwindow_t window, grenderer_context_t context) {
     }
 }
 
+uint32_t gsp_renderer_allocate_texture() {
+
+    if (NULL == current_state) {
+        gsp_debug_log(WARNING, "No render context bound!");
+        return;    
+    }
+
+    uint32_t texture;
+    glGenTextures(1, &texture);
+
+    gsp_debug_log(INFO, "Allocated texture %u", texture);
+
+    return texture;
+}
+
+void gsp_renderer_upload_file(uint32_t texture, char* file) {
+
+    if (NULL == current_state) {
+        gsp_debug_log(WARNING, "No render context bound!");
+        return;    
+    }
+
+    int width, height, channels;
+    unsigned char *img = stbi_load(file, &width, &height, &channels, 0);
+
+    if(img == NULL) {
+        printf("Error in loading the image\n");
+        return;
+    }
+
+    printf("Loaded image with a width of %dpx, a height of %dpx and %d channels\n", width, height, channels); 
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture);   
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, img);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    
+}
+
+void gsp_renderer_upload_texture(uint32_t texture, int width, int height, char* data) {
+
+    if (NULL == current_state) {
+        gsp_debug_log(WARNING, "No render context bound!");
+        return;    
+    }
+    
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture);   
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    gsp_debug_log(INFO, "Uploaded data for texture %u", texture);
+}
+
+void gsp_renderer_bind_texture(uint32_t texture, uint32_t id) {
+
+    if (NULL == current_state) {
+        gsp_debug_log(WARNING, "No render context bound!");
+        return;    
+    }
+
+    glUseProgram(current_state->surface_program); 
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture);
+}
+
+void gsp_renderer_buffer_data(uint32_t instances, void* vertices, void* texture_ids) {
+    
+    if (NULL == current_state) {
+        gsp_debug_log(WARNING, "No render context bound!");
+        return;    
+    }
+
+    /*float instanceData[] = {
+        // Instance 1
+        10.0f, 10.0f, 500.0f, 500.0f,
+        520.0f, 10.0f, 500.0f, 500.0f,
+    };
+
+    uint32_t textureIDs[] = { 0u, 1u }; // Assuming texture 0 and texture 1 are used*/
+
+    glBindVertexArray(current_state->vao);
+
+    // Instance transform attribute (x, y, w, h)
+    GLuint instanceVBO;
+    glGenBuffers(1, &instanceVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+    glBufferData(GL_ARRAY_BUFFER, instances * 4 * sizeof(float), vertices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(2);
+    glVertexAttribDivisor(2, 1); // Set the divisor for instanced rendering
+
+    // Instance texture ID attribute
+    GLuint textureVBO;
+    glGenBuffers(1, &textureVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, textureVBO);
+    glBufferData(GL_ARRAY_BUFFER, instances * sizeof(uint32_t), texture_ids, GL_STATIC_DRAW);
+
+    glVertexAttribIPointer(3, 1, GL_UNSIGNED_INT, GL_FALSE, sizeof(uint32_t), (void*)0);
+    glEnableVertexAttribArray(3);
+    glVertexAttribDivisor(3, 1); // Set the divisor for instanced rendering
+
+}
+
+void gsp_renderer_draw_instances(uint32_t instances) {
+     if (NULL == current_state) {
+        gsp_debug_log(WARNING, "No render context bound!");
+        return;    
+    }
+
+    glUseProgram(current_state->surface_program); 
+    glBindVertexArray(current_state->vao);
+    glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, instances); // 2 instances*/
+
+}
+
 // destroy all objects created with context
 void gsp_renderer_cleanup_context(grenderer_context_t context) {
     printf("cleanup context\n");
@@ -308,8 +436,14 @@ void gsp_renderer_set_viewport(gwindow_t window, grenderer_context_t context, gs
         return;    
     }
 
+    glUseProgram(current_state->surface_program);     
     glViewport(0, 0, (int)size.width, (int)size.height);
+    glUniform2f(current_state->viewport_size_uniform, size.width, size.height);
+
     current_state->viewport_size = size;
+
+        printf("updated size: %f %f\n", size.width, size.height);
+
 }
 
 void gsp_renderer_clear(gcolor_t color) {
@@ -322,6 +456,7 @@ void gsp_renderer_clear(gcolor_t color) {
     glClearColor(color.red, color.green, color.blue, color.alpha);
     glClear(GL_COLOR_BUFFER_BIT);
 
+    /*
     printf("use program %u %u\n", current_state->surface_program, current_state->vao);
 
     glActiveTexture(GL_TEXTURE0);
@@ -335,11 +470,16 @@ void gsp_renderer_clear(gcolor_t color) {
     glUniform2f(current_state->viewport_size_uniform, current_state->viewport_size.width, current_state->viewport_size.height);
 
     glBindVertexArray(current_state->vao);
-    glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, 2); // 2 instances
+    glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, 2); // 2 instances*/
 
 }
 
+
+
+
 grenderer_surface_t gsp_renderer_create_surface(gwindow_t window) {
+
+
     return NULL;
 }
 

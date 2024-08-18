@@ -13,7 +13,7 @@ typedef struct {
     MSG msg;
 } gwindow_win32_state_t;
 
-gnative_window_t gsp_window_win32_create_window();
+gnative_window_t gsp_window_win32_create_window(uintptr_t node);
 
 void gsp_window_win32_poll_events();
 

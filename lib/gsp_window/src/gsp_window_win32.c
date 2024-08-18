@@ -1,6 +1,7 @@
 #include "gsp_window_win32.h"
 #include "gsp_window_internal.h"
 
+#include <gsp_view/gsp_view.h>
 
 #include <gsp_debug/gsp_debug.h>
 #include <gsp_renderer/gsp_renderer.h>
@@ -21,6 +22,7 @@ typedef struct linked_win32_window_t {
     HDC device_context;
     HGLRC gl_context;
     gwindow_t gwindow;
+    gsize_t size;
 } linked_win32_window_t;
 
 static linked_win32_window_t* first_win32_window = NULL;
@@ -38,7 +40,7 @@ uint64_t last = 0;
 HGLRC current_context = 0;
 
 
-gnative_window_t gsp_window_win32_create_window() {
+gnative_window_t gsp_window_win32_create_window(uintptr_t node) {
 
     if (state.instance == NULL) {
 
@@ -164,6 +166,8 @@ gnative_window_t gsp_window_win32_create_window() {
 
     }
 
+    gsp_renderer_set_context(node, hglrc);
+
     // Release the device context
     ReleaseDC(win32_window, hdc);
 
@@ -181,6 +185,7 @@ gnative_window_t gsp_window_win32_create_window() {
     new_window->device_context = hdc;
     new_window->gl_context = hglrc;
     new_window->next = NULL;
+    new_window->gwindow = NULL;
 
 
     // insert into linked list
@@ -251,6 +256,7 @@ LRESULT CALLBACK gsp_window_win32_wndproc(HWND hwnd, UINT msg, WPARAM wParam, LP
 
     if (this_window->gwindow == NULL) {
         this_window->gwindow = gsp_window_system_resolve_native(hwnd);
+        printf("registed window %lu\n", this_window->gwindow);
     }
 
     gwindow_event_t event;
@@ -279,6 +285,9 @@ LRESULT CALLBACK gsp_window_win32_wndproc(HWND hwnd, UINT msg, WPARAM wParam, LP
                     current_context = this_window->gl_context;
                 }
 
+                this_window->size = new_size;
+
+
                 gsp_renderer_set_viewport(this_window->gwindow, (grenderer_context_t)this_window->gl_context,new_size);
       
                 InvalidateRect(hwnd, NULL, true);
@@ -301,6 +310,8 @@ LRESULT CALLBACK gsp_window_win32_wndproc(HWND hwnd, UINT msg, WPARAM wParam, LP
             }
 
             gsp_renderer_clear((gcolor_t){0.0f, 0.0f, 0.0f, 1.0f});
+
+            gsp_view_layout_window(this_window->gwindow, this_window->size);
 
             SwapBuffers(hdc);
 

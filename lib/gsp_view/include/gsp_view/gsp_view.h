@@ -63,17 +63,20 @@ const static uint8_t VIEW_DOCK_BOTTOM = 0x03;
 GSPCORE_API gview_t gsp_view_create_view();
 
 // destroys view and all subviews
-GSPCORE_API gview_t gsp_view_destroy_view();
+GSPCORE_API void gsp_view_destroy_view(gview_t view);
+
+GSPCORE_API void gsp_view_layout_window(gwindow_t window, gsize_t size);
 
 // check if view exists
-GSPCORE_API bool gsp_view_is_view_valid();
+GSPCORE_API bool gsp_view_is_view_valid(gview_t view);
+GSPCORE_API bool gsp_view_is_view_root(gview_t view);
+GSPCORE_API gview_t gsp_view_get_window_root(gwindow_t window);
 
-GSPCORE_API void gsp_view_set_window_root_view(gwindow_t window, gview_t view);
+
+GSPCORE_API void gsp_view_set_window_root(gwindow_t window, gview_t view);
 GSPCORE_API void gsp_view_add_child(gview_t parent, gview_t child);
 GSPCORE_API void gsp_view_children_count(gview_t parent, gview_t child);
-GSPCORE_API void gsp_view_set_view_background_color(gview_t view, gcolor_t color);
-
-GSPCORE_API void gsp_view_layout();
+GSPCORE_API void gsp_view_set_background_color(gview_t view, gcolor_t color);
 
 
 GSPCORE_API void gsp_view_set_view_layout(gview_t view, uint8_t layout);

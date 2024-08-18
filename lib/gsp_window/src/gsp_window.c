@@ -66,6 +66,19 @@ gwindow_t gsp_window_create_window() {
         windows = gsp_list_create_list();
     }
 
+    gwindow_impl_t* window_impl = malloc(sizeof(gwindow_impl_t));
+
+    if (window_impl == NULL) {
+        return NULL;
+    }
+
+    //window_impl->native_window = native_window;
+    window_impl->callback = NULL;
+
+    glist_node_t window = gsp_list_create_node(windows);
+    gsp_list_set_node_data(windows, window, (uintptr_t)window_impl);
+
+
     gnative_window_t native_window;
 
     if (BACKEND_NONE == backend) {
@@ -86,7 +99,7 @@ gwindow_t gsp_window_create_window() {
             }
         #elif GSPCORE_BUILD_WIN32
 
-            native_window = gsp_window_win32_create_window();
+            native_window = gsp_window_win32_create_window(window);
             
             if ((gnative_window_t) 0 != native_window) {
                 backend = BACKEND_WIN32;
@@ -106,7 +119,7 @@ gwindow_t gsp_window_create_window() {
                     break;
             #elif GSPCORE_BUILD_WIN32
                 case BACKEND_WIN32:
-                    native_window = gsp_window_win32_create_window();
+                    native_window = gsp_window_win32_create_window(window);
                     break;
             #endif
             
@@ -114,21 +127,13 @@ gwindow_t gsp_window_create_window() {
     }
  
     if ((gnative_window_t)0 != native_window) {
+
+        window_impl->native_window = native_window;
         
-        gwindow_impl_t* window_impl = malloc(sizeof(gwindow_impl_t));
+        gsp_debug_log(INFO, "Created gwindow_t %lu", native_window);
 
-        if (window_impl != NULL) {
-
-            window_impl->native_window = native_window;
-            window_impl->callback = NULL;
-
-            glist_node_t window = gsp_list_create_node(windows);
-            gsp_list_set_node_data(windows, window, (uintptr_t)window_impl);
-
-            gsp_debug_log(INFO, "Created gwindow_t %lu", window);
-
-            return (gwindow_t)window;
-        }
+        return (gwindow_t)window;
+        
     }
 
     gsp_debug_log(FAIL, "Failed to create gwindow_t");

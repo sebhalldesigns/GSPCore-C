@@ -46,11 +46,20 @@
 // CALLED BY SYSTEM
 GSPCORE_API void gsp_renderer_set_context(gwindow_t window, grenderer_context_t context);
 
+
 // CALLED BY SYSTEM
 // destroy all objects created with context
 GSPCORE_API void gsp_renderer_cleanup_context(gwindow_t window, grenderer_context_t context);
 GSPCORE_API void gsp_renderer_set_viewport(gwindow_t window, grenderer_context_t context, gsize_t size);
 GSPCORE_API void gsp_renderer_clear(gcolor_t color);
+
+GSPCORE_API uint32_t gsp_renderer_allocate_texture();
+GSPCORE_API void gsp_renderer_upload_file(uint32_t texture, char* file);
+
+GSPCORE_API void gsp_renderer_upload_texture(uint32_t texture, int width, int height, void* data);
+GSPCORE_API void gsp_renderer_bind_texture(uint32_t texture, uint32_t id);
+GSPCORE_API void gsp_renderer_buffer_data(uint32_t instances, void* vertices, void* texture_ids);
+GSPCORE_API void gsp_renderer_draw_instances(uint32_t instances);
 
 GSPCORE_API grenderer_surface_t gsp_renderer_create_surface(gwindow_t window);
 GSPCORE_API void gsp_renderer_set_surface_frame(gwindow_t window, grenderer_surface_t surface, grect_t frame);

@@ -45,10 +45,13 @@
 
 
 GSPCORE_API gtree_node_t gsp_tree_create_root_node();
+GSPCORE_API gtree_node_t gsp_tree_create_sibling_node(gtree_node_t root);
 GSPCORE_API gtree_node_t gsp_tree_create_child_node(gtree_node_t parent);
 
 GSPCORE_API void gsp_tree_destroy_node(gtree_node_t node);
 GSPCORE_API bool gsp_tree_check_node_exists(gtree_node_t node);
 
+GSPCORE_API void gsp_tree_set_node_data(gtree_node_t node, uintptr_t data);
+GSPCORE_API uintptr_t gsp_tree_get_node_data(gtree_node_t node);
 
 #endif // GSP_TREE_H

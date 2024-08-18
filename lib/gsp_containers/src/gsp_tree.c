@@ -55,6 +55,38 @@ gtree_node_t gsp_tree_create_root_node() {
 
 }
 
+gtree_node_t gsp_tree_create_sibling_node(gtree_node_t root) {
+
+    if (!gsp_tree_check_node_exists(root)) {
+        gsp_debug_log(FAIL, "Can't allocate gtree_node_t for invalid root");
+        return NULL;
+    }
+
+    // Allocate memory for the new child node
+    gtree_node_impl_t* new_sibling = (gtree_node_impl_t*)malloc(sizeof(gtree_node_impl_t));
+    if (new_sibling == NULL) {
+        gsp_debug_log(INFO, "Failed to allocate gtree_node_t");
+        return NULL;
+    }
+
+    // Initialize the new child node
+    new_sibling->child = NULL;
+    new_sibling->sibling = NULL;
+    new_sibling->data = NULL;
+
+    gtree_node_impl_t* last_sibling = (gtree_node_impl_t*) root;
+
+    while (last_sibling->sibling != NULL) {
+        last_sibling = last_sibling->sibling;
+    }
+
+    last_sibling->sibling = new_sibling;
+
+    gsp_debug_log(INFO, "Allocated gtree_node_t %lu as last sibling of %lu", (uintptr_t)new_sibling, (uintptr_t)root);
+    return (gtree_node_t)new_sibling;
+
+}
+
 gtree_node_t gsp_tree_create_child_node(gtree_node_t parent) {
 
     if (!gsp_tree_check_node_exists(parent)) {
@@ -95,9 +127,21 @@ gtree_node_t gsp_tree_create_child_node(gtree_node_t parent) {
 
 
 void gsp_tree_destroy_node(gtree_node_t node) {
-    if (node == NULL) {
+    
+    if (!gsp_tree_check_node_exists(node)) {
+        gsp_debug_log(FAIL, "Can't destroy invalid gtree_node_t");
         return;
     }
+
+    // find previous sibling
+
+    if ((gtree_node_t)root_root == node) {
+        // this was the first node, so make it's sibling the root
+        root_root = ((gtree_node_impl_t*)node)->sibling;
+    } else {
+        // code here
+    }
+
 
     // Initialize stack for DFS traversal
     size_t stack_capacity = INITIAL_STACK_SIZE;
@@ -204,4 +248,22 @@ bool gsp_tree_check_node_exists(gtree_node_t node) {
     // If we reach here, the node was not found in the tree
     free(stack);
     return false;
+}
+
+void gsp_tree_set_node_data(gtree_node_t node, uintptr_t data) {
+    if (!gsp_tree_check_node_exists(node)) {
+        gsp_debug_log(FAIL, "Can't set data for invalid gtree_node_t %lu", node);
+        return;
+    }
+
+    ((gtree_node_impl_t*)node)->data = data;
+}
+
+uintptr_t gsp_tree_get_node_data(gtree_node_t node) {
+    if (!gsp_tree_check_node_exists(node)) {
+        gsp_debug_log(FAIL, "Can't get data for invalid gtree_node_t %lu", node);
+        return NULL;
+    }
+
+    return ((gtree_node_impl_t*)node)->data;
 }

@@ -4,10 +4,9 @@ project(gsp_drawing)
 
 include_directories(include)
 
-file(GLOB SOURCES "src/*.c")
-
-add_library(gsp_drawing
- ${SOURCES}
+add_library(gsp_drawing OBJECT
+ src/gsp_drawing.c
+ src/gsp_drawing_d2d1.cpp
 )
 
 target_include_directories(gsp_drawing 
@@ -17,6 +16,9 @@ target_include_directories(gsp_drawing
 )
 
 target_link_libraries(gsp_drawing
-
+    gsp_debug
+    d2d1
+    dwrite
+    windowscodecs
 )
 

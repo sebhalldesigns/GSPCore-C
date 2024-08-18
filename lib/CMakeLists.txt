@@ -25,7 +25,7 @@ elseif(WIN32)
     add_subdirectory(gsp_view)
     add_subdirectory(gsp_renderer)
     add_subdirectory(gsp_containers)
-    #add_subdirectory(gsp_drawing)
+    add_subdirectory(gsp_drawing)
     #add_subdirectory(gsp_views)
     #add_subdirectory(gsp_parsers)
 
@@ -35,6 +35,7 @@ elseif(WIN32)
         $<TARGET_OBJECTS:gsp_window>
         $<TARGET_OBJECTS:gsp_view>
         $<TARGET_OBJECTS:gsp_renderer>
+        $<TARGET_OBJECTS:gsp_drawing>
         $<TARGET_OBJECTS:gsp_containers>
     )
 
@@ -43,6 +44,9 @@ elseif(WIN32)
         ${OPENGL_gl_LIBRARY}
         opengl32
         glu32
+        d2d1
+        windowscodecs
+        dwrite
         d2d1
     )
 

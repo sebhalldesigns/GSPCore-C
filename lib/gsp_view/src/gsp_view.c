@@ -1,7 +1,7 @@
 #include <gsp_view/gsp_view.h>
 
 #include <gsp_debug/gsp_debug.h>
-#include <gsp_containers/gsp_list.h>
+#include <gsp_containers/gsp_tree.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -70,23 +70,14 @@ typedef struct {
 
     gview_child_layout_info_t child_layout_info;
     
-    glist_t children;
-
     gsize_t requested_size;
     grect_t calculated_rect;
 } gsp_view_impl_t;
 
-static glist_t root_list = NULL;
+static gtree_node_t root_view = NULL;
 
 gview_t gsp_view_create_view() {
 
-    if (NULL == root_list) {
-        root_list = gsp_list_create_list();
-
-        if (NULL == root_list) {
-            return NULL;
-        }
-    }
 
     gsp_view_impl_t* view = (gsp_view_impl_t*)malloc(sizeof(gsp_view_impl_t));
 
@@ -94,14 +85,30 @@ gview_t gsp_view_create_view() {
         return NULL;
     }
 
-    // add view to top level
-    glist_node_t view_node = gsp_list_create_node(root_list);
+    
+    if (NULL == root_view) {
+        printf("CREATE VOEW 1\n");
+        root_view = gsp_tree_create_root_node();
 
-    if (NULL == view_node) {
-        return NULL;
+        printf("CREATE VOEW 2\n");
+
+
+        if (NULL == root_view) {
+            return NULL;
+        }
+
+        gsp_tree_set_node_data(root_view, (uintptr_t)view);
+
+    } else {
+
+        gtree_node_t new_root = gsp_tree_create_sibling_node(root_view);
+        if (NULL == new_root) {
+            return NULL;
+        }
+
+        gsp_tree_set_node_data(new_root, (uintptr_t)view);
+
     }
-
-    gsp_list_set_node_data(root_list, view_node, (uintptr_t)view_node);
 
     gsp_debug_log(INFO, "Allocated gview_t %lu", view);
 

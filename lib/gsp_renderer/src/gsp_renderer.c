@@ -2,6 +2,7 @@
 
 #include <gsp_debug/gsp_debug.h>
 #include <gsp_containers/gsp_list.h>
+#include <gsp_drawing/gsp_drawing_d2d1.h>
 
 #include "glad.h"
 
@@ -261,15 +262,21 @@ void gsp_renderer_set_context(gwindow_t window, grenderer_context_t context) {
 
         unsigned char *img2 = stbi_load("red.png", &width, &height, &channels, 0);
 
+        gbitmap_t bitmap = gsp_drawing_d2d1_render_bitmap(0);
+
         if(img2 == NULL) {
             printf("Error in loading the image\n");
             return;
         }
 
+        width = bitmap.width;
+        height = bitmap.height;
+
+
         printf("Loaded image with a width of %dpx, a height of %dpx and %d channels\n", width, height, channels); 
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, state->textures[1]);   
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, img2);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, bitmap.data);
 
         // Add these lines
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);

@@ -15,6 +15,8 @@ target_include_directories(gsp_renderer
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../gsp_types/include
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../gsp_debug/include
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../gsp_containers/include
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../gsp_drawing/include
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
+
 
